@@ -1,0 +1,1 @@
+./cbins.exe build
