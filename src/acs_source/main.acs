@@ -1,8 +1,33 @@
-
 	//////////////////////////////////////////////////////////
-//                    Main ACS									//
+//                   #1. Events									//
 	//////////////////////////////////////////////////////////
+	
 
-script "tmp" OPEN {
 
-}
+// script "8BC OPEN" OPEN {
+// 	if (StrICmp("8BCTMP",StrParam(n:PRINTNAME_LEVEL)))
+// 		ConsoleCommand("map 8BCTMP");
+
+// }
+
+
+
+// script "potato" death
+// {
+// 	// This if-statement will terminate the script if the player who died isn't logged in.
+// 	if(!playerIsLoggedIn(playernumber()))
+//         terminate;
+
+// 	// If the code reaches this point, that means the player is logged in. So we now increment the players death by one.
+// 	incrementDBEntry("deaths", getPlayerAccountName(playernumber()), 1);
+// }
+
+// // This script prints the number of deaths for whoever puked it via console. So typing "puke 2" in the console will run this.
+// script "ah" (void) net
+// {
+// 	// If the player who ran this isn't logged in, we terminate the script because there's no way to find the data related to him.
+// 	if(!playerIsLoggedIn(playernumber())) terminate;
+
+// 	// If the code reaches this point, that means the player is logged in and so we display his deaths.
+// 	print(s:"My deaths: ", d:getDBEntry("deaths", getPlayerAccountName(playernumber())));
+// }

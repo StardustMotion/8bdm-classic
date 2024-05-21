@@ -1,3 +1,4 @@
-gameinfo {
-	//ForceDamageEventScripts = true // shouganai ne
-}
+
+
+map "8BC-1BOM" lookup "STAGE_BOMB" { music ="BOMMUS" }
+map "8BC-1FIR" lookup "STAGE_FIRE" { music ="FIRMUS" }

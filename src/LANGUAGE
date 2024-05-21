@@ -1,5 +1,8 @@
 [enu default]
 
+STAGE_BOMB = "\cdOrb city";
+STAGE_FIRE = "\cgSteel mill";
+
 
 [enu fr]
 
