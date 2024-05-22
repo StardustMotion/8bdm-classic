@@ -1,1 +1,2 @@
-#include "actors/general.zs"
+
+#include "actors/main.zs"

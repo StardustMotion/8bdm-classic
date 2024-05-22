@@ -1,7 +1,9 @@
 [enu default]
 
-STAGE_BOMB = "\cdOrb city";
-STAGE_FIRE = "\cgSteel mill";
+8C_STAGE_BOMB = "\cdOrb city";
+8C_STAGE_FIRE = "\cgSteel mill";
+
+8C_OBIT_DEFAULT = "#######";
 
 
 [enu fr]

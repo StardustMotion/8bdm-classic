@@ -1,8 +1,0 @@
-#library "8bc_build"
-
-script "a" (void) {
-    Log(s:"hi");
-}
-
-#include "zcommon.acs"
-#include "main.acs"

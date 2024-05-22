@@ -1,0 +1,1 @@
+find ./tmp/ -iname "*png" -type f -exec ./pngout.exe {} \;

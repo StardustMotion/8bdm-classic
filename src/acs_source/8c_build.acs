@@ -1,0 +1,7 @@
+#library "8c_build"
+
+#include "zcommon.acs"
+#include "8BDMLIB.acs"
+
+#include "data.acs"
+#include "main.acs"

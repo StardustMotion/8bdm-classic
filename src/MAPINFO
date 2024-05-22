@@ -1,4 +1,4 @@
 
 
-map "8BC-1BOM" lookup "STAGE_BOMB" { music ="BOMMUS" }
-map "8BC-1FIR" lookup "STAGE_FIRE" { music ="FIRMUS" }
+map "8C-1BOMB" lookup "8C_STAGE_BOMB" { music ="BOMMUS" }
+map "8C-1FIRE" lookup "8C_STAGE_FIRE" { music ="FIRMUS" }

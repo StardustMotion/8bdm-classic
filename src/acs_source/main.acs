@@ -1,33 +1,73 @@
-	//////////////////////////////////////////////////////////
-//                   #1. Events									//
-	//////////////////////////////////////////////////////////
-	
 
 
-// script "8BC OPEN" OPEN {
-// 	if (StrICmp("8BCTMP",StrParam(n:PRINTNAME_LEVEL)))
-// 		ConsoleCommand("map 8BCTMP");
+// main script
 
+script "8C" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {
+		case MOB_ON_SPAWN:
+		Log(n:0, s:" spawn");
+		break;
+
+		case XY_DIST:
+			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
+			SetResultValue(xyDistance(0,arg1));
+		break;
+
+		case Z_DIST:
+			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
+			SetResultValue(zDistance(0,arg1));
+		break;
+
+		case MOB:
+			SpawnSpotFacingForced(mobs[arg1], arg2, 0);
+		break;
+
+		case IS_GONE:
+			if (arg1) {
+				SetActivator(0,arg1);
+				arg1 = 0;
+			} 
+			arg2 = ClassifyActor(arg1);
+			SetResultValue((arg2 & (ACTOR_WORLD | ACTOR_DEAD)) ||
+				((arg2 & ACTOR_PLAYER) && PlayerIsSpectator(PlayerNumber()))
+			);
+		break;
+
+		case FOLLOW_ACTOR:
+			GiveInventory("8c follower",1);
+			do {
+				Warp(arg1, 0, 0, 0, 0, WARPF_USEPTR|WARPF_NOCHECKPOSITION  );
+				delay(1);
+			} while (CheckInventory("8c follower"));
+		break;
+	}
+}
+
+script "8C Event" (int type, int damage, int damageType) EVENT {
+	switch(type) {
+		case GAMEEVENT_ACTOR_DAMAGED:
+			SetActivator(0, AAPTR_DAMAGE_TARGET);
+			if (CheckInventory("8C flags") & FLAG_MOB) {
+       			PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
+       			SetActorProperty(0, APROP_StencilColor, 0xFFFFFF);
+       			SetActorProperty(0, APROP_RenderStyle, STYLE_TranslucentStencil );
+				delay(1);
+        		SetActorProperty(0, APROP_RenderStyle, STYLE_Normal);
+				delay(1);
+       			SetActorProperty(0, APROP_RenderStyle, STYLE_TranslucentStencil );
+				delay(1);
+        		SetActorProperty(0, APROP_RenderStyle, STYLE_Normal);	
+			}
+		break;
+	}
+}
+
+// script "onche" (void) {
+// 	Log(s:"pre ", s:GetActorClass(0));
+// 	Log(s:"morph ", d:SetPlayerClass(0, "8C Protoman", true));
+// 	Log(s:"pre ", s:GetActorClass(0));
 // }
 
-
-
-// script "potato" death
-// {
-// 	// This if-statement will terminate the script if the player who died isn't logged in.
-// 	if(!playerIsLoggedIn(playernumber()))
-//         terminate;
-
-// 	// If the code reaches this point, that means the player is logged in. So we now increment the players death by one.
-// 	incrementDBEntry("deaths", getPlayerAccountName(playernumber()), 1);
-// }
-
-// // This script prints the number of deaths for whoever puked it via console. So typing "puke 2" in the console will run this.
-// script "ah" (void) net
-// {
-// 	// If the player who ran this isn't logged in, we terminate the script because there's no way to find the data related to him.
-// 	if(!playerIsLoggedIn(playernumber())) terminate;
-
-// 	// If the code reaches this point, that means the player is logged in and so we display his deaths.
-// 	print(s:"My deaths: ", d:getDBEntry("deaths", getPlayerAccountName(playernumber())));
+// script "tagle" (void) {
+// 	Log(s:"morph ", d:MorphActor(0,"8C Protoman", "", 0xFFFFFFFF, 0, "", ""));
 // }
