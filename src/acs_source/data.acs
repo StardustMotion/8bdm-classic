@@ -1,17 +1,83 @@
-#DEFINE MOB_ON_SPAWN 0
+
 #DEFINE XY_DIST 1
 #DEFINE Z_DIST 2
 #DEFINE IS_GONE 3
-#DEFINE FOLLOW_ACTOR 4
+#DEFINE COPY_VELOCITY 4
+#DEFINE GET_VELOCITY 5
 
-#DEFINE MOB 255
+#DEFINE MOB_SPAWN 255
     #DEFINE BLADER 0
     #DEFINE BIG_EYE 1
-    #DEFINE MOBS_SIZE 2
-    
+    #DEFINE BLASTER 2
+	#DEFINE SCREW_DRIVER 3
+	#DEFINE KAMADOMA 4
+    #DEFINE MOBS_SIZE KAMADOMA+1
+    // ----------------
+    #DEFINE MOB_COLOR 6900 
+    #DEFINE MOB_COLOR_SIZE 6
+    #DEFINE MOB_V1 0
+    #DEFINE MOB_V2 MOB_V1+1
+    #DEFINE MOB_V3 MOB_V2+1
+
 #DEFINE FLAG_MOB 0x1
+#DEFINE FLAG_DEFLECT 0x2
 
 int mobs[MOBS_SIZE]  = {
     "Blader",
-    "Big Eye"
+    "Big Eye",
+	"Blaster",
+	"Screw Driver",
+	"Kamadoma"
 };
+
+Script "8C translations" OPEN CLIENTSIDE
+{
+	Delay(25); // Fixes P_PlayerThink spam ?
+    int i = MOB_COLOR+(BLADER*MOB_COLOR_SIZE); // B G O
+	CreateTranslation (i, 198:198=74:74, 192:192=168:168);
+	CreateTranslation (i+1, 198:198=251:251, 192:192=66:66, 0:0=79:79);	
+	CreateTranslation (i+2, 198:198=109:109, 192:192=168:168);
+	CreateTranslation (i+3, 198:198=205:205, 192:192=202:202, 0:0=207:207);		
+	CreateTranslation (i+4, 198:198=225:225, 192:192=168:168);
+	CreateTranslation (i+5, 198:198=41:41, 192:192=160:160, 0:0=47:47);	
+
+	// Big Eye
+    i = MOB_COLOR+(BIG_EYE*MOB_COLOR_SIZE); // R B G
+	CreateTranslation (i, 198:198=41:41, 192:192=168:168);
+	CreateTranslation (i+1, 198:198=225:225, 192:192=217:217, 247:247=188:188);	
+	CreateTranslation (i+2, 198:198=74:74, 192:192=168:168);
+	CreateTranslation (i+3, 198:198=251:251, 192:192=66:66, 247:247=79:79);		
+	CreateTranslation (i+4, 198:198=109:109, 192:192=168:168);
+	CreateTranslation (i+5, 198:198=158:158, 192:192=160:160, 247:247=11:11);	
+
+	// Blaster
+    i = MOB_COLOR+(BLASTER*MOB_COLOR_SIZE); // O R B
+	CreateTranslation (i, 198:198=225:225, 192:192=168:168);
+	CreateTranslation (i+1, 198:198=109:109, 192:192=104:104, 247:247=125:125);	
+	CreateTranslation (i+2, 198:198=41:41, 192:192=168:168);
+	CreateTranslation (i+3, 198:198=225:225, 192:192=217:217, 247:247=188:188);		
+	CreateTranslation (i+4, 198:198=74:74, 192:192=168:168);
+	CreateTranslation (i+5, 198:198=251:251, 192:192=66:66, 247:247=79:79);	
+
+	// Screw Driver
+    i = MOB_COLOR+(SCREW_DRIVER*MOB_COLOR_SIZE); // B O R
+	CreateTranslation (i, 198:198=74:74, 192:192=168:168);
+	CreateTranslation (i+1, 198:198=251:251, 192:192=66:66, 247:247=79:79);	
+	CreateTranslation (i+2, 198:198=225:225, 192:192=168:168);
+	CreateTranslation (i+3, 198:198=109:109, 192:192=104:104, 247:247=125:125);	
+	CreateTranslation (i+4, 198:198=41:41, 192:192=168:168);
+	CreateTranslation (i+5, 198:198=217:217, 192:192=160:160, 247:247=188:188);		
+
+
+	// Kamadoma
+    i = MOB_COLOR+(KAMADOMA*MOB_COLOR_SIZE); // R B G
+	CreateTranslation (i, 198:198=41:41, 192:192=168:168);
+	CreateTranslation (i+1, 198:198=225:225, 192:192=217:217, 247:247=188:188);	
+	CreateTranslation (i+2, 198:198=74:74, 192:192=168:168);
+	CreateTranslation (i+3, 198:198=251:251, 192:192=66:66, 247:247=79:79);		
+	CreateTranslation (i+4, 198:198=109:109, 192:192=168:168);
+	CreateTranslation (i+5, 198:198=225:225, 192:192=160:160, 247:247=11:11);		
+
+
+	// run custom translatinos
+}

@@ -1,4 +1,4 @@
-#library "8c_build"
+#library "8C_build"
 
 #include "zcommon.acs"
 #include "8BDMLIB.acs"

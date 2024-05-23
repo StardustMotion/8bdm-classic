@@ -1,0 +1,7 @@
+
+#include "actor/general"
+#include "actor/enemy/blader"
+#include "actor/enemy/blaster"
+#include "actor/enemy/bigEye"
+#include "actor/enemy/kamadoma"
+#include "actor/enemy/screwDriver"

@@ -1,1 +1,5 @@
-// 
+
+sprite SWBME0, 16, 16 { offset 8,14 patch SWBMA0, 0, 0 { flipy }}
+sprite SWBMF0, 15, 16{ offset 7,16 patch SWBMB0, 0, 0{ flipy }}
+sprite SWBMG0, 16, 16{ offset 8,16 patch SWBMC0, 0, 0{ flipy }}
+sprite SWBMH0, 15, 16{ offset 8,16 patch SWBMD0, 0, 0{ flipy }}

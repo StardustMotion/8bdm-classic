@@ -1,13 +1,12 @@
 
 
-// main script
+// main scripts
+
+
+
 
 script "8C" (int type, int arg1, int arg2, int arg3) {
 	switch(type) {
-		case MOB_ON_SPAWN:
-		Log(n:0, s:" spawn");
-		break;
-
 		case XY_DIST:
 			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
 			SetResultValue(xyDistance(0,arg1));
@@ -18,8 +17,25 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			SetResultValue(zDistance(0,arg1));
 		break;
 
-		case MOB:
-			SpawnSpotFacingForced(mobs[arg1], arg2, 0);
+		// summon on spot 5 a big eye (tier 2)
+		// ACS_NamedExecutedWithResult("8C", 255, pos, type, version) 
+		// pukename 8c 255 0 2 0
+		case MOB_SPAWN:
+			if (!arg3)				int name = StrParam(s:"8C ", s:mobs[arg2]);
+			else						name = StrParam(s:"8C ", s:mobs[arg2], s:" V", d:arg3+1);
+
+			int tmp = UniqueTID();
+			arg1 = SpawnSpotFacingForced(name, arg1, tmp);
+			if (!arg1) {
+				Log(s:"[MOB FACTORY] Can't spawn \"", s:name, s:"\", this mob doesn't exist");
+				terminate;
+			}
+
+			int i = random(0,1);//!random(0,1024);
+			if (i) 
+				GiveActorInventory(tmp, "8C Shiny", 1);
+			Thing_SetTranslation(tmp, MOB_COLOR+(arg2*MOB_COLOR_SIZE)+i+(arg3<<1));
+			Thing_ChangeTID(tmp, 0);
 		break;
 
 		case IS_GONE:
@@ -33,12 +49,29 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			);
 		break;
 
-		case FOLLOW_ACTOR:
-			GiveInventory("8c follower",1);
+		case COPY_VELOCITY:
+			GiveInventory("8C follower",1);
 			do {
-				Warp(arg1, 0, 0, 0, 0, WARPF_USEPTR|WARPF_NOCHECKPOSITION  );
+				arg2 = ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);
+				SetActorVelocity(0, 
+					(1-((arg2>>23)&0x2))*(arg2&0xFF), 
+					(1-((arg2>>24)&0x2))*(arg2&0xFF00), 
+					(1-((arg2>>25)&0x2))*(arg2&0xFF0000), 
+				false, false);
 				delay(1);
-			} while (CheckInventory("8c follower"));
+			} while (CheckInventory("8C follower"));
+		break;
+
+		case GET_VELOCITY:
+			SetActivator(0, arg1);
+			SetResultValue(
+				(abs(GetActorVelX(0)>>16)&0xFF) |
+				((abs(GetActorVelY(0)>>16)&0xFF) << 8) |
+				((abs(GetActorVelZ(0)>>16)&0xFF) << 16) |
+				((GetActorVelX(0)<0)<<24) |
+				((GetActorVelY(0)<0)<<25) |
+				((GetActorVelZ(0)<0)<<26)
+			);
 		break;
 	}
 }
@@ -47,20 +80,37 @@ script "8C Event" (int type, int damage, int damageType) EVENT {
 	switch(type) {
 		case GAMEEVENT_ACTOR_DAMAGED:
 			SetActivator(0, AAPTR_DAMAGE_TARGET);
+			if (CheckInventory("8C flags") & FLAG_DEFLECT) {
+				PlaySound(0,"8CPAIN02",CHAN_VOICE,1.0,false);
+				type = SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+				SpawnForced("8C Deflect gfx", GetActorX(0), GetActorY(0), GetActorZ(0));
+				if (type && !CheckFlag(0, "DONTREFLECT")) {
+                	SetPointer(AAPTR_TARGET, 0, AAPTR_DAMAGE_TARGET);
+					SetActorVelocity(0, -GetActorVelY(0), GetActorVelX(0), -16.0, false, false);
+				}
+				SetResultValue(0);
+				break;
+			}
+
+			//
 			if (CheckInventory("8C flags") & FLAG_MOB) {
        			PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
        			SetActorProperty(0, APROP_StencilColor, 0xFFFFFF);
-       			SetActorProperty(0, APROP_RenderStyle, STYLE_TranslucentStencil );
-				delay(1);
-        		SetActorProperty(0, APROP_RenderStyle, STYLE_Normal);
-				delay(1);
-       			SetActorProperty(0, APROP_RenderStyle, STYLE_TranslucentStencil );
-				delay(1);
-        		SetActorProperty(0, APROP_RenderStyle, STYLE_Normal);	
+				for (int i = 0; i < 5; i++) {
+					SetActorProperty(0, APROP_RenderStyle, STYLE_TranslucentStencil );
+					delay(1);
+					SetActorProperty(0, APROP_RenderStyle, STYLE_Normal);
+					delay(1);
+
+				}
 			}
 		break;
 	}
 }
+
+// from xover weapons 2.1.0
+script "EarthQuake" (int strength, int duration, int range) {
+	Radius_Quake(strength, duration, 0, range/64, 0); }
 
 // script "onche" (void) {
 // 	Log(s:"pre ", s:GetActorClass(0));

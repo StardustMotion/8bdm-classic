@@ -1,0 +1,74 @@
+actor "8C Screw Driver" : "8C Mob" {
+     radius 20 height 35 health 100
+    meleerange 1024 accuracy 35
+        states { 
+            onSpawn:
+                TNT1 A 0 A_SetArg(1,0.707*accuracy)
+            check: SWBM A 0 A_CheckCeiling("idleCeil")
+            idle: "----" A 10 A_LookEx(0,0,meleerange,meleerange,360,"see")
+                goto check
+            idleCeil: SWBM E 0
+                goto idle
+
+            see:
+                BEAK D 0 A_SetArg(0,2)
+                SWBM A 0 A_CheckCeiling("seeCeil")
+                SWBM BCD 4
+                goto pew
+            seeCeil: SWBM FGH 4
+                goto pew
+
+            pew:
+                BEAK D 0 A_PlaySoundEx("8CSCREWD", "Weapon")
+                BEAK D 0 A_SetArg(0,args[0]-1)
+                SWBM A 0 A_CheckCeiling("pewCeil")
+            pewGround:               
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,accuracy,0,0,0,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,accuracy,0,0,90,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,accuracy,0,0,180,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,accuracy,0,0,270,SXF_TRANSFERTRANSLATION) 
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,args[1],0,args[1],45,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,args[1],0,args[1],135,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,args[1],0,args[1],225,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,args[1],0,args[1],315,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,16,0,0,accuracy,0,SXF_TRANSFERTRANSLATION)                
+                SWBM BCDBCDBCD 2
+                goto afterPew
+            pewCeil:                
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,accuracy,0,0,0,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,accuracy,0,0,90,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,accuracy,0,0,180,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,accuracy,0,0,270,SXF_TRANSFERTRANSLATION) 
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,args[1],0,-args[1],45,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,args[1],0,-args[1],135,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,args[1],0,-args[1],225,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,args[1],0,-args[1],315,SXF_TRANSFERTRANSLATION)
+                SWBM A 0 A_SpawnItemEx("8C Screw Driver shot",0,0,-16,0,0,-accuracy,0,SXF_TRANSFERTRANSLATION)            
+                SWBM FGHFGHFGH 2
+                goto afterPew
+            afterPew:
+                BEAK D 0 A_JumpIf(!args[0], "withdraw")
+                goto pew
+
+            withdraw:
+                TNT1 A 0 A_ClearTarget
+                SWBM A 0 A_CheckCeiling("withdrawCeil")
+                SWBM BCD 4
+                SWBM A 20
+                goto idle
+            withdrawCeil:
+                SWBM FGH 4
+                SWBM E 20
+                goto idle
+        }
+}
+
+actor "8C Screw Driver V2" : "8C Screw Driver" {}
+actor "8C Screw Driver V3" : "8C Screw Driver" {}
+
+
+actor "8C Screw Driver shot" : proj {
+    damage (5) height 15 radius 7 states {
+        spawn:
+            8CAA F -1
+            wait}}

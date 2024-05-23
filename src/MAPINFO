@@ -1,4 +1,5 @@
 
 
+map "8C-1CUT" lookup "8C_STAGE_CUT" { music = "8C1CUTB" }
 map "8C-1BOMB" lookup "8C_STAGE_BOMB" { music ="BOMMUS" }
 map "8C-1FIRE" lookup "8C_STAGE_FIRE" { music ="FIRMUS" }

@@ -1,5 +1,6 @@
 [enu default]
 
+8C_STAGE_CUT = "\ccSawmill";
 8C_STAGE_BOMB = "\cdOrb city";
 8C_STAGE_FIRE = "\cgSteel mill";
 
