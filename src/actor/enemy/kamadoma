@@ -27,7 +27,4 @@ actor "8C Kamadoma V2" : "8C Kamadoma" {}
 actor "8C Kamadoma V3" : "8C Kamadoma" {}
 
 
-actor "8C Kamadoma contact" : "8C Mob contact" {
-    damage (10) PoisonDamage 0,0,0 damagetype "8CKamadoma" 
-    radius 30 height 52 accuracy -6
-}
+actor "8C Kamadoma contact" : "8C Mob contact" { args 10,26,18 }

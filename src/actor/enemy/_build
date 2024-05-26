@@ -1,7 +1,8 @@
 
-#include "actor/general"
+#include "actor/enemy/adheringSuzy"
 #include "actor/enemy/blader"
 #include "actor/enemy/blaster"
 #include "actor/enemy/bigEye"
 #include "actor/enemy/kamadoma"
+#include "actor/enemy/manbu"
 #include "actor/enemy/screwDriver"

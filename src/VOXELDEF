@@ -1,0 +1,19 @@
+//Screw Driver
+8CABC="8CABC" {}
+8CABD="8CABD" {AngleOffset = 0}
+8CABE="8CABD" {AngleOffset = 327}
+8CABF="8CABD" {AngleOffset = 293}
+    // ceiling
+    8CABG="8CABG" {}
+    8CABH="8CABH" {AngleOffset = 0}
+    8CABI="8CABH" {AngleOffset = 327}
+    8CABJ="8CABH" {AngleOffset = 293}
+
+// blader
+8CABA="8CABA" {  scale = 1.05 }
+8CABB="8CABB" {  scale = 1.05 }
+
+// adhering suzy
+8CAAW="8CAAW" { }
+8CAAX="8CAAX" { }
+8CAAY="8CAAY" { }

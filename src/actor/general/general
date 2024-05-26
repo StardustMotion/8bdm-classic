@@ -1,0 +1,21 @@
+// see acs_source/data.acs
+const int MOB_ON_SPAWN = 0;
+const int XY_DIST = 1;
+const int Z_DIST = 2;
+const int IS_GONE = 3;
+const int COPY_VELOCITY = 4;
+const int CHECK_COLLISION = 6;
+const int SOLID_TOGGLE = 7;
+const int GET_USERVAR = 8;
+
+
+// aliases
+actor proj : BasicProjectile { obituary "$8C_OBIT_DEFAULT" }
+actor watcher : BasicWatcher {}
+actor gfx : BasicGraphicEffect {}
+actor item : CustomInventory {}
+// actor once : inventory { inventory.amount 1 inventory.maxamount 1} // this one is defined in vanilla
+
+const int FLAG_MOB = 0x1; // is a mob (for pain management)
+const int FLAG_DEFLECT = 0x2; // "deflect/invul" status
+actor "8C flags" : once { inventory.maxamount 0xFFFFFFFF }

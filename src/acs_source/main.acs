@@ -34,7 +34,9 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			int i = random(0,1);//!random(0,1024);
 			if (i) 
 				GiveActorInventory(tmp, "8C Shiny", 1);
-			Thing_SetTranslation(tmp, MOB_COLOR+(arg2*MOB_COLOR_SIZE)+i+(arg3<<1));
+			arg1 = MOB_COLOR+(arg2*MOB_COLOR_SIZE)+i+(arg3<<1);
+			SetUserVariable(tmp, "user_colorId", arg1);
+			Thing_SetTranslation(tmp, arg1);
 			Thing_ChangeTID(tmp, 0);
 		break;
 
@@ -52,10 +54,10 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		case COPY_VELOCITY:
 			GiveInventory("8C follower",1);
 			do {
-				arg2 = ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);
+				arg2 = 0;//ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);				
 				SetActorVelocity(0, 
-					(1-((arg2>>23)&0x2))*(arg2&0xFF), 
-					(1-((arg2>>24)&0x2))*(arg2&0xFF00), 
+					((1-((arg2>>23)&0x2))*(arg2&0xFF))<<16, 
+					((1-((arg2>>24)&0x2))*(arg2&0xFF00))<<8, 
 					(1-((arg2>>25)&0x2))*(arg2&0xFF0000), 
 				false, false);
 				delay(1);
@@ -73,13 +75,51 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 				((GetActorVelZ(0)<0)<<26)
 			);
 		break;
+
+		// detect lateral collision with terrain/actors. Used i.e by Adhering Suzy/Octopus battery
+		case CHECK_COLLISION:
+			arg3 = GetActorAngle(0)+ 0.25*arg1;
+			arg1 = (GetActorProperty(0, APROP_Radius)>>16);
+			if (arg2) 	tmp = "8C Check Terrain";
+			else 		tmp = "8C Check Collision";
+			i = UniqueTID();
+			SetResultValue(
+				!Spawn(tmp,
+					GetActorX(0) + (arg1 * cos(arg3)), 
+					GetActorY(0) + (arg1 * sin(arg3)), 
+					GetActorZ(0) + (GetActorProperty(0, APROP_Height)>>1),
+					i));
+			Thing_Remove(i);
+		break;
+
+		// core_unsolidplayer but more simple, usable for monsters
+		case SOLID_TOGGLE:
+			if (!arg1) {
+				GiveInventory("PlayerPropertyUnsolid", 1);
+				GiveInventory("PlayerPropertySolidOff",1);
+			}
+			else if (CheckInventory("PlayerPropertyUnsolid")) {
+				TakeInventory("PlayerPropertyUnsolid", 1);				
+				if (!CheckInventory("PlayerPropertyUnsolid"))
+					GiveInventory("PlayerPropertySolidOn", 1);
+			}
+		break;
+
+		// only used for color get now, generalize later maybe
+		case GET_USERVAR:
+		if (arg1) SetActivator(0,arg1);
+		SetResultValue(GetUserVariable(0, "user_colorId"));
+		break;
 	}
 }
+
+
 
 script "8C Event" (int type, int damage, int damageType) EVENT {
 	switch(type) {
 		case GAMEEVENT_ACTOR_DAMAGED:
-			SetActivator(0, AAPTR_DAMAGE_TARGET);
+			bool isVictimMob = CheckInventory("8C flags") & FLAG_MOB;
+
 			if (CheckInventory("8C flags") & FLAG_DEFLECT) {
 				PlaySound(0,"8CPAIN02",CHAN_VOICE,1.0,false);
 				type = SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
@@ -93,18 +133,20 @@ script "8C Event" (int type, int damage, int damageType) EVENT {
 			}
 
 			//
-			if (CheckInventory("8C flags") & FLAG_MOB) {
+			if (isVictimMob) {
        			PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
-       			SetActorProperty(0, APROP_StencilColor, 0xFFFFFF);
+				
+				type = GetUserVariable(0, "user_colorId");
 				for (int i = 0; i < 5; i++) {
-					SetActorProperty(0, APROP_RenderStyle, STYLE_TranslucentStencil );
+					Thing_SetTranslation(0, 68); // CLR_BOSSPAIN
 					delay(1);
-					SetActorProperty(0, APROP_RenderStyle, STYLE_Normal);
+					Thing_SetTranslation(0, type);
 					delay(1);
 
 				}
 			}
 		break;
+		
 	}
 }
 

@@ -6,21 +6,21 @@ actor "8C Blader" : "8C Mob" {
             idle:
                 BLAD A 0 A_LookEx(0,0,meleerange,meleerange>>1,100,"see")
                 BLAD A 0 A_ChangeVelocity(accuracy>>1,0,0,CVF_REPLACE|CVF_RELATIVE)
-                BLAD ABAB 6
+                8CAB ABAB 6
                 BLAD A 0 A_LookEx(0,0,meleerange,meleerange>>1,100,"see")
-                BLAD ABAB 6
+                8CAB ABAB 6
                 BLAD A 0 A_LookEx(0,0,meleerange,meleerange>>1,100,"see")
-                BLAD ABAB 6
+                8CAB ABAB 6
                 BLAD A 0 A_SetAngle(angle+random(155,205))
                 loop
             see:
                 BLAD A 0 A_FaceTarget
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
                 BLAD A 0 A_ChangeVelocity(accuracy*0.8, 0, (CallACS("8C",Z_DIST)<stamina)*(accuracy>>1),CVF_REPLACE|CVF_RELATIVE)
-                BLAD AAAABBBBAAAA 1 A_JumpIf((CallACS("8C",XY_DIST)*1.4) < (CallACS("8C",Z_DIST)), "diveStart")
+                8CAB AAAABBBBAAAA 1 A_JumpIf((CallACS("8C",XY_DIST)*1.4) < (CallACS("8C",Z_DIST)), "diveStart")
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
                 BLAD A 0 A_ChangeVelocity(accuracy*0.8, 0, (CallACS("8C",Z_DIST)<stamina)*(accuracy>>1),CVF_REPLACE|CVF_RELATIVE)
-                BLAD BBBBAAAABBBB 1 A_JumpIf((CallACS("8C",XY_DIST)*1.4) < (CallACS("8C",Z_DIST)), "diveStart")
+                8CAB BBBBAAAABBBB 1 A_JumpIf((CallACS("8C",XY_DIST)*1.4) < (CallACS("8C",Z_DIST)), "diveStart")
                 goto sightCheck
             
             diveStart:
@@ -33,10 +33,10 @@ actor "8C Blader" : "8C Mob" {
                 BLAD A 0 A_ChangeVelocity(accuracy,0,-accuracy,CVF_REPLACE|CVF_RELATIVE)
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
 
-                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") BLAD A 1 A_SetArg(0,args[0]+1) 
-                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") BLAD A 1 A_SetArg(0,args[0]+1) 
-                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") BLAD B 1 A_SetArg(0,args[0]+1) 
-                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") BLAD B 1 A_SetArg(0,args[0]+1) 
+                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") 8CAB A 1 A_SetArg(0,args[0]+1) 
+                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") 8CAB A 1 A_SetArg(0,args[0]+1) 
+                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") 8CAB B 1 A_SetArg(0,args[0]+1) 
+                BLAD A 0 A_JumpIf(args[0] == args[2], "raise") 8CAB B 1 A_SetArg(0,args[0]+1) 
                 loop
             raise:
                 TNT1 A 0 A_PlaySoundEx("misc/sunstargroundflame", "Item")
@@ -44,31 +44,25 @@ actor "8C Blader" : "8C Mob" {
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
                 BLAD A 0 A_ChangeVelocity(accuracy,0,+accuracy,CVF_REPLACE|CVF_RELATIVE)
 
-                BLAD A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
-                BLAD A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
-                BLAD B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
-                BLAD B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
+                8CAB A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
+                8CAB A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
+                8CAB B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
+                8CAB B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
                 loop
             end:
                 BLAD A 0 A_ChangeVelocity(accuracy,0,0,CVF_REPLACE|CVF_RELATIVE)
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
                 TNT1 A 0 A_TakeInventory("8C follow me")
-                BLAD ABAB 4
+                8CAB AB 4
+                BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
+                8CAB AB 4
                 goto sightCheck
         }
 }
+
 
 actor "8C Blader V2" : "8C Blader" {}
 actor "8C Blader V3" : "8C Blader" {}
 
 
-actor "8C Blader contact" : "8C Mob contact" {
-    damage (4) PoisonDamage 4,1,2 damagetype "8CBlader" 
-    radius 32 height 62 accuracy -6
-}
-
-
-
-
-// act 1 https://www.youtube.com/watch?v=3GPTassFKn8
-// act 2 https://www.youtube.com/watch?v=_sRbcloKawE 32000 quality 3 :: MP3 32000 160k
+actor "8C Blader contact" : "8C Mob contact" { args 10,32,20 }

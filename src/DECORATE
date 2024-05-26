@@ -1,2 +1,14 @@
 
-#include "actor/main"
+
+#include "actor/general/_build"
+#include "actor/enemy/_build"
+
+
+
+
+
+// actor "8C Protoman" : Megaman {
+//     player.displayname "8C Protoman"
+//     player.startitem "MagnetMissileWep"
+//     +THRUSPECIES species 8C_unsolid
+// }

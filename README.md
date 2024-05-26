@@ -5,6 +5,7 @@ And, updated for 6b nice and good
 see README inside src/ for more details
 
 Uses https://gitlab.com/Trillster/cbins for quick build/pk3 creation
+credit also for voxels
 
 
 -------------------------------------------------------

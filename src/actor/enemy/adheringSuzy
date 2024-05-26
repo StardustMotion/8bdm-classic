@@ -1,0 +1,39 @@
+// might have trouble stopping at walls if she's not put in a position so that her trajectory is perpendicular to them
+actor "8C Adhering Suzy" : "8C Mob" {
+    +NOGRAVITY meleerange 2048
+    radius 20 height 40 health 125 args 0 accuracy 16
+        states { 
+            onSpawn:
+                OCTB A 0 A_SetArg(0,accuracy)
+                OCTB A 0 A_SetArg(1,0)
+            idle:
+                8CAA W 20 A_LookEx(0,0,meleerange,meleerange,360,"see")
+                loop
+            see:
+                TNT1 A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, false)
+                BLAD A 0 A_SpawnItemEx("8C Adhering Suzy contact")
+                TNT1 A 0 
+                8CAA X 4
+                8CAA Y 4 A_PlaySoundEx("8CADSUZY", "Weapon")
+            move:
+                8CAA Y 0 A_ChangeVelocity(0,args[0],0,CVF_RELATIVE|CVF_REPLACE)
+                8CAA Y 1 A_JumpIf(CallACS("8C", CHECK_COLLISION, 1+args[1], true), "close")
+                loop
+            close:
+                8CAA X 2 A_Stop
+                8CAA X 0 A_PlaySoundEx("8CADSUZZ", "Weapon")
+                TNT1 A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, true)
+                8CAA X 2
+                TNT1 A 0 A_TakeInventory("8C follow me")
+                TNT1 A 0 A_SetArg(0, args[0]*-1)
+                TNT1 A 0 A_SetArg(1, (!args[1])<<1)
+                8CAA W 20
+                goto idle
+
+        }
+}
+
+actor "8C Adhering Suzy V2" : "8C Adhering Suzy" {}
+actor "8C Adhering Suzy V3" : "8C Adhering Suzy" {}
+
+actor "8C Adhering Suzy contact" : "8C Mob contact" { args 10, 32, 20 }

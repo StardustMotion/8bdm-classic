@@ -1,0 +1,42 @@
+
+// used to warp to/copy velocity of another actor i.e a remote mine stuck on an actor (COPY_VELOCITY)
+actor "8C follow me" : once {}
+actor "8C follower" : once {}
+
+actor "8C Deflect" : item {
+    states { 
+        pickup: 
+        TNT1 A 0 A_GiveInventory("8C flags", FLAG_DEFLECT)
+        TNT1 A 0 A_ChangeFlag("NODAMAGE", true)
+        TNT1 A 0 A_ChangeFlag("REFLECTIVE", true)
+        TNT1 A 0 A_ChangeFlag("DONTRIP", true)
+        TNT1 A 0 A_ChangeFlag("NORADIUSDMG", true)
+        stop
+    }
+}
+
+actor "8C Undeflect" : "8C Deflect" { states { 
+    pickup: 
+    TNT1 A 0 A_TakeInventory("8C flags", FLAG_DEFLECT)
+    TNT1 A 0 A_ChangeFlag("NODAMAGE", false)
+    TNT1 A 0 A_ChangeFlag("REFLECTIVE", false)
+    TNT1 A 0 A_ChangeFlag("DONTRIP", false)
+    TNT1 A 0 A_ChangeFlag("NORADIUSDMG", false)
+    stop
+}
+}
+
+actor "8C Deflect gfx" : gfx { alpha 1.0 translation "192:192=4:4", "198:198=81:81"
+    scale 2.0
+    states {
+        spawn: TNT1 A 0
+            8CAA A 1 
+            8CAA A 0 A_FadeOut(0.12) 8CAA A 1 A_SetScale(3.0)
+            8CAA A 0 A_FadeOut(0.12) 8CAA B 1 A_SetScale(1.5)
+            8CAA A 0 A_FadeOut(0.12) 8CAA B 1 A_SetScale(2.0)
+            stop}}
+
+
+// CHECK_COLLISION (terrain/actors)
+actor "8C Check Collision" : 8bdmFootholdCheck { radius 16 }
+actor "8C Check Terrain" : "8C Check Collision" { +THRUACTORS }
