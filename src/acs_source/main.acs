@@ -27,7 +27,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			int tmp = UniqueTID();
 			arg1 = SpawnSpotFacingForced(name, arg1, tmp);
 			if (!arg1) {
-				Log(s:"[MOB FACTORY] Can't spawn \"", s:name, s:"\", this mob doesn't exist");
+				Log(s:"[MOB FACTORY] Can't spawn \"", s:name, s:"\", either this actor code is not defined, or the spawn spot doesn't exist");
 				terminate;
 			}
 
@@ -37,6 +37,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			arg1 = MOB_COLOR+(arg2*MOB_COLOR_SIZE)+i+(arg3<<1);
 			SetUserVariable(tmp, "user_colorId", arg1);
 			Thing_SetTranslation(tmp, arg1);
+			Setactorposition(tmp,GetActorX(tmp)+128.0,GetActorY(tmp),GetActorZ(tmp),false);
 			Thing_ChangeTID(tmp, 0);
 		break;
 
@@ -76,19 +77,36 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			);
 		break;
 
-		// detect lateral collision with terrain/actors. Used i.e by Adhering Suzy/Octopus battery
+		// detect lateral collision with terrain/actors. Used i.e by Cutting Wheel to climb
 		case CHECK_COLLISION:
 			arg3 = GetActorAngle(0)+ 0.25*arg1;
-			arg1 = (GetActorProperty(0, APROP_Radius)>>16);
-			if (arg2) 	tmp = "8C Check Terrain";
-			else 		tmp = "8C Check Collision";
+			int rad = GetActorProperty(0,APROP_Radius)>>16;
+
+			// increase this to help non axis aligned collision detection
+			// but at the cost of overall worsened collision accuracy
+			arg1 = (rad*5)/3;
+			
+			if (arg2) 	tmp = "8C Check Collision";
+			else 		tmp = "8C Check Terrain";
 			i = UniqueTID();
-			SetResultValue(
-				!Spawn(tmp,
-					GetActorX(0) + (arg1 * cos(arg3)), 
-					GetActorY(0) + (arg1 * sin(arg3)), 
-					GetActorZ(0) + (GetActorProperty(0, APROP_Height)>>1),
-					i));
+
+			while (true) {
+				type = !Spawn(tmp,
+					GetActorX(0) + (arg1 * cos(arg3)) - rad*sin(arg3),
+					GetActorY(0) + (arg1 * sin(arg3)) + rad*cos(arg3),
+					GetActorZ(0),
+					i);
+				if (type) break;
+				type = !Spawn(tmp,
+					GetActorX(0) + (arg1 * cos(arg3)) + rad*sin(arg3),
+					GetActorY(0) + (arg1 * sin(arg3)) - rad*cos(arg3),
+					GetActorZ(0)+GetActorProperty(0,APROP_Height)-12.0,
+					i);
+				break;
+			}
+
+			SetResultValue(type);
+			//Log(s:"collide ? ", d:type);
 			Thing_Remove(i);
 		break;
 
@@ -118,6 +136,9 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 script "8C Event" (int type, int damage, int damageType) EVENT {
 	switch(type) {
 		case GAMEEVENT_ACTOR_DAMAGED:
+
+			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
+
 			bool isVictimMob = CheckInventory("8C flags") & FLAG_MOB;
 
 			if (CheckInventory("8C flags") & FLAG_DEFLECT) {

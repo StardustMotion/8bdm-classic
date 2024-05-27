@@ -3,6 +3,7 @@
 #include "actor/enemy/blader"
 #include "actor/enemy/blaster"
 #include "actor/enemy/bigEye"
+#include "actor/enemy/cuttingWheel"
 #include "actor/enemy/kamadoma"
 #include "actor/enemy/manbu"
 #include "actor/enemy/screwDriver"

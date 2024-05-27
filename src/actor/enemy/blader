@@ -1,5 +1,5 @@
 actor "8C Blader" : "8C Mob" {
-    obituary "$8C_OBIT_BLADER" -SOLID
+    obituary "$8C_OBIT_BLADER"
     +NOGRAVITY radius 20 height 50 health 20
     meleerange 2048 accuracy 14 stamina 320
         states { 
@@ -28,6 +28,7 @@ actor "8C Blader" : "8C Mob" {
                 TNT1 A 0 A_SetArg(0, 0)
                 TNT1 A 0 A_SetArg(1,z)
                 TNT1 A 0 A_SetArg(2, CallACS("8C", Z_DIST)/accuracy)
+                TNT1 A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, false)
                 BLAD A 0 A_SpawnItemEx("8C Blader contact")
             diveLoop:
                 BLAD A 0 A_ChangeVelocity(accuracy,0,-accuracy,CVF_REPLACE|CVF_RELATIVE)
@@ -50,6 +51,7 @@ actor "8C Blader" : "8C Mob" {
                 8CAB B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
                 loop
             end:
+                TNT1 A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, true)
                 BLAD A 0 A_ChangeVelocity(accuracy,0,0,CVF_REPLACE|CVF_RELATIVE)
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
                 TNT1 A 0 A_TakeInventory("8C follow me")

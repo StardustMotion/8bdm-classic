@@ -16,7 +16,8 @@
 	#DEFINE KAMADOMA 4
 	#DEFINE ADHERING_SUZY 5
 	#DEFINE MANBU 6
-    #DEFINE MOBS_SIZE MANBU+1
+	#DEFINE CUTTING_WHEEL 7
+    #DEFINE MOBS_SIZE CUTTING_WHEEL+1
     // ----------------
     #DEFINE MOB_COLOR 6900 
     #DEFINE MOB_COLOR_SIZE 6
@@ -31,7 +32,8 @@ int mobs[MOBS_SIZE]  = {
 	"Screw Driver",
 	"Kamadoma",
 	"Adhering Suzy",
-	"Manbu"
+	"Manbu",
+	"Cutting Wheel"
 };
 
 
@@ -103,6 +105,16 @@ Script "8C translations" OPEN CLIENTSIDE
 	CreateTranslation (i+3, 192:192=202:202, 198:198=205:205, 0:0=207:207);
 	CreateTranslation (i+4,  192:192=168:168, 198:198=41:41);
 	CreateTranslation (i+5, 192:192=160:160, 198:198=228:228, 247:247=158:158);	
+
+	// Cutting Wheel
+    i = MOB_COLOR+(CUTTING_WHEEL*MOB_COLOR_SIZE); // ? ? ?
+	CreateTranslation (i, 192:192=178:178, 198:198=245:245, 4:4=168:168, 0:0=6:6);
+	CreateTranslation (i+1, 192:192=6:6, 4:4=80:80, 0:0=6:6, 198:198=91:91);
+	CreateTranslation (i+2, 192:192=225:225, 198:198=109:109, 4:4=168:168, 0:0=6:6);
+	CreateTranslation (i+3, 192:192=91:91, 198:198=83:83, 4:4=168:168, 0:0=91:91);
+	CreateTranslation (i+4, 192:192=74:74, 198:198=41:41, 4:4=168:168, 0:0=6:6);
+	CreateTranslation (i+5, 192:192=80:80, 198:198=91:91, 4:4=6:6, 0:0=168:168);
+
 
 
 	for (i = 0; i < 256; i++) {
