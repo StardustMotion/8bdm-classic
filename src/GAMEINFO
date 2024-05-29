@@ -1,0 +1,5 @@
+startupcolors = "#20F8F0","#A018C8"
+startuptitle = "Mega Man 8-Bit Deathmatch ~ Classic"
+iwad = "megagame.wad"
+startupsong = "ATK3500"
+//startuptype = "Hexen"

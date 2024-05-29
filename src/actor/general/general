@@ -19,3 +19,9 @@ actor item : CustomInventory {}
 const int FLAG_MOB = 0x1; // is a mob (for pain management)
 const int FLAG_DEFLECT = 0x2; // "deflect/invul" status
 actor "8C flags" : once { inventory.maxamount 0xFFFFFFFF }
+
+
+actor "8C Static Move Giver" : PowerApropGiver {}
+actor "8C Static Move" : PowerUp { powerup.duration 0x7FFFFFFF }
+actor "8C On actor gravity Giver" : PowerApropGiver {}
+actor "8C On actor gravity" : PowerUp { powerup.duration 0x7FFFFFFF }

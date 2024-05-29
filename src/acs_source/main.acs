@@ -1,8 +1,24 @@
 
 
-// main scripts
+#DEFINE FLOOR_FRICTION -96
+
+script "8C OPEN" OPEN {
+	DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
+	DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
+	
+	for (int i = 0; i < 256; i++) {
+		Sector_SetFriction(i,FLOOR_FRICTION);
+	}
+}
+
+script "8C ENTER" ENTER {
+	ACS_NamedExecuteWithResult("8C", PLAYER_MORPH);
+}
 
 
+function int roundf(int f) { 
+	return (f+0.5)&0xFFFF0000; 
+}
 
 
 script "8C" (int type, int arg1, int arg2, int arg3) {
@@ -18,7 +34,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		break;
 
 		// summon on spot 5 a big eye (tier 2)
-		// ACS_NamedExecutedWithResult("8C", 255, pos, type, version) 
+		// ACS_NamedExecuteWithResult("8C", 255, pos, type, version) 
 		// pukename 8c 255 0 2 0
 		case MOB_SPAWN:
 			if (!arg3)				int name = StrParam(s:"8C ", s:mobs[arg2]);
@@ -42,14 +58,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		break;
 
 		case IS_GONE:
-			if (arg1) {
-				SetActivator(0,arg1);
-				arg1 = 0;
-			} 
-			arg2 = ClassifyActor(arg1);
-			SetResultValue((arg2 & (ACTOR_WORLD | ACTOR_DEAD)) ||
-				((arg2 & ACTOR_PLAYER) && PlayerIsSpectator(PlayerNumber()))
-			);
+			SetResultValue(isGone(arg1));
 		break;
 
 		case COPY_VELOCITY:
@@ -128,10 +137,73 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		if (arg1) SetActivator(0,arg1);
 		SetResultValue(GetUserVariable(0, "user_colorId"));
 		break;
+
+		case PLAYER_MORPH:
+			delay(2);
+			MorphActor(0,"8C-MEGAMAN", "",0x7FFFFFFF,MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR,"gfx","gfx");
+			GiveInventory("BaseFlagPack",1);
+			GiveInventory("BassBuster",1);
+			GiveInventory("8C Static Move Giver", 1);
+			SetAirControl(8.392333); // 5.905 for airspeed = groundspeed
+			/*
+			while (true) { // airFriction control }}
+			Player air movement was planned to have lower friction + slower player speed,
+				resulting in jumps being hard to readjust direction, but gaining more momentum/speed (like doom jumps.)
+			This, as a contract to ground movement - high friction + high player speed, resulting in good dodging/position,
+			but not good to cover distances.
+
+			It was dropped because modifying player's speed based on grounded/in air (with setactorproperty or powerspeed i.e)
+			couldn't use client-side prediction to make player movement online smooth.
+			See https://zdoom.org/wiki/Creating_multiplayer-friendly_ZScript
+
+			Need Player.Forward/Side move properties but for in-air specific :D
+
+			-----------------------------------------------------------------------------------------------
+
+				Also for some reason when an actor (the player) is standing on a solid actor (i.e yoku block),
+				the aircontrol (friction) stops applying, giving player a surge of speed
+				We reposition the player 1 unit above the solid actor, with no gravity, just so aircontrol applies again (code below)
+				
+				Limitations though : there's still 1 tic of speed surge (when landing on the actor),
+				also jump reproduction not accurate ; it allows jumping on the same time t when you land on the actor
+			*/
+			while(!isGone(0)) {
+				if ((GetActorZ(0)-GetActorFloorZ(0))>=1.0)
+					if (!checkFooting(-1.0)) {
+						SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),0.0,false,false);
+						SetActorPosition(0,GetActorX(0),GetActorY(0),GetActorZ(0)+1.0,false);
+						GiveInventory("8C On actor gravity Giver", 1);
+						do {
+							delay(1);
+							if (GetPlayerInput(-1,INPUT_BUTTONS)&BT_JUMP) {
+								SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),GetActorProperty(0,APROP_JumpZ),false,false);
+								break;
+							}
+						}  while (!checkFooting(-2.0));
+						TakeInventory("8C On actor gravity", 1);
+
+					}
+				delay(1);
+			}
+		break;
 	}
 }
 
+function bool isGone(int ptr) {
+	if (ptr) {
+		SetActivator(0,ptr);
+		ptr = 0;
+	} 
+	int flags = ClassifyActor(ptr);
+	return (flags & (ACTOR_WORLD | ACTOR_DEAD)) || ((flags & ACTOR_PLAYER) && PlayerIsSpectator(PlayerNumber()));
+}
 
+function bool checkFooting(int zOffset) {
+	int tid = UniqueTID();
+	bool check = Spawn("8bdmFootholdCheck",GetActorX(0),GetActorY(0),GetActorZ(0)+zOffset,tid);
+	Thing_Remove(tid);
+	return check;
+}
 
 script "8C Event" (int type, int damage, int damageType) EVENT {
 	switch(type) {

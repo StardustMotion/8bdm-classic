@@ -7,6 +7,7 @@
 #DEFINE CHECK_COLLISION 6
 #DEFINE SOLID_TOGGLE 7
 #DEFINE GET_USERVAR 8
+#DEFINE PLAYER_MORPH 9
 
 #DEFINE MOB_SPAWN 255
     #DEFINE BLADER 0
@@ -40,7 +41,7 @@ int mobs[MOBS_SIZE]  = {
 #DEFINE FLAG_MOB 0x1
 #DEFINE FLAG_DEFLECT 0x2
 
-Script "8C translations" OPEN CLIENTSIDE
+Script "8C OPEN Client" OPEN CLIENTSIDE
 {
 	Delay(25); // Fixes P_PlayerThink spam ?
     int i = MOB_COLOR+(BLADER*MOB_COLOR_SIZE); // B G O
@@ -116,10 +117,6 @@ Script "8C translations" OPEN CLIENTSIDE
 	CreateTranslation (i+5, 192:192=80:80, 198:198=91:91, 4:4=6:6, 0:0=168:168);
 
 
-
-	for (i = 0; i < 256; i++) {
-		CreateTranslation(i+7500, i:i=41:41);
-	}
 
 	// run custom translatinos
 }

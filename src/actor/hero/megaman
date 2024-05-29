@@ -1,0 +1,29 @@
+
+actor crepe : Baccone {
+    radius 512
+}
+            
+actor "8C-MEGAMAN" : ClassBase {
+    +NOSKIN +NOMORPHLIMITATIONS +NOGRAVITY
+    player.startitem "BaseFlagPack"
+    player.forwardmove 0.88 player.sidemove 0.727
+    states {
+        spawn:
+            MEGM A 0
+            MEGM B 1
+            MEGM A 1
+            goto spawn+2
+        see:
+            MEGM BCDE 5
+            goto spawn
+            
+        missile:
+            MEGM F 5
+            MEGM G 4
+            goto spawn+2
+        classPain: MEGM H 0
+            goto megamanPain
+        classDeath: MEGM H 0
+            goto megamanDeath
+    }
+}

@@ -1,5 +1,86 @@
 
 
-map "8C-1CUT" lookup "8C_STAGE_CUT" { music = "8C1CUTB" }
-map "8C-1BOMB" lookup "8C_STAGE_BOMB" { music ="BOMMUS" }
-map "8C-1FIRE" lookup "8C_STAGE_FIRE" { music ="FIRMUS" }
+gameinfo {
+    dimcolor = "ff 00 00"
+    dimamount = 0.75
+    //AddCustomData 
+    // Border  ??
+    // ForceTextInMenus 
+    // DimColor 
+    // QuitMessages 
+    // MenuSliderColor  MenuSliderBackColor 
+    // classes
+    // TextScreenX 
+    // NoRandomPlayerClass 
+    // PrecacheClasses /sounds/tex
+    // AddEventHandlers  zscript
+    // NoMergePickupMsg  ?
+    //BlurAmount = 0.75
+
+}
+
+skill "8c" {
+    /* damagefactor "1.0"
+    respawntime = 0
+    spawnfilter = 5 // unused
+    spawnmulti = true
+    doubleammofactor = 1.0
+    acsreturn = 4
+    key = 4
+    mustconfirm = ""
+    DisableCheats = true
+    // ReplaceActor  maybe
+    NoMenu = true
+    // NoSkillMenu  */
+}
+
+intermission "8cc" {
+ // ?
+}
+
+automap { // automap_overlay ?
+    //base = "Doom"
+    showlocks = false
+    background = "00 00 00"
+    wallcolor = "ff ff ff"
+
+}
+ 
+
+
+
+
+defaultmap {
+    next = "8C-HUB"
+     
+	aircontrol = 0.5
+    NoCrouch
+    AllowRespawn // very important.
+    UsePlayerStartZ
+    //teamdamage = 0
+    
+
+    // ------------
+    /* IsLobby
+    fogdensity 255
+    // skyfog = ?
+    lightmode = -1
+    nocoloredspritelighting
+    // sky1/sky2 doublesky
+    // fade = unused (testfade cmd)
+    nointermission
+    // bordertexture ??
+    gravity 1200
+    //F1 = 
+    //mapbackground = 
+    //ResetInventory / items / health
+    RandomPlayerStarts
+    // PrecacheSounds...
+    //EventHandler 
+    // Author */
+}
+
+map "8C-1CUT" lookup "8C_STAGE_CUT" { 
+    music = "8C1CUTA" 
+}
+
