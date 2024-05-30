@@ -1,28 +1,23 @@
 
 
-// when inheriting, use state "onSpawn" instead of "spawn"
 actor "8C Mob" {
     // private:
-        mass 9999 var int user_colorId;
+        mass 9999 var int user_8C_color;
         +ISMONSTER +USEDAMAGEEVENTSCRIPT +USESPAWNEVENTSCRIPT
         +SOLID +CANPASS +ACTIVATEMCROSS +SHOOTABLE +COUNTKILL
         +CANPUSHWALLS +CANUSEWALLS +MOVEWITHSECTOR +DONTBLAST +FLOORCLIP
         species "8C Mob" +DONTHARMSPECIES
+        var int user_8C_level;
 
     // public:
-        // var score	
-        //var int user_attack;
+        // var score
         obituary "$8C_OBIT_DEFAULT" 
         health 100  
         radius 16 height 32  scale 2.5
 
 	states {
 		spawn:
-            TNT1 A 0 nodelay A_GiveInventory("8C flags", FLAG_MOB)
-            TNT1 A 0 A_JumpIf(true, "onSpawn")
-            goto onSpawn
-        onSpawn:
-            TNT1 A 0 A_JumpIf(true, "idle")
+            TNT1 A 0 nodelay A_JumpIf(true, "idle")
             goto idle
         idle:
             TNT1 A 35

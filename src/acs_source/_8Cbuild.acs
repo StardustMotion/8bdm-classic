@@ -1,8 +1,9 @@
-#library "8C_build"
+#library "_8Cbuild"
 
 #include "zcommon.acs"
 #include "8BDMLIB.acs"
 #include "DTADD.acs"
 
+#include "8C.acs" // 8C's API
 #include "data.acs"
 #include "main.acs"

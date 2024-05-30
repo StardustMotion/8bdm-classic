@@ -3,14 +3,14 @@ actor "8C Blaster" : "8C Mob" {
     +NOGRAVITY radius 22 height 40 health 50
     meleerange 1024 accuracy 14
         states { 
-            onSpawn:
-                BLAD A 0 A_GiveInventory("8C Deflect")
+            spawn:
+                BLAD A 0 nodelay A_GiveInventory("8C Deflect On")
             idle:
                 8CAA S 20 A_LookEx(0,0,meleerange,1,80,"see")
                 loop
             see:
                 8CAA T 4
-                8CAA U 4 A_GiveInventory("8C Undeflect")
+                8CAA U 4 A_GiveInventory("8C Deflect Off")
                 8CAA V 10 A_SetArg(0,3)
             pew:
                 BEAK D 0 A_ClearTarget
@@ -23,7 +23,7 @@ actor "8C Blaster" : "8C Mob" {
                 loop
             close:
                 8CAA U 4
-                8CAA T 4 A_GiveInventory("8C Deflect")
+                8CAA T 4 A_GiveInventory("8C Deflect On")
                 8CAA S 35 A_ClearTarget
                 goto idle
         }

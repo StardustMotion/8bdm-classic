@@ -1,0 +1,7 @@
+
+#include "actor/hero/_base"
+
+#include "actor/hero/megaman"
+#include "actor/hero/protoman"
+#include "actor/hero/bass"
+#include "actor/hero/roll"

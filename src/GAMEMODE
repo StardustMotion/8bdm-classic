@@ -1,1 +1,112 @@
-// ? { addflag DEADSPECTATORS }
+// this GAMEMODE lump is so good. Makes server hosting plug and play for most part
+cooperative {
+	// --------- General flags --------- //
+	addflag COOPERATIVE
+	addflag PLAYERSEARNKILLS
+	addflag MAPRESETS
+	addflag DEADSPECTATORS
+	addflag USEMAXLIVES
+	addflag MAPRESET_RESETS_MAPTIME
+	//removeflag DONTPRINTPLAYERSLEFT
+
+	// --------- Properties --------- //
+
+	Name "MM8BDM : Classic"
+	ShortName "Classic"
+	F1Texture "Tagueule"
+	WelcomeSound "HEIN"
+	
+	// --------- Gameplay flags --------- //
+	// OfflineOnly  / OnlineOnly
+	GameSettings  {
+		SV_OldFallDamage = false
+		SV_FallDamage = false
+		SV_InfiniteAmmo = false
+		SV_NoJump = false
+		SV_NoFreelook = false
+		SV_NoFOV = false
+		SV_NoRunes = false
+		SV_NoRespawn = false
+		SV_InfiniteInventory = false
+		SV_KillAllMonsters = false
+		SV_NoAutomap = false
+		SV_NoAutomapAllies = false
+		SV_DisallowSpying = false
+		SV_DisallowSuicide = true
+		SV_NoAutoaim = true
+		SV_NoIdentifyTarget = false
+		SV_ApplyLMSSpectatorSettings = true
+		SV_NoCoopInfo = false
+		SV_UnblockPlayers = true // sv_UnblockAllies
+		SV_ShareKeys = true
+		// SV_ForceVideoDefaults ?
+		// SV_AwardDamageInsteadKills ?
+		sv_NoDrop = true // trading system maybe
+		sv_ForceSoftwarePitchLimits = false
+		sv_ShootThroughAllies = true
+		sv_DontPushAllies = true
+		// sv_DontKeepJoinQueue ?
+		// sv_DontHideStats ?
+		sv_DontOverridePlayerColors = false
+		// Compat_Invisibility ?
+		// Compat_CrossDropoff  ?
+		Compat_NoObituaries = true // :o
+		Compat_DisableTaunts = false
+		SV_Coop_DamageFactor = 1.0
+		sv_fastweapons = 0
+		sv_gravity = 800
+		SV_Chasecam = false // :)
+		SV_NoCrouch = true
+		SV_AllowCrouch = false
+		sv_maxplayers = 32
+		sv_randomcoopstarts = true
+		sv_respawndelaytime = 3
+		sv_survivalcountdowntime = 5
+		teamdamage = 0.0
+		TimeLimit = 0
+	}
+	LockedGameSettings  {
+		SV_NoMonsters = false
+		SV_MonsterRespawn = false
+		SV_ItemRespawn = false
+		SV_AllowJump = false
+		SV_SameSpawnSpot = false
+		SV_Coop_SPActorSpawn = false
+		sv_Survival_NoMapResetOnDeath = false
+		// Compat_MBFMonsterMove = true
+		Compat_ClientsSendFullButtonInfo = false
+		Compat_NoLand = true
+		Compat_Dont_Stop_Player_Scripts_On_Disconnect = false
+		Compat_FullWeaponLower = false
+		Compat_ResetGlobalVarsOnMapReset = false
+		Compat_Limited_AirMovement = false
+		Compat_PlasmaBump = false
+		Instagib = false
+		Buckshot = false
+		SV_ForceRespawnTime = 5 // ?
+		sv_maprotation = false
+		sv_maxlives = 3
+		
+		
+
+		/*
+		SV_Coop_LoseInventory
+		SV_Coop_LoseKeys
+		SV_Coop_LoseWeapons
+
+		SV_Coop_LoseArmor
+		SV_Coop_LosePowerups
+		SV_Coop_LoseAmmo
+		SV_Coop_HalveAmmo
+		// sv_DeadPlayersCanKeepInventory
+		*/
+
+		SV_WeaponDrop = false
+
+
+		
+		sv_maxlives = 3
+
+	}
+
+}

@@ -6,6 +6,10 @@
 
 8C_OBIT_DEFAULT = "#######";
 
+8C_ACTOR_OVERFLOW = "\ci\/!/ Warning : too much extra actors loaded ! /!/ ";
+8C_ENEMY_UNKNOWN = "\ck\/!/ Warning : enemy name unknown, is it defined with add8cEnemy function? : ";
+8C_ENEMY_CANT_SPAWN = "\ck\/!/ Warning : code not defined/or spawn spot doesn't exist : ";
+
 
 [enu fr]
 

@@ -1,0 +1,52 @@
+#DEFINE API_8C_ADD_ACTOR 0
+#DEFINE API_8C_SPAWN_ENEMY 1
+
+// --------------------------------------------------------------- //
+
+/**
+* Register a hero or an enemy
+*/
+function void add8cHero(str name, int hp, int puissance) { __add8cActor(0,name,hp,puissance); }
+function void add8cEnemy(str name, int hp, int puissance) { __add8cActor(1,name,hp,puissance); }
+
+/**
+* Register a special weapon stage
+*/
+function void add8cStage(str mapLump, str name) { ; }
+
+/**
+* Spawns enemy at spot like SpawnSpotFacingForced
+*/
+function bool spawn8c(str name, int spotTid) {
+    setStr8C("8bdm_wepTag", name);
+    setInt8C("8bdm_wepMult", spotTid);
+	return ACS_NamedExecuteWithResult("8C API", API_8C_SPAWN_ENEMY);
+}
+
+// --------------------------------------------------------------- //
+
+
+
+
+
+
+
+
+
+
+
+
+// --------------------------- Internal, don't use code below --------------------------- //
+
+
+function void setInt8C(str cvar, int value) { ConsoleCommand(StrParam(s:"set ",s:cvar,s:" ",i:value)); }
+function void setStr8C(str cvar, str value) { ConsoleCommand(StrParam(s:"set ",s:cvar,s:" \"",s:value,s:"\"")); }
+
+
+// recycles CVARs from 8BDM's DTADD.acs
+function void __add8cActor(int type, str name, int hp, int puissance) {
+    setStr8C("8bdm_wepTag", name);
+    setInt8C("8bdm_wepMult", hp);
+    setInt8C("8bdm_wepMult2", puissance);
+	ACS_NamedExecuteWithResult("8C API", API_8C_ADD_ACTOR, type);
+}

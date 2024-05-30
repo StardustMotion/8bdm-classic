@@ -1,5 +1,7 @@
-startupcolors = "#20F8F0","#A018C8"
+startupcolors = "#A018C8","#20F8F0"
 startuptitle = "Mega Man 8-Bit Deathmatch ~ Classic"
 iwad = "megagame.wad"
 startupsong = "ATK3500"
 //startuptype = "Hexen"
+
+// https://zdoom.org/wiki/Special_lumps

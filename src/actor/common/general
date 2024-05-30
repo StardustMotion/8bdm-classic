@@ -1,0 +1,31 @@
+// see acs_source/data.acs
+const int MOB_ON_SPAWN = 0;
+const int XY_DIST = 64;
+const int Z_DIST = 65;
+const int IS_GONE = 66;
+const int COPY_VELOCITY = 67;
+const int CHECK_COLLISION = 69;
+const int SOLID_TOGGLE = 70;
+const int GET_USERVAR = 71;
+
+
+// aliases
+actor proj : BasicProjectile { obituary "$8C_OBIT_DEFAULT" }
+actor watcher : BasicWatcher {}
+actor gfx : BasicGraphicEffect {}
+actor item : CustomInventory {}
+// actor once : inventory { inventory.amount 1 inventory.maxamount 1} // this one is defined in vanilla
+
+
+
+actor "8C Static Move Giver" : PowerApropGiver {}
+actor "8C Static Move" : PowerUp { powerup.duration 0x7FFFFFFF }
+actor "8C On actor gravity Giver" : PowerApropGiver {}
+actor "8C On actor gravity" : PowerUp { powerup.duration 0x7FFFFFFF }
+
+// actor index
+actor "8C ID" : once { inventory.maxamount 0xFFFF }
+
+// Decimal part of an entity HP. Represents a [-0.5,0.5] difference over their current (real) HP
+// 1 leftmost bit for sign, 16 rightmost bit for decimal value (17 bit total)
+actor "8BDM HP" : once { inventory.maxamount 0x10000 }

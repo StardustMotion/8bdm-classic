@@ -1,9 +1,9 @@
 actor "8C Adhering Suzy" : "8C Mob" {
     +NOGRAVITY meleerange 2048
-    radius 20 height 40 scale 2.5 health 125 args 0 accuracy 16
+    radius 20 height 40 scale 2.5 health 125 accuracy 16
         states { 
-            onSpawn:
-                OCTB A 0 A_SetArg(0,accuracy)
+            spawn:
+                OCTB A 0 nodelay A_SetArg(0,accuracy)
                 OCTB A 0 A_SetArg(1,0)
             idle:
                 8CAA W 20 A_LookEx(0,0,meleerange,meleerange,360,"see")

@@ -1,0 +1,11 @@
+
+actor "8C Protoman" : "8C Hero" {
+states {
+    see:
+        "$PRO" BCDE 5
+        goto spawn
+    }
+}
+
+actor "8C Protoman onSpawn" : item { states {
+    pickup: TNT1 A 0 A_GiveInventory("ProtoBuster") stop }}

@@ -1,28 +1,365 @@
 
 
-#DEFINE FLOOR_FRICTION -96
 
+	//////////////////////////////////////////////////////////
+//                           Data             				    //
+	//////////////////////////////////////////////////////////
+
+#DEFINE HERO_SIZE 6 // 32 128
+#DEFINE ENEMY_SIZE 24
+int ACTOR[HERO_SIZE+ENEMY_SIZE][3];
+int heroCount = 0, enemyCount = 0;
+
+function bool isEnemy(void) { return (CheckInventory("8C ID")>=HERO_SIZE); }
+
+function void printActorTable (void) {
+	for (int i = 0; i < HERO_SIZE+ENEMY_SIZE; i++) {
+        if (i<HERO_SIZE) int j =    strParam(s:"\cn",d:i);
+        else j =                    strParam(s:"\ci",d:i-HERO_SIZE);
+		log(s:j, s:" : [ ", s:getName(i), s:", ", f:getHP(i), s:", ", f:getPuissance(i), s:" ]");
+    }
+}
+
+// move getter to API maybe
+function str getName(int id) { return ACTOR[id][0]; }
+function str getHP(int id) { return ACTOR[id][1]; }
+function str getPuissance(int id) { return ACTOR[id][2]; }
+
+function int getLevel(void) { return GetUserVariable(0,"user_8C_level"); }
+function void setLevel(int level) { SetUserVariable(0,"user_8C_level",level); }
+
+#DEFINE STAT_PER_LEVEL 0.1
+function int calcStatLerp(int base, int level) { return roundf(base + FixedMul(base,STAT_PER_LEVEL)*level); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//////////////////////////////////////////////////////////
+//                           Events             				//
+	//////////////////////////////////////////////////////////
+
+bool isMap8C = false;
 script "8C OPEN" OPEN {
-	DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
-	DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
-	
-	for (int i = 0; i < 256; i++) {
-		Sector_SetFriction(i,FLOOR_FRICTION);
-	}
+	init();
+    loadActors();
 }
 
 script "8C ENTER" ENTER {
-	ACS_NamedExecuteWithResult("8C", PLAYER_MORPH);
+	delay(3);
+	// morph
+}
+
+script "8C EVENT" (int type, int base, int damageType) EVENT {
+	switch(type) {
+		case GAMEEVENT_ACTOR_DAMAGED:
+			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
+
+            if (deflectAttack()) 
+                terminate;
+
+            SetResultValue(damageCalc(GetEventResult()));
+			
+			// ------------------------------------------------------------------
+
+			if (isEnemy()) {
+       			PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
+				type = GetUserVariable(0, "user_colorId");
+				for (int i = 0; i < 5; i++) {
+					Thing_SetTranslation(0, 68); delay(1);// CLR_BOSSPAIN
+					Thing_SetTranslation(0, type); delay(1);
+				}
+			}
+		break;		
+	}
+}
+
+function void init(void) {
+	for (int i = 0; i < ENEMY_SIZE+HERO_SIZE; i++) 
+        ACTOR[i][0] = 0;
+	DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
+	DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
+    
+	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
+	if (isMap8C)
+		for (i = 0; i < 512; i++) Sector_SetFriction(i,-96);
+}
+
+function void loadActors(void) {
+	add8cHero("8C Megaman", 60, 20);
+	add8cHero("8C Protoman", 40, 30);
+	add8cHero("8C Bass", 60, 25);
+	add8cHero("8C Roll", 60, 20);
+
+	add8cEnemy("8C Blader", 60, 20);
+	add8cEnemy("8C Big Eye", 60, 20);
+	add8cEnemy("8C Blaster", 60, 20);
+	add8cEnemy("8C Screw Driver", 60, 20);
+	add8cEnemy("8C Kamadoma", 60, 20);
+	add8cEnemy("8C Adhering Suzy", 60, 20);
+	add8cEnemy("8C Manbu", 60, 20);
+	add8cEnemy("8C Cutting Wheel", 60, 20);
 }
 
 
-function int roundf(int f) { 
-	return (f+0.5)&0xFFFF0000; 
+
+
+
+
+
+
+
+
+
+
+
+function bool deflectAttack(void) {
+	if (CheckInventory("8C Deflect")) {
+		PlaySound(0,"8CPAIN02",CHAN_VOICE,1.0,false);
+		int isValid = SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		SpawnForced("8C Deflect gfx", GetActorX(0), GetActorY(0), GetActorZ(0));
+		if (isValid && !CheckFlag(0, "DONTREFLECT")) {
+            SetPointer(AAPTR_TARGET, 0, AAPTR_DAMAGE_TARGET);
+			SetActorVelocity(0, -GetActorVelY(0), GetActorVelX(0), -16.0, false, false);
+		}
+		return true;
+	}
+    return false;
 }
 
+
+
+function int damageCalc(int base) {
+    SetActivator(0, AAPTR_DAMAGE_SOURCE);
+    int level = getLevel();
+    if (!level ||  
+        (base>>14)) // if suicide/telefrag etc
+        return base;
+
+	int damage = base<<16;
+	int puissance = calcStatLerp(getPuissance(CheckInventory("8C ID")),level);
+	int strBuild = strParam(s:"\ca[", f:FixedDiv(Timer(),35), s:"] \c-", n:0, s:" LV \ck", d:level, s:" \ccpui ", d:puissance>>16);
+    damage = FixedMul(damage/100,puissance);
+	SetActivator(0, AAPTR_DAMAGE_TARGET);
+	damage = decimalHP(damage);
+	strBuild = strParam(s:strBuild,s:"\cc --> ", n:0, s:" -\ci", d:damage);
+	log(s:strBuild);
+	return damage;
+}
+
+			
+// round damage dealt to integer, and store decimal part on the victim actor's inventory
+function int decimalHP(int val) { // int isHeal
+	if (!(val&0xFFFF))
+		return val>>16;
+	int decimalPoints = CheckInventory("8BDM HP");
+	TakeInventory("8BDM HP", 0x1FFFF);
+	if (decimalPoints & 0x10000)
+		val += (decimalPoints & 0xFFFF);
+	else
+		val -= (decimalPoints & 0xFFFF);
+	int rounded = roundf(val);
+	if (rounded<val)
+		GiveInventory("8BDM HP", (0x10000) | (val-rounded));
+	else
+		GiveInventory("8BDM HP", 			 (rounded-val));
+	//if (CheckInventory("8BDM HP")&0x10000) 	log(s:"[ HP - ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
+	//else										log(s:"[ HP + ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
+	return rounded>>16;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//////////////////////////////////////////////////////////
+//                           Core                				//
+	//////////////////////////////////////////////////////////
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Mod API ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+script "8C API" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {
+		case API_8C_ADD_ACTOR:
+			int name  = GetCvarString("8bdm_wepTag"), hp = GetCvar("8bdm_wepMult"), puissance = GetCvar("8bdm_wepMult2"); 
+			if (!arg1) {
+				int count = heroCount, limit = HERO_SIZE;
+				heroCount++;
+			}
+			else {
+				count = enemyCount, limit = ENEMY_SIZE;				
+				enemyCount++;
+				arg1 = HERO_SIZE;
+			}
+			delay(1);
+			if (count < limit) {
+				ACTOR[arg1+count][0] = name;
+				if (hp<1) hp = 1; // ' -'
+				ACTOR[arg1+count][1] = hp<<16;
+				ACTOR[arg1+count][2] = puissance<<16;
+			}
+			else {
+				if (!arg1) 	arg1 = "Hero";
+				else 		arg1 = "Enemy";
+				log(l:"8C_ACTOR_OVERFLOW", s:"\cc[ \ck", s:arg1, s:" \cg", d:count+1, s:" \cc/\ci ", d:limit, s:"\cc ]");
+			}
+		break;
+		
+		case API_8C_SPAWN_ENEMY:
+			name = GetCvarString("8bdm_wepTag");
+			arg1 = GetCvar("8bdm_wepMult");
+			if (Timer() < 2) 
+				delay(1);
+			type = HERO_SIZE;
+			while (true) {
+				if (!strICmp(name,getName(type)))
+					break;
+				if (type == (HERO_SIZE+ENEMY_SIZE)) {
+					Log(l:"8C_ENEMY_UNKNOWN", s:"\cc[ \ck", s:type, s:"\cc ]");
+					SetResultValue(false);
+					terminate;
+				}
+				type++;
+			}
+
+			arg2 = UniqueTID();
+			arg3 = SpawnSpotFacingForced(name, arg1, arg2);
+			if (!arg3) {
+				Log(l:"8C_ENEMY_CANT_SPAWN", s:"\cc[ \ck", s:name, s:", on spot ", d:arg1, s:"\cc ]");
+				SetResultValue(false);
+				terminate;
+			}
+			SetActivator(arg2);
+			if (type) GiveInventory("8C ID", type);
+			arg1 = random(1,50);
+			setLevel(arg1);
+			healthFormula(arg1);
+
+			arg2 = !random(0,1024);
+			if (arg2) 
+				GiveInventory("8C Shiny", 1);
+			//tmp = MOB_COLOR;//+(arg2*MOB_COLOR_SIZE)+i;///+(arg3<<1);
+			arg2 = 0;
+			SetUserVariable(0,"user_8C_color", arg2); Thing_SetTranslation(0, arg2);
+			Setactorposition(0,GetActorX(0)+128.0,GetActorY(0),GetActorZ(0),false);
+			Thing_ChangeTID(0, 0);
+			Log(s:"\cnspawn : \cc", s:name, s:" level \ck", d:arg1);
+			SetResultValue(true);
+		break;
+	}
+}
+
+
+
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Main script  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+#DEFINE INCARNATE 0
+
+#DEFINE XY_DIST 64
+#DEFINE Z_DIST 65
+#DEFINE IS_GONE 66
+#DEFINE COPY_VELOCITY 67
+#DEFINE GET_VELOCITY 68
+#DEFINE CHECK_COLLISION 69
+#DEFINE SOLID_TOGGLE 70
+#DEFINE GET_USERVAR 71
 
 script "8C" (int type, int arg1, int arg2, int arg3) {
 	switch(type) {
+
+								///////////////////////
+								// Important scripts //
+								///////////////////////
+
+		/**
+		* @arg1 actor id
+		* @arg2 level
+		*/
+		case INCARNATE:
+			arg3 = getName(arg1);
+			MorphActor(0,arg3,"",0x7FFFFFFF,MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR,"gfx","gfx");
+			if(arg1) 
+				GiveInventory("8C ID", arg1);
+			setLevel(arg2);
+			healthFormula(arg2);
+			GiveInventory("BaseFlagPack",1);
+			GiveInventory(StrParam(s:arg3, s:" onSpawn"), 1);
+			if (!isMap8C) // vanilla-style physics : we end here
+				terminate;
+			GiveInventory("8C Static Move Giver", 1);
+			SetAirControl(8.392333); // 5.905 for airspeed = groundspeed
+			
+			/*
+			while (true) { // airFriction control }}
+			Player air movement was planned to have lower friction + slower player speed,
+				resulting in jumps being hard to readjust direction, but gaining more momentum/speed (like doom jumps.)
+			This, as a contract to ground movement - high friction + high player speed, resulting in good dodging/position,
+			but not good to cover distances.
+
+			It was dropped because modifying player's speed based on grounded/in air (with setactorproperty or powerspeed i.e)
+			couldn't use client-side prediction to make player movement online smooth.
+			See https://zdoom.org/wiki/Creating_multiplayer-friendly_ZScript
+
+			Need Player.Forward/Side move properties but for in-air specific :D
+
+			-----------------------------------------------------------------------------------------------
+
+			Also for some reason when an actor (the player) is standing on a solid actor (i.e yoku block),
+			the aircontrol (friction) stops applying, giving player a surge of speed
+			We reposition the player 1 unit above the solid actor, with no gravity, just so aircontrol applies again (code below)
+				
+			Limitations though : there's still 1 tic of speed surge (when landing on the actor),
+			also jump reproduction not accurate ; it allows jumping on the same time 't' when you land on the actor
+			*/
+			while(!isGone(0)) {
+				if ((GetActorZ(0)-GetActorFloorZ(0))>=1.0)
+					if (!checkFooting(-1.0)) {
+						SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),0.0,false,false);
+						SetActorPosition(0,GetActorX(0),GetActorY(0),GetActorZ(0)+1.0,false);
+						GiveInventory("8C On actor gravity Giver", 1);
+						do {
+							delay(1);
+							if (isGone(0)) 
+								terminate;
+							if (GetPlayerInput(-1,INPUT_BUTTONS)&BT_JUMP) {
+								SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),GetActorProperty(0,APROP_JumpZ),false,false);
+								break;
+							}
+						}  while (!checkFooting(-2.0));
+						TakeInventory("8C On actor gravity", 1);
+						continue;
+					}
+				delay(1);
+			}
+		break;
+
+
+
+
+								///////////////////////
+								// Utility   scripts //
+								///////////////////////
+
 		case XY_DIST:
 			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
 			SetResultValue(xyDistance(0,arg1));
@@ -33,38 +370,14 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			SetResultValue(zDistance(0,arg1));
 		break;
 
-		// summon on spot 5 a big eye (tier 2)
-		// ACS_NamedExecuteWithResult("8C", 255, pos, type, version) 
-		// pukename 8c 255 0 2 0
-		case MOB_SPAWN:
-			if (!arg3)				int name = StrParam(s:"8C ", s:mobs[arg2]);
-			else						name = StrParam(s:"8C ", s:mobs[arg2], s:" V", d:arg3+1);
-
-			int tmp = UniqueTID();
-			arg1 = SpawnSpotFacingForced(name, arg1, tmp);
-			if (!arg1) {
-				Log(s:"[MOB FACTORY] Can't spawn \"", s:name, s:"\", either this actor code is not defined, or the spawn spot doesn't exist");
-				terminate;
-			}
-
-			int i = random(0,1);//!random(0,1024);
-			if (i) 
-				GiveActorInventory(tmp, "8C Shiny", 1);
-			arg1 = MOB_COLOR+(arg2*MOB_COLOR_SIZE)+i+(arg3<<1);
-			SetUserVariable(tmp, "user_colorId", arg1);
-			Thing_SetTranslation(tmp, arg1);
-			Setactorposition(tmp,GetActorX(tmp)+128.0,GetActorY(tmp),GetActorZ(tmp),false);
-			Thing_ChangeTID(tmp, 0);
-		break;
-
 		case IS_GONE:
 			SetResultValue(isGone(arg1));
 		break;
-
+		
 		case COPY_VELOCITY:
 			GiveInventory("8C follower",1);
 			do {
-				arg2 = 0;//ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);				
+				arg2 = ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);				
 				SetActorVelocity(0, 
 					((1-((arg2>>23)&0x2))*(arg2&0xFF))<<16, 
 					((1-((arg2>>24)&0x2))*(arg2&0xFF00))<<8, 
@@ -88,35 +401,30 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 
 		// detect lateral collision with terrain/actors. Used i.e by Cutting Wheel to climb
 		case CHECK_COLLISION:
-			arg3 = GetActorAngle(0)+ 0.25*arg1;
-			int rad = GetActorProperty(0,APROP_Radius)>>16;
+			arg1 = GetActorAngle(0)+ 0.25*arg1;
+			int i = GetActorProperty(0,APROP_Radius)>>16;
 
-			// increase this to help non axis aligned collision detection
-			// but at the cost of overall worsened collision accuracy
-			arg1 = (rad*5)/3;
+			// increase this to help non axis aligned collision detection but at the cost of overall worsened collision accuracy
+			arg3 = (i*5)/3;
 			
-			if (arg2) 	tmp = "8C Check Collision";
-			else 		tmp = "8C Check Terrain";
-			i = UniqueTID();
+			if (arg2) 	int tmp = "8C Check Collision";
+			else 			tmp = "8C Check Terrain";
 
+			arg2 = UniqueTID();
 			while (true) {
 				type = !Spawn(tmp,
-					GetActorX(0) + (arg1 * cos(arg3)) - rad*sin(arg3),
-					GetActorY(0) + (arg1 * sin(arg3)) + rad*cos(arg3),
-					GetActorZ(0),
-					i);
+					GetActorX(0) + (arg3 * cos(arg1)) - i*sin(arg1),
+					GetActorY(0) + (arg3 * sin(arg1)) + i*cos(arg1),
+					GetActorZ(0), arg2);
 				if (type) break;
 				type = !Spawn(tmp,
-					GetActorX(0) + (arg1 * cos(arg3)) + rad*sin(arg3),
-					GetActorY(0) + (arg1 * sin(arg3)) - rad*cos(arg3),
-					GetActorZ(0)+GetActorProperty(0,APROP_Height)-12.0,
-					i);
+					GetActorX(0) + (arg3 * cos(arg1)) + i*sin(arg1),
+					GetActorY(0) + (arg3 * sin(arg1)) - i*cos(arg1),
+					GetActorZ(0)+GetActorProperty(0,APROP_Height)-12.0, arg2);
 				break;
 			}
-
 			SetResultValue(type);
-			//Log(s:"collide ? ", d:type);
-			Thing_Remove(i);
+			Thing_Remove(arg2);
 		break;
 
 		// core_unsolidplayer but more simple, usable for monsters
@@ -132,61 +440,60 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			}
 		break;
 
-		// only used for color get now, generalize later maybe
+		// to generalize
 		case GET_USERVAR:
-		if (arg1) SetActivator(0,arg1);
-		SetResultValue(GetUserVariable(0, "user_colorId"));
-		break;
-
-		case PLAYER_MORPH:
-			delay(2);
-			MorphActor(0,"8C-MEGAMAN", "",0x7FFFFFFF,MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR,"gfx","gfx");
-			GiveInventory("BaseFlagPack",1);
-			GiveInventory("BassBuster",1);
-			GiveInventory("8C Static Move Giver", 1);
-			SetAirControl(8.392333); // 5.905 for airspeed = groundspeed
-			/*
-			while (true) { // airFriction control }}
-			Player air movement was planned to have lower friction + slower player speed,
-				resulting in jumps being hard to readjust direction, but gaining more momentum/speed (like doom jumps.)
-			This, as a contract to ground movement - high friction + high player speed, resulting in good dodging/position,
-			but not good to cover distances.
-
-			It was dropped because modifying player's speed based on grounded/in air (with setactorproperty or powerspeed i.e)
-			couldn't use client-side prediction to make player movement online smooth.
-			See https://zdoom.org/wiki/Creating_multiplayer-friendly_ZScript
-
-			Need Player.Forward/Side move properties but for in-air specific :D
-
-			-----------------------------------------------------------------------------------------------
-
-				Also for some reason when an actor (the player) is standing on a solid actor (i.e yoku block),
-				the aircontrol (friction) stops applying, giving player a surge of speed
-				We reposition the player 1 unit above the solid actor, with no gravity, just so aircontrol applies again (code below)
-				
-				Limitations though : there's still 1 tic of speed surge (when landing on the actor),
-				also jump reproduction not accurate ; it allows jumping on the same time t when you land on the actor
-			*/
-			while(!isGone(0)) {
-				if ((GetActorZ(0)-GetActorFloorZ(0))>=1.0)
-					if (!checkFooting(-1.0)) {
-						SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),0.0,false,false);
-						SetActorPosition(0,GetActorX(0),GetActorY(0),GetActorZ(0)+1.0,false);
-						GiveInventory("8C On actor gravity Giver", 1);
-						do {
-							delay(1);
-							if (GetPlayerInput(-1,INPUT_BUTTONS)&BT_JUMP) {
-								SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),GetActorProperty(0,APROP_JumpZ),false,false);
-								break;
-							}
-						}  while (!checkFooting(-2.0));
-						TakeInventory("8C On actor gravity", 1);
-
-					}
-				delay(1);
-			}
+			if (arg1) SetActivator(0,arg1);
+			SetResultValue(GetUserVariable(0, "user_colorId"));
 		break;
 	}
+}
+
+
+
+
+function void healthFormula(int level) {
+	int hp = calcStatLerp(getHP(CheckInventory("8C ID")), level)>>16;
+	SetActorProperty(0,APROP_SpawnHealth,hp); // note monsters max/spawn hp can't be modified at current time zandro versions
+	SetActorProperty(0,APROP_Health,hp);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//////////////////////////////////////////////////////////
+//                           Misc/utils            				//
+	//////////////////////////////////////////////////////////
+
+function int roundf(int f) { return (f+0.5)&0xFFFF0000; }
+    
+// from xover weapons 2.1.0
+script "EarthQuake" (int strength, int duration, int range) {
+	Radius_Quake(strength, duration, 0, range/64, 0); }
+
+// from vanilla but /w zOffset param
+function bool checkFooting(int zOffset) {
+	int tid = UniqueTID();
+	bool check = Spawn("8bdmFootholdCheck",GetActorX(0),GetActorY(0),GetActorZ(0)+zOffset,tid);
+	Thing_Remove(tid);
+	return check;
 }
 
 function bool isGone(int ptr) {
@@ -198,61 +505,42 @@ function bool isGone(int ptr) {
 	return (flags & (ACTOR_WORLD | ACTOR_DEAD)) || ((flags & ACTOR_PLAYER) && PlayerIsSpectator(PlayerNumber()));
 }
 
-function bool checkFooting(int zOffset) {
-	int tid = UniqueTID();
-	bool check = Spawn("8bdmFootholdCheck",GetActorX(0),GetActorY(0),GetActorZ(0)+zOffset,tid);
-	Thing_Remove(tid);
-	return check;
-}
 
-script "8C Event" (int type, int damage, int damageType) EVENT {
-	switch(type) {
-		case GAMEEVENT_ACTOR_DAMAGED:
 
-			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
 
-			bool isVictimMob = CheckInventory("8C flags") & FLAG_MOB;
+	//////////////////////////////////////////////////////////
+//                           debug/tmp             				//
+	//////////////////////////////////////////////////////////
 
-			if (CheckInventory("8C flags") & FLAG_DEFLECT) {
-				PlaySound(0,"8CPAIN02",CHAN_VOICE,1.0,false);
-				type = SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-				SpawnForced("8C Deflect gfx", GetActorX(0), GetActorY(0), GetActorZ(0));
-				if (type && !CheckFlag(0, "DONTREFLECT")) {
-                	SetPointer(AAPTR_TARGET, 0, AAPTR_DAMAGE_TARGET);
-					SetActorVelocity(0, -GetActorVelY(0), GetActorVelX(0), -16.0, false, false);
-				}
-				SetResultValue(0);
-				break;
-			}
-
-			//
-			if (isVictimMob) {
-       			PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
-				
-				type = GetUserVariable(0, "user_colorId");
-				for (int i = 0; i < 5; i++) {
-					Thing_SetTranslation(0, 68); // CLR_BOSSPAIN
-					delay(1);
-					Thing_SetTranslation(0, type);
-					delay(1);
-
-				}
-			}
+	
+// debug script
+script "x" (int i, int arg1, int arg2, int arg3) {
+	switch(i) {
+		case 0:
+			ACS_NamedExecuteWithResult("8C", INCARNATE, arg1, arg2);
+			do  {
+				SetFont("CONFONT");
+				int id = CheckInventory("8C ID");
+				int puissance = calcStatLerp(getPuissance(id), getLevel())>>16;
+				cout(strParam(
+					s:"id ", d:CheckInventory("8C ID"),
+					s:"\ck\nlevel ", d:getLevel(), s:"\cg\npuissance ", d:puissance)
+					, 0.1, 0.85);
+				delay(1);
+			} while (!isGone(0));
 		break;
-		
+
+		case 1: spawn8c(getName(arg1+HERO_SIZE), 0); break;
+
+		case 200: printActorTable(); break;
 	}
 }
 
-// from xover weapons 2.1.0
-script "EarthQuake" (int strength, int duration, int range) {
-	Radius_Quake(strength, duration, 0, range/64, 0); }
 
-// script "onche" (void) {
-// 	Log(s:"pre ", s:GetActorClass(0));
-// 	Log(s:"morph ", d:SetPlayerClass(0, "8C Protoman", true));
-// 	Log(s:"pre ", s:GetActorClass(0));
-// }
 
-// script "tagle" (void) {
-// 	Log(s:"morph ", d:MorphActor(0,"8C Protoman", "", 0xFFFFFFFF, 0, "", ""));
-// }
+function void cout(str text, int x, int y) {
+	x = FixedMul(x,400.0);
+	y = FixedMul(y,320.0);
+	SetHudSize(640, 400, 0);
+		HudMessageBold(s:text;  HUDMSG_FADEOUT, -9999, CR_WHITE, x, y, 5.0, 0.25);
+}

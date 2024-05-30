@@ -3,8 +3,8 @@ actor "8C Kamadoma" : "8C Mob" {
     meleerange 768 accuracy 16
     args 28, 10
         states { 
-            onSpawn:
-                TNT1 A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, false)
+            spawn:
+                TNT1 A 0 nodelay ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, false)
             checkFloor:
                 8CAA L 2 A_JumpIf(CallACS("core_CheckFooting"), 1)
                 loop

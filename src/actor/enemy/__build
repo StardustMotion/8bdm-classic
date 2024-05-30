@@ -1,4 +1,6 @@
 
+#include "actor/enemy/_base"
+
 #include "actor/enemy/adheringSuzy"
 #include "actor/enemy/blader"
 #include "actor/enemy/blaster"

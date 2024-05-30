@@ -1,5 +1,5 @@
 
 
-#include "actor/general/_build"
-#include "actor/hero/_build"
-#include "actor/enemy/_build"
+#include "actor/common/__build"
+#include "actor/hero/__build"
+#include "actor/enemy/__build"
