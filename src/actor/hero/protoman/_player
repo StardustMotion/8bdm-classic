@@ -1,11 +1,18 @@
 
-actor "8C Protoman" : "8C Hero" {
+actor "8C Protoman" : "8C Megaman" {
 states {
     see:
         "$PRO" BCDE 5
+        goto spawn
+
+    intro8Cpose:
+        PROM J 8
+        8CAB UVUVUVWXYZYZYZYZ 4
         goto spawn
     }
 }
 
 actor "8C Protoman onSpawn" : item { states {
     pickup: TNT1 A 0 A_GiveInventory("ProtoBuster") stop }}
+
+

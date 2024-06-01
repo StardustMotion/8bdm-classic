@@ -60,10 +60,11 @@ cooperative {
 		SV_AllowCrouch = false
 		sv_maxplayers = 32
 		sv_randomcoopstarts = true
-		sv_respawndelaytime = 3
+		sv_respawndelaytime = 2
 		sv_survivalcountdowntime = 5
 		teamdamage = 0.0
 		TimeLimit = 0
+		SV_WeaponDrop = false
 	}
 	LockedGameSettings  {
 		SV_NoMonsters = false
@@ -87,7 +88,6 @@ cooperative {
 		sv_maprotation = false
 		sv_maxlives = 3
 		
-		
 
 		/*
 		SV_Coop_LoseInventory
@@ -101,7 +101,6 @@ cooperative {
 		// sv_DeadPlayersCanKeepInventory
 		*/
 
-		SV_WeaponDrop = false
 
 
 		

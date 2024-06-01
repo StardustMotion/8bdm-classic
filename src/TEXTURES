@@ -9,3 +9,15 @@ sprite 8CAAY3Y7, 12, 16 { offset 6, 16 patch 8CAAW7W3, 0, 0}
 sprite 8CAAW6W4, 18, 16 { offset 9, 16 patch 8CAAW8W2, 0, 0 { flipx }}
 sprite 8CAAX6X4, 18, 16 { offset 9, 16 patch 8CAAX8X2, 0, 0 { flipx }}
 sprite 8CAAY6Y4, 18, 16 { offset 9, 16 patch 8CAAY8Y2, 0, 0 { flipx }}
+
+
+// Intro effect
+sprite 8CINTRO4, 256, 112 { offset 0, 0 patch 8CINTRO0, 0, 0 offset 0, 0 patch 8CINTRO1, 0, 0 }
+sprite 8CINTRO5, 256, 112 { offset 0, 0 patch 8CINTRO4, 0, 0 offset 0, 0 patch 8CINTRO2, 0, 0 }
+sprite 8CINTRO6, 256, 112 { offset 0, 0 patch 8CINTRO4, 0, 0 offset 0, 0 patch 8CINTRO3, 0, 0 }
+sprite 8CINTRO7, 1, 1 {} // anim
+
+sprite 8CINTRO8, 256, 112 { offset 0, 0 patch 8CINTRO0, 0, 0 offset 0, 0 patch 8CINTRO1, 0, 102 { flipy }}
+sprite 8CINTRO9, 256, 112 { offset 0, 0 patch 8CINTRO8, 0, 0 offset 0, 0 patch 8CINTRO2, 0, 104 { flipy }}
+sprite 8CINTROA, 256, 112 { offset 0, 0 patch 8CINTRO8, 0, 0 offset 0, 0 patch 8CINTRO3, 0, 104 { flipy }}
+sprite 8CINTROB, 1, 1 {} // anim

@@ -4,6 +4,10 @@
 	//////////////////////////////////////////////////////////
 //                           Data             				    //
 	//////////////////////////////////////////////////////////
+	
+#DEFINE INCARNATE 0
+#DEFINE INTRO_ANIMATION 1
+#DEFINE PHYSICS_8C 2
 
 #DEFINE HERO_SIZE 6 // 32 128
 #DEFINE ENEMY_SIZE 24
@@ -47,16 +51,25 @@ function int calcStatLerp(int base, int level) { return roundf(base + FixedMul(b
 //                           Events             				//
 	//////////////////////////////////////////////////////////
 
+bool forcePhysics = false;
 bool isMap8C = false;
-script "8C OPEN" OPEN {
+script "8C OPEN" OPEN {	
+	forcePhysics = GetCvar("C8_PHYSICS");
+	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
 	init();
     loadActors();
 }
 
 script "8C ENTER" ENTER {
-	delay(3);
-	// morph
+	delay(1);
+	ACS_NamedExecuteWithResult("8C", INCARNATE, random(0,1));
+	if (isMap8C || forcePhysics) 	ACS_NamedExecuteWithResult("8C", PHYSICS_8C);
+	if (isMap8C) 					ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
 }
+script "8C RESPAWN" RESPAWN {
+	ACS_NamedExecuteWithResult("8C ENTER");
+}
+
 
 script "8C EVENT" (int type, int base, int damageType) EVENT {
 	switch(type) {
@@ -84,13 +97,15 @@ script "8C EVENT" (int type, int base, int damageType) EVENT {
 
 function void init(void) {
 	for (int i = 0; i < ENEMY_SIZE+HERO_SIZE; i++) 
-        ACTOR[i][0] = 0;
-	DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
-	DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
-    
-	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
+        ACTOR[i][0] = 0;    
+	if (isMap8C || forcePhysics) {
+		for (i = 0; i < 512; i++) 
+			Sector_SetFriction(i,-96);
+		DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
+		DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
+	}
 	if (isMap8C)
-		for (i = 0; i < 512; i++) Sector_SetFriction(i,-96);
+		ConsoleCommand("mm8bdm_sv_respawnprotection 0"); // side effect. pls give a hook
 }
 
 function void loadActors(void) {
@@ -273,7 +288,12 @@ script "8C API" (int type, int arg1, int arg2, int arg3) {
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Main script  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-#DEFINE INCARNATE 0
+#DEFINE INCARNATION_INTRO_SPAWN_TIME 90
+#DEFINE INCARNATION_INTRO_READY_TIME 15
+#DEFINE INCARNATION_INTRO_TIME INCARNATION_INTRO_SPAWN_TIME + INCARNATION_INTRO_READY_TIME
+#DEFINE INCARNATION_HP_FILL 40
+
+#DEFINE CS_READY_ANIMATION 65
 
 #DEFINE XY_DIST 64
 #DEFINE Z_DIST 65
@@ -283,6 +303,11 @@ script "8C API" (int type, int arg1, int arg2, int arg3) {
 #DEFINE CHECK_COLLISION 69
 #DEFINE SOLID_TOGGLE 70
 #DEFINE GET_USERVAR 71
+//#DEFINE NO_8C_FOG 72 // 8C.acs
+//#DEFINE NO_8C_SPAWN_INVUL 73 // 8C.acs
+
+#DEFINE CAMERA_TID 7800
+
 
 script "8C" (int type, int arg1, int arg2, int arg3) {
 	switch(type) {
@@ -292,20 +317,26 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 								///////////////////////
 
 		/**
-		* @arg1 actor id
-		* @arg2 level
+		* @arg1 int : actor id
+		* @arg2 int : level
+		* @arg3 bool : skip intro animation?
 		*/
-		case INCARNATE:
-			arg3 = getName(arg1);
-			MorphActor(0,arg3,"",0x7FFFFFFF,MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR,"gfx","gfx");
-			if(arg1) 
-				GiveInventory("8C ID", arg1);
-			setLevel(arg2);
-			healthFormula(arg2);
-			GiveInventory("BaseFlagPack",1);
-			GiveInventory(StrParam(s:arg3, s:" onSpawn"), 1);
-			if (!isMap8C) // vanilla-style physics : we end here
+		case INCARNATE:		
+			int class = arg1, level = 10;
+			Log(n:0, s:">>>>   ", s:getName(class), s:" lv. ", d:level);
+			if (class == -1)
 				terminate;
+			int name = getName(class);
+			MorphActor(0,name,"",0x7FFFFFFF,MRF_WHENINVULNERABLE|MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR,"gfx","gfx");
+			if(class) 
+				GiveInventory("8C ID", class);
+			setLevel(level);
+			healthFormula(level);
+			GiveInventory("BaseFlagPack",1);
+			GiveInventory(StrParam(s:name, s:" onSpawn"), 1);
+		break;
+
+		case PHYSICS_8C:
 			GiveInventory("8C Static Move Giver", 1);
 			SetAirControl(8.392333); // 5.905 for airspeed = groundspeed
 			
@@ -352,6 +383,49 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 				delay(1);
 			}
 		break;
+
+		case INTRO_ANIMATION:
+			SetActorProperty(0, APROP_Health, 1);
+			ACS_NamedExecuteWithResult("core_freezeplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, true);
+			GiveInventory("noInteractionOn",1);
+							
+			arg3 = CAMERA_TID+PlayerNumber();
+			arg2 = ActivatorTID();
+			SpawnForced("8C Camera",0,0,0,arg3,0);
+			SetActivator(arg3);
+			SetPointer(AAPTR_TARGET,arg2);
+			SetActivator(arg2);
+
+			ACS_NamedExecuteWithResult("8C CS", CS_READY_ANIMATION, PlayerNumber());
+			delay(INCARNATION_INTRO_READY_TIME);
+
+			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, false);
+			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, false);
+			GiveInventory("noInteractionOff",1);
+			SetActorState(0,"intro8C",true);
+
+			// ---- INCARNATION_INTRO_SPAWN TIME start ---- //
+			delay(35);
+			type = ((GetActorProperty(0,APROP_SpawnHealth)-1)<<16)/INCARNATION_HP_FILL;
+			for (int i=1; i <= INCARNATION_HP_FILL; i++) {
+				SetActorProperty(0,APROP_Health, 1+((type*i)>>16));
+				if (i%2) 
+					LocalAmbientSound("8CHPFILL", 127);
+				delay(1);
+			}
+			SetActorProperty(0,APROP_Health, GetActorProperty(0,APROP_SpawnHealth));
+			delay(30);
+			ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
+			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, false);
+			// ---- INCARNATION_INTRO_SPAWN TIME end ---- //
+		break;
+
+
+
+
 
 
 
@@ -402,7 +476,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		// detect lateral collision with terrain/actors. Used i.e by Cutting Wheel to climb
 		case CHECK_COLLISION:
 			arg1 = GetActorAngle(0)+ 0.25*arg1;
-			int i = GetActorProperty(0,APROP_Radius)>>16;
+			i = GetActorProperty(0,APROP_Radius)>>16;
 
 			// increase this to help non axis aligned collision detection but at the cost of overall worsened collision accuracy
 			arg3 = (i*5)/3;
@@ -445,9 +519,105 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			if (arg1) SetActivator(0,arg1);
 			SetResultValue(GetUserVariable(0, "user_colorId"));
 		break;
+
+		// 6b "map_teleportfog" script overwrite
+		case NO_8C_FOG:
+			if (Timer() < 2) delay(2);
+			if (isMap8C) terminate;
+			// edit end
+			arg1 = ACS_NamedExecuteWithResult("core_getptrtid", AAPTR_TARGET);
+			arg2 = UniqueTID();
+			SpawnForced("TeleportFogFX", GetActorX(0), GetActorY(0), GetActorZ(0), arg2, 0);
+			SetActivator(arg2);
+			SetPointer(AAPTR_TARGET, arg1);
+			SetActivator(arg1);
+			Thing_SetTranslation(arg2, -1);
+			Thing_ChangeTID(arg2, 0);
+		break;
+		
+	
+	}
+}
+#DEFINE CS_CAMERA 64
+	#DEFINE INCARNATION_INTRO_CAMDIST 256.0
+	#DEFINE INCARNATION_INTRO_ZOOM 20
+script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
+	int localPlayer = ConsolePlayerNumber();
+	switch(type) {
+
+		case CS_CAMERA:
+			int camera = activatorTID();
+			if (localPlayer != camera-CAMERA_TID) {
+				Thing_Remove(0);
+				terminate;
+			}
+			SetActivatorToTarget(0);
+			int eyeLevel = (GetActorProperty(0,APROP_ViewHeight));
+			int dt = INCARNATION_INTRO_CAMDIST/INCARNATION_INTRO_ZOOM;
+			for (int i = INCARNATION_INTRO_TIME; i; i--) {
+				ChangeCamera(camera,0,0);
+				int z = -(GetActorZ(0)-GetActorFloorZ(0))+eyeLevel;
+				Warp(camera, -4.0, 0, z, 0, WARPF_MOVEPTR | WARPF_NOCHECKPOSITION);
+				SetActorPitch(camera,0);
+				if (i <= INCARNATION_INTRO_ZOOM)	cameraExtend(camera, INCARNATION_INTRO_CAMDIST-((INCARNATION_INTRO_ZOOM-i)*dt));	
+				else								cameraExtend(camera, INCARNATION_INTRO_CAMDIST);	
+				ActorLookAt(camera,0,eyeLevel,0);
+				delay(1);
+			}
+			Thing_Remove(camera);
+		break;
+
+		case CS_READY_ANIMATION:
+			if (localPlayer != arg1) terminate;
+			ACS_NamedExecuteWithResult("8C CS", 250);
+			int base = -384.1;
+			int baseTop = 384.1;
+			int delta = 0;
+			int upper = 0; int j = 0;
+			int deltax = 16;
+			for (j = 0; j < INCARNATION_INTRO_TIME; j++) {
+				if(j >= (INCARNATION_INTRO_TIME-INCARNATION_INTRO_ZOOM)) upper+=2;
+				for (i = 0; i < 3; i++) {
+					// drawSB("8CINTRO7",
+					// 	(baseTop-(delta<<16))-(256.0*i),
+					// 	100.2-(upper<<16));
+					
+					drawSB("8CINTROB",
+						(baseTop-(delta<<16))-(254.0*i),
+						-12.0 -(upper<<16));//);
+					drawSB("8CINTRO7",
+						(base+(delta<<16))+(254.0*i),
+						100.0+(upper<<16));
+					
+				}
+				delta = (delta+8)%256;
+
+				if (((j>>2)&0x1) || deltax) {
+					//draw("8CINTRO2", 159.0-(deltax<<20), 139.0, 320, 280, 0.05, 1.0-(!!(deltax)<<15));
+					//draw("8CINTRO3", 161.0+(deltax<<20), 141.0, 320, 280, 0.05, 1.0-(!!(deltax)<<15));
+					if (deltax) 
+						deltax--;
+				}
+				delay(1);
+			}
+		break;
 	}
 }
 
+#DEFINE CAMERA_T 4
+function void cameraExtend(int camera, int dist) {
+	int dx = cos(GetActorAngle(camera))*CAMERA_T;
+	int dy = sin(GetActorAngle(camera))*CAMERA_T;
+	int dz = sin(GetActorPitch(camera))*CAMERA_T;
+	int tMax = (dist/CAMERA_T)>>16;
+	for (int t = 1; t <= tMax; t++) {
+		int test = Warp(camera,
+			GetActorX(camera)-dx, GetActorY(camera)-dy, GetActorZ(camera)-dz,
+			0, WARPF_MOVEPTR | WARPF_ABSOLUTEPOSITION		
+		);		
+		if (!test) break;
+	}
+}
 
 
 
@@ -513,34 +683,39 @@ function bool isGone(int ptr) {
 	//////////////////////////////////////////////////////////
 
 	
-// debug script
-script "x" (int i, int arg1, int arg2, int arg3) {
-	switch(i) {
-		case 0:
-			ACS_NamedExecuteWithResult("8C", INCARNATE, arg1, arg2);
-			do  {
-				SetFont("CONFONT");
-				int id = CheckInventory("8C ID");
-				int puissance = calcStatLerp(getPuissance(id), getLevel())>>16;
-				cout(strParam(
-					s:"id ", d:CheckInventory("8C ID"),
-					s:"\ck\nlevel ", d:getLevel(), s:"\cg\npuissance ", d:puissance)
-					, 0.1, 0.85);
-				delay(1);
-			} while (!isGone(0));
-		break;
 
-		case 1: spawn8c(getName(arg1+HERO_SIZE), 0); break;
+// int theXalign = 0.1;
+// int theYalign = 0.1;
+// /*
+// x
+// .0 = positions center of box
+// .1 = positions left edge of box
+// .2 = positions right edge of box
+// .4 = centers text inside box and aligns center
+// .5 = centers text and aligns left edge
+// .6 = centers text and aligns right edge
+// For y:
 
-		case 200: printActorTable(); break;
-	}
+// .0 = positions center of box
+// .1 = positions top edge of box
+// .2 = positions bottom edge of box*/
+
+script "draw" (int x, int y, int scx, int scy) {
+	draw("8CINTRO7", x<<16, y<<16, scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
 }
 
-
-
-function void cout(str text, int x, int y) {
-	x = FixedMul(x,400.0);
-	y = FixedMul(y,320.0);
-	SetHudSize(640, 400, 0);
-		HudMessageBold(s:text;  HUDMSG_FADEOUT, -9999, CR_WHITE, x, y, 5.0, 0.25);
+function void draw(str image, int x, int y, int xScreen, int yScreen, int time, int alpha) {
+	SetHudSize(xScreen,yScreen,true); SetFont(image);
+	HudMessageBold(s:"A";HUDMSG_PLAIN|HUDMSG_ALPHA ,Get_And_Inc_AssistDisplayID(),CR_UNTRANSLATED,x,y,time,alpha);
 }
+
+// basic version
+function void drawB(str image, int x, int y, int xScreen, int yScreen) {
+	draw(image, x, y, xScreen, yScreen, 0.04, 1.0);
+}
+
+// super basic version
+function void drawSB(str image, int x, int y) {
+	draw(image, x, y, 320, 200, 0.04, 1.0);
+}
+

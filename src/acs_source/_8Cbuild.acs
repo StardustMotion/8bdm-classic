@@ -3,6 +3,7 @@
 #include "zcommon.acs"
 #include "8BDMLIB.acs"
 #include "DTADD.acs"
+#include "ASSTLIB.acs"
 
 #include "8C.acs" // 8C's API
 #include "data.acs"

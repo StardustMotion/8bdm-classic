@@ -1,0 +1,3 @@
+
+// apply 8C physics on non-8C maps?  (require map restart)
+server bool C8_PHYSICS = false;

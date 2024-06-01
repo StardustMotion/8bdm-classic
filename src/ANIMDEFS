@@ -1,1 +1,12 @@
-//
+
+texture 8CINTRO7
+    pic 8CINTRO4 tics 12
+	pic 8CINTRO5 tics 2
+	pic 8CINTRO6 tics 2
+	pic 8CINTRO5 tics 2
+
+texture 8CINTROB
+    pic 8CINTRO8 tics 12
+	pic 8CINTRO9 tics 2
+	pic 8CINTROA tics 2
+	pic 8CINTRO9 tics 2

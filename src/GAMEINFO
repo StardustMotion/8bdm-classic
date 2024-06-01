@@ -1,4 +1,4 @@
-startupcolors = "#A018C8","#20F8F0"
+startupcolors = "#00f8fc","#0078fc"
 startuptitle = "Mega Man 8-Bit Deathmatch ~ Classic"
 iwad = "megagame.wad"
 startupsong = "ATK3500"

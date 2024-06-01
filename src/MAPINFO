@@ -52,8 +52,8 @@ automap { // automap_overlay ?
 
 defaultmap {
     next = "8C-HUB"
-     
-	aircontrol = 0.5
+    nointermission     
+	aircontrol = 0.5 // overwritten by 8C's physis
     NoCrouch
     AllowRespawn // very important.
     UsePlayerStartZ
@@ -68,7 +68,7 @@ defaultmap {
     nocoloredspritelighting
     // sky1/sky2 doublesky
     // fade = unused (testfade cmd)
-    nointermission
+    
 
 
     
@@ -84,6 +84,6 @@ defaultmap {
 }
 
 map "8C-1CUT" lookup "8C_STAGE_CUT" { 
-    music = "8C1CUTA" 
+    music = "8C1CUTA"
 }
 

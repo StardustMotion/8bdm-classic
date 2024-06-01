@@ -10,6 +10,16 @@
 8C_ENEMY_UNKNOWN = "\ck\/!/ Warning : enemy name unknown, is it defined with add8cEnemy function? : ";
 8C_ENEMY_CANT_SPAWN = "\ck\/!/ Warning : code not defined/or spawn spot doesn't exist : ";
 
+// Weapon text
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Megaman ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+PU_8C_MEGABUSTER = "\ccGet equipped with\n           \cvMega Buster";
+TAG_8C_MEGABUSTER = "\cc[ \cvMega Buster \cc]";
+OB_8C_MEGABUSTER = "%k used \cvMega Buster\c- on %o";
+PU_8C_ROLLINGCUTTER = "\ccGet equipped with\n           \cuRolling Cutter";
+TAG_8C_ROLLINGCUTTER = "\cc[ \cuRolling Cutter \cc]";
+OB_8C_ROLLINGCUTTER = "%k used \cuRolling Cutter\c- on %o";
 
 [enu fr]
 

@@ -1,5 +1,6 @@
 #DEFINE API_8C_ADD_ACTOR 0
 #DEFINE API_8C_SPAWN_ENEMY 1
+#DEFINE NO_8C_FOG 72
 
 // --------------------------------------------------------------- //
 
@@ -12,7 +13,7 @@ function void add8cEnemy(str name, int hp, int puissance) { __add8cActor(1,name,
 /**
 * Register a special weapon stage
 */
-function void add8cStage(str mapLump, str name) { ; }
+//function void add8cStage(str mapLump, str name) { ; }
 
 /**
 * Spawns enemy at spot like SpawnSpotFacingForced
@@ -50,3 +51,6 @@ function void __add8cActor(int type, str name, int hp, int puissance) {
     setInt8C("8bdm_wepMult2", puissance);
 	ACS_NamedExecuteWithResult("8C API", API_8C_ADD_ACTOR, type);
 }
+
+// vanilla behavior overwrite because they have no API hook
+script "map_teleportfog" (void) { ACS_NamedExecuteWithResult("8C", NO_8C_FOG); }

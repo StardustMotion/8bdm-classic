@@ -1,0 +1,7 @@
+
+// offset direction is -x, y
+
+// Mega buster
+sprite 8CQBR0, 152, 116 { XScale 0.25 YScale 0.25 Offset -49, -22 Patch 8CABO0, 0, 0 { }}
+sprite 8CQBS0, 152, 116 { XScale 0.25 YScale 0.25 Offset -50, -23 Patch 8CABP0, 0, 0 { }}
+sprite 8CQBT0, 152, 116 { XScale 0.25 YScale 0.25 Offset -52, -25 Patch 8CABQ0, 0, 0 { }}

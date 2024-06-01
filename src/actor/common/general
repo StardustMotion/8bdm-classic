@@ -7,9 +7,10 @@ const int COPY_VELOCITY = 67;
 const int CHECK_COLLISION = 69;
 const int SOLID_TOGGLE = 70;
 const int GET_USERVAR = 71;
+const int CAMERA_TID = 7800;
 
 
-// aliases
+// 'lets give essential actors long-ass names'
 actor proj : BasicProjectile { obituary "$8C_OBIT_DEFAULT" }
 actor watcher : BasicWatcher {}
 actor gfx : BasicGraphicEffect {}
