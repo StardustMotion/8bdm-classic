@@ -1,11 +1,18 @@
 
 actor "8C Roll" : "8C Hero" {
 states {
+    // states todo 
+    
     see:
         ROLL BCDE 5
+        goto spawn
+    intro8Cpose:
+        8CAC IJKLEFGHIJKLEFGH 3
+        8CAC M 28
+        ROLL A 4
         goto spawn
     }
 }
 
 actor "8C Roll onSpawn" : item { states {
-    pickup: TNT1 A 0 A_GiveInventory("SuperAdaptorWep") stop }}
+    pickup: TNT1 A 0 A_GiveInventory("FireStormWep") stop }}

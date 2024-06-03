@@ -2,7 +2,7 @@
 actor "8C Hero" : ClassBase {
     // private:
         +NOSKIN +NOMORPHLIMITATIONS
-        var int user_8C_level;
+        var int user_8C_rank;
     // public:
         player.forwardmove 0.88 player.sidemove 0.727
     states {
@@ -27,9 +27,9 @@ actor "8C Hero" : ClassBase {
         intro8C:
             3MEG A 0 A_GiveInventory("noInteractionOn")
             3MEG A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, false)
-            3MEG A 0 A_Warp(AAPTR_DEFAULT, 0, 0, 760.0, 0, WARPF_NOCHECKPOSITION)
-            TFOG A 0 A_ChangeVelocity(0,0,-40,CVF_REPLACE)
-            TFOG A 18
+            3MEG A 0 A_Warp(AAPTR_DEFAULT, 0, 0, 704.0, 0, WARPF_NOCHECKPOSITION)
+            TFOG A 0 A_ChangeVelocity(0,0,-64,CVF_REPLACE)
+            TFOG A 10
             TFOG A 0 A_Warp(AAPTR_DEFAULT, 0, 0, -(z-floorz), 0, WARPF_NOCHECKPOSITION|WARPF_STOP)
             3MEG A 0 A_GiveInventory("noInteractionOff")
             3MEG A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, true)
@@ -37,7 +37,7 @@ actor "8C Hero" : ClassBase {
             TFOG A 0 A_JumpIf(true, "intro8Cpose")
             goto intro8Cpose
         intro8Cpose:
-            MAIL B 72 A_Log("Your hero does not have a intro8C or intro8Cpose state! Here's a placeholder mail box")
+            MAIL B 80 A_Log("Your hero does not have a intro8C or intro8Cpose state! Here's a placeholder mail box")
             TNT1 A 0 A_JumpIf(true, "spawn")
             goto spawn            
     }

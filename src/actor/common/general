@@ -30,3 +30,10 @@ actor "8C ID" : once { inventory.maxamount 0xFFFF }
 // Decimal part of an entity HP. Represents a [-0.5,0.5] difference over their current (real) HP
 // 1 leftmost bit for sign, 16 rightmost bit for decimal value (17 bit total)
 actor "8BDM HP" : once { inventory.maxamount 0x10000 }
+
+
+// Allows only 1 puke request at a time
+actor "8C Puke Request" : once { }
+
+// given from server to client after RequestScriptPuke to confirm request was processed. 1 = OK, 2 = ERROR
+actor "8C Puke Response" : once { inventory.maxamount 2 }

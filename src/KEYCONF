@@ -1,2 +1,7 @@
 
 // gameinfo later
+
+
+
+// hud message is better menudef
+alias 8c_start "pukename \"8C CS NET\"; closemenu";

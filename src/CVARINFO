@@ -1,3 +1,49 @@
+// cvars not allowed to start with a number, so 8C is C8 instead  ' -'
 
 // apply 8C physics on non-8C maps?  (require map restart)
 server bool C8_PHYSICS = false;
+
+
+
+	//////////////////////////////////////////////////////////
+//                      The Great Wall        				    //
+	//////////////////////////////////////////////////////////
+
+server noarchive int c8_hero_size = 0;
+server noarchive string c8_hero_0 = "";
+server noarchive string c8_hero_1 = "";
+server noarchive string c8_hero_2 = "";
+server noarchive string c8_hero_3 = "";
+
+server noarchive int c8_hero_player_0 = -1;
+server noarchive int c8_hero_player_1 = -1;
+server noarchive int c8_hero_player_2 = -1;
+server noarchive int c8_hero_player_3 = -1;
+server noarchive int c8_hero_player_4 = -1;
+server noarchive int c8_hero_player_5 = -1;
+server noarchive int c8_hero_player_6 = -1;
+server noarchive int c8_hero_player_7 = -1;
+server noarchive int c8_hero_player_8 = -1;
+server noarchive int c8_hero_player_9 = -1;
+server noarchive int c8_hero_player_10 = -1;
+server noarchive int c8_hero_player_11 = -1;
+server noarchive int c8_hero_player_12 = -1;
+server noarchive int c8_hero_player_13 = -1;
+server noarchive int c8_hero_player_14 = -1;
+server noarchive int c8_hero_player_15 = -1;
+server noarchive int c8_hero_player_16 = -1;
+server noarchive int c8_hero_player_17 = -1;
+server noarchive int c8_hero_player_18 = -1;
+server noarchive int c8_hero_player_19 = -1;
+server noarchive int c8_hero_player_20 = -1;
+server noarchive int c8_hero_player_21 = -1;
+server noarchive int c8_hero_player_22 = -1;
+server noarchive int c8_hero_player_23 = -1;
+server noarchive int c8_hero_player_24 = -1;
+server noarchive int c8_hero_player_25 = -1;
+server noarchive int c8_hero_player_26 = -1;
+server noarchive int c8_hero_player_27 = -1;
+server noarchive int c8_hero_player_28 = -1;
+server noarchive int c8_hero_player_29 = -1;
+server noarchive int c8_hero_player_30 = -1;
+server noarchive int c8_hero_player_31 = -1;

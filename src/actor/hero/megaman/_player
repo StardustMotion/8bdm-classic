@@ -17,9 +17,9 @@ states {
     inAirFire: 0MEG EEEEEE 1 A_JumpIf(CallACS("core_CheckFooting"), "missile") goto spawn
 
     intro8Cpose:
-        3MEG ABCDEFGHIJKLMNOPQR 3
-        0MEG A 12
-        MEGM A 6
+        3MEG ABCDEFGHIJKLMNOPQR 4
+        0MEG A 6
+        MEGM A 2
         goto spawn
     }
 }

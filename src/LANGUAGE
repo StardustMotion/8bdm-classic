@@ -7,7 +7,8 @@
 8C_OBIT_DEFAULT = "#######";
 
 8C_ACTOR_OVERFLOW = "\ci\/!/ Warning : too much extra actors loaded ! /!/ ";
-8C_ENEMY_UNKNOWN = "\ck\/!/ Warning : enemy name unknown, is it defined with add8cEnemy function? : ";
+8C_ENEMY_MINPLAYER_ERROR = "\ca\/!/ Error : Minimum player count for spawning monster should be either 1, 3, 5 or 7 ; but was specified : ";
+8C_ENEMY_UNKNOWN = "\ck\/!/ Warning : enemy name unknown, was it defined with \cnadd8cEnemy\ck function? : ";
 8C_ENEMY_CANT_SPAWN = "\ck\/!/ Warning : code not defined/or spawn spot doesn't exist : ";
 
 // Weapon text

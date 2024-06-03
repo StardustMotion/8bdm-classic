@@ -19,20 +19,7 @@ gameinfo {
 
 }
 
-skill "8c" {
-    /* damagefactor "1.0"
-    respawntime = 0
-    spawnfilter = 5 // unused
-    spawnmulti = true
-    doubleammofactor = 1.0
-    acsreturn = 4
-    key = 4
-    mustconfirm = ""
-    DisableCheats = true
-    // ReplaceActor  maybe
-    NoMenu = true
-    // NoSkillMenu  */
-}
+// skill "8c" ... 
 
 intermission "8cc" {
  // ?
@@ -46,7 +33,6 @@ automap { // automap_overlay ?
 
 }
  
-
 
 
 
@@ -82,6 +68,7 @@ defaultmap {
     //EventHandler 
     // Author */
 }
+
 
 map "8C-1CUT" lookup "8C_STAGE_CUT" { 
     music = "8C1CUTA"
