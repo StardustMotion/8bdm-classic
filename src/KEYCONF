@@ -4,4 +4,4 @@
 
 
 // hud message is better menudef
-alias 8c_start "pukename \"8C CS NET\"; closemenu";
+alias 8c_start "pukename \"8C NET CS\" always 0; closemenu";

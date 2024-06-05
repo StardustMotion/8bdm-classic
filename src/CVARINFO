@@ -1,49 +1,73 @@
 // cvars not allowed to start with a number, so 8C is C8 instead  ' -'
 
+user bool C8_AUTOLOGIN = false;
+
 // apply 8C physics on non-8C maps?  (require map restart)
 server bool C8_PHYSICS = false;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 	//////////////////////////////////////////////////////////
 //                      The Great Wall        				    //
 	//////////////////////////////////////////////////////////
-
+	
+// how much heroes loaded on the server
 server noarchive int c8_hero_size = 0;
-server noarchive string c8_hero_0 = "";
-server noarchive string c8_hero_1 = "";
-server noarchive string c8_hero_2 = "";
-server noarchive string c8_hero_3 = "";
 
-server noarchive int c8_hero_player_0 = -1;
-server noarchive int c8_hero_player_1 = -1;
-server noarchive int c8_hero_player_2 = -1;
-server noarchive int c8_hero_player_3 = -1;
-server noarchive int c8_hero_player_4 = -1;
-server noarchive int c8_hero_player_5 = -1;
-server noarchive int c8_hero_player_6 = -1;
-server noarchive int c8_hero_player_7 = -1;
-server noarchive int c8_hero_player_8 = -1;
-server noarchive int c8_hero_player_9 = -1;
-server noarchive int c8_hero_player_10 = -1;
-server noarchive int c8_hero_player_11 = -1;
-server noarchive int c8_hero_player_12 = -1;
-server noarchive int c8_hero_player_13 = -1;
-server noarchive int c8_hero_player_14 = -1;
-server noarchive int c8_hero_player_15 = -1;
-server noarchive int c8_hero_player_16 = -1;
-server noarchive int c8_hero_player_17 = -1;
-server noarchive int c8_hero_player_18 = -1;
-server noarchive int c8_hero_player_19 = -1;
-server noarchive int c8_hero_player_20 = -1;
-server noarchive int c8_hero_player_21 = -1;
-server noarchive int c8_hero_player_22 = -1;
-server noarchive int c8_hero_player_23 = -1;
-server noarchive int c8_hero_player_24 = -1;
-server noarchive int c8_hero_player_25 = -1;
-server noarchive int c8_hero_player_26 = -1;
-server noarchive int c8_hero_player_27 = -1;
-server noarchive int c8_hero_player_28 = -1;
-server noarchive int c8_hero_player_29 = -1;
-server noarchive int c8_hero_player_30 = -1;
-server noarchive int c8_hero_player_31 = -1;
+// their display name
+server noarchive string c8_hero_name_0 = "";
+server noarchive string c8_hero_name_1 = "";
+server noarchive string c8_hero_name_2 = "";
+server noarchive string c8_hero_name_3 = "";
+
+// which slot each player is currently playing with (0 free play, 1 A, 2 B)
+server noarchive int c8_player_hero_slot = 0x00000000;
+
+// players' heros ID. Each var contains data for 4 players (8 bits each)
+// <no prefix> for quick play, 0/1 for slots A/B
+server noarchive int c8_player_hero_id_0 = 0;
+server noarchive int c8_player_hero_id_1 = 0;
+server noarchive int c8_player_hero_id_2 = 0;
+server noarchive int c8_player_hero_id_3 = 0;
+
+server noarchive int c8_player_hero_id_00 = 0;
+server noarchive int c8_player_hero_id_01 = 0;
+server noarchive int c8_player_hero_id_02 = 0;
+server noarchive int c8_player_hero_id_03 = 0;
+
+server noarchive int c8_player_hero_id_10 = 0;
+server noarchive int c8_player_hero_id_11 = 0;
+server noarchive int c8_player_hero_id_12 = 0;
+server noarchive int c8_player_hero_id_13 = 0;
+
+
+
+//server noarchive int c8_player_logged = 0x00000000;
+// each player's zandronum account login
+server noarchive string c8_player_login_0 = "";
+server noarchive string c8_player_login_1 = "";
+server noarchive string c8_player_login_2 = "";
+server noarchive string c8_player_login_3 = "";
+server noarchive string c8_player_login_4 = "";
+server noarchive string c8_player_login_5 = "";
+server noarchive string c8_player_login_6 = "";
+server noarchive string c8_player_login_7 = "";
+server noarchive string c8_player_login_8 = "";
+server noarchive string c8_player_login_9 = "";
+server noarchive string c8_player_login_10 = "";
+server noarchive string c8_player_login_11 = "";
+server noarchive string c8_player_login_12 = "";
+server noarchive string c8_player_login_13 = "";
+server noarchive string c8_player_login_14 = "";
+server noarchive string c8_player_login_15 = "";

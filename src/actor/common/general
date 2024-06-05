@@ -32,8 +32,10 @@ actor "8C ID" : once { inventory.maxamount 0xFFFF }
 actor "8BDM HP" : once { inventory.maxamount 0x10000 }
 
 
-// Allows only 1 puke request at a time
-actor "8C Puke Request" : once { }
+// Given by server to client after RequestScriptPuke for clientside callback, if any
+// most often will return, as seen in data.acs
+// 0 = TIMED OUT (no answer from server), 1 = OK, 2 = ERROR, 3 = SKIPPED (throttled to avoid spam)
+actor "8C Puke Response" : once { inventory.maxamount 0xFFFFFFFF }
 
-// given from server to client after RequestScriptPuke to confirm request was processed. 1 = OK, 2 = ERROR
-actor "8C Puke Response" : once { inventory.maxamount 2 }
+// Given by server to clients to throttle NET call to avoid deliberate spam
+actor "8C Puke Request" : powerup { powerup.duration 35 }

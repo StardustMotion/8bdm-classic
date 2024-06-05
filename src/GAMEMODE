@@ -64,7 +64,6 @@ cooperative {
 		teamdamage = 0.0
 		TimeLimit = 0
 		SV_WeaponDrop = false
-		//sv_maxclients 32 
 	}
 	LockedGameSettings  {
 		SV_NoMonsters = false
@@ -91,6 +90,7 @@ cooperative {
 		////////////////////////////////////////////////////
 		sv_maxplayers = 8 // comme dans dofus mdr
 		//sv_maxclientsperip = 1 // where you going
+		//sv_maxclients 16
 		////////////////////////////////////////////////////
 		
 

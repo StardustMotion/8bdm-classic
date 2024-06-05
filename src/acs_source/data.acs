@@ -1,3 +1,231 @@
+
+
+////////////////////
+// Script header  //
+////////////////////
+
+// ------------------------------------------ //
+//    "8C"      //
+// ------------------------------------------ //
+
+#DEFINE INCARNATE 0
+#DEFINE INTRO_ANIMATION 1
+#DEFINE PHYSICS_8C 2
+
+#DEFINE XY_DIST 64
+#DEFINE Z_DIST 65
+#DEFINE IS_GONE 66
+#DEFINE COPY_VELOCITY 67
+#DEFINE GET_VELOCITY 68
+#DEFINE CHECK_COLLISION 69
+#DEFINE SOLID_TOGGLE 70
+#DEFINE GET_USERVAR 71
+//#DEFINE NO_8C_FOG 72 // 8C.acs
+
+
+// ------------------------------------------ //
+//    "8C NET"      //
+// ------------------------------------------ //
+
+//
+
+// ------------------------------------------ //
+//    "8C CS"      //
+// ------------------------------------------ //
+#DEFINE CS_PUKE 0
+
+#DEFINE CS_CAMERA 64
+#DEFINE CS_INTRO_HUD_ANIMATION 65
+#DEFINE CS_START_SCREEN 66
+
+
+// ------------------------------------------ //
+//    "8C NET CS"      //
+// ------------------------------------------ //
+
+#DEFINE CS_NET_START_SCREEN 0
+
+// ------------------------------------------------------------------------------------ //
+// ------------------------------------------------------------------------------------ //
+// ------------------------------------------------------------------------------------ //
+
+
+
+/////////////////
+//  Constants  //
+/////////////////
+
+#DEFINE INT_MAX 0x7fffffff
+#DEFINE INT_MIN 0x80000000
+
+#DEFINE HERO_SIZE 6 // 32 128 // dont exceed 256
+#DEFINE ENEMY_SIZE 24
+
+#DEFINE CAMERA_TID 7800
+
+#DEFINE INCARNATION_PREINTRO_TIME 25 // tics before actor plays its intro8C state
+#DEFINE INCARNATION_INTRO_SPAWN_TIME 90 // tics allowed for intro8C duration
+#DEFINE INCARNATION_INTRO_TIME INCARNATION_PREINTRO_TIME+INCARNATION_INTRO_SPAWN_TIME
+#DEFINE INCARNATION_INTRO_READY_TIME INCARNATION_PREINTRO_TIME+25 // "ready" animation display time
+
+#DEFINE PUKE_TIMED_OUT 0
+#DEFINE PUKE_OK 1
+#DEFINE PUKE_ERROR 2
+#DEFINE PUKE_SKIPPED 3
+
+#DEFINE INCARNATION_INTRO_CAMDIST 256.0
+#DEFINE INCARNATION_INTRO_ZOOM 20
+
+#DEFINE MENHUD_UP (BT_FORWARD)
+#DEFINE MENHUD_DOWN (BT_BACK)
+#DEFINE MENHUD_LEFT (BT_LEFT|BT_MOVELEFT)
+#DEFINE MENHUD_RIGHT (BT_RIGHT|BT_MOVERIGHT)
+#DEFINE MENHUD_YES (BT_ATTACK)
+#DEFINE MENHUD_NO (BT_ALTATTACK)
+
+#DEFINE START_SCREEN_TITLE 0
+#DEFINE START_SCREEN_DATA 1
+#DEFINE START_SCREEN_CREATE_HERO 2
+#DEFINE START_SCREEN_OPTIONS 3
+
+
+#DEFINE PUKE_HERO_CREATE 0
+#DEFINE PUKE_HERO_DELETE 1
+#DEFINE PUKE_LOGIN_REFRESH 2
+
+#DEFINE PUKE_TIMEOUT 35
+
+
+// CVARs  //
+
+#DEFINE CVAR_HERO_NAME "c8_hero_name_"
+
+function str getHeroName(int id) {
+	return GetCvarString(cvar(CVAR_HERO_NAME,id));
+}
+
+
+#DEFINE CVAR_PLAYER_HERO_ID "c8_player_hero_id_"
+
+// slot -1 is quick play, 0/1 are A/B. Return -1 if there's no hero defined
+#DEFINE HERO_SLOTS 2
+function int getPlayerHeroID(int player, int slot) {
+	return getByteFlagVal(GetCvar(__playerHeroIDcvar(player,slot)), player) - 1;
+}
+function void setPlayerHeroID(int player, int slot, int heroID) {	
+	SetCVar(__playerHeroIDcvar(player,slot), 
+		setByteFlagVal(heroID+1, player, GetCvar(__playerHeroIDcvar(player,slot)))		
+	);
+}
+function str __playerHeroIDcvar(int player, int slot) {
+	slot = (slot==-1 ? "" : slot);	
+	str var = strParam(s:CVAR_PLAYER_HERO_ID, d:slot, d:player>>2);
+	return var;
+}
+
+// un/marshalls four bytes into one 32 bit int
+function int setByteFlagVal(int val, int n, int bitfield) {
+	int shift = ((n & 0x3)<<3); // 0, 8, 16 or 24
+	bitfield &= ~(0xFF << shift); // erase destination bits
+	return bitfield | (val << shift);
+}
+function int getByteFlagVal(int byte, int n) {
+	return (byte >> ((n & 0x3)<<3))&0xFF;
+}
+
+function bool hasHero(int player, bool isQuickPlay) {
+	if (isQuickPlay) 
+		return getPlayerHeroID(player,-1) != -1;
+	else {
+		for (int i = 0; i < HERO_SLOTS; i++)
+			if (getPlayerHeroID(player,i) != -1) { return true; }
+	}
+	return false;
+}
+
+
+#DEFINE CVAR_HERO_SIZE "c8_hero_size"
+
+#DEFINE CVAR_AUTOLOGIN "C8_AUTOLOGIN"
+
+
+#DEFINE CVAR_PLAYER_LOGIN "c8_player_login_"
+function str getLogin(int player) { 
+	return GetCvarString(cvar(CVAR_PLAYER_LOGIN,player)); 
+}
+function void setLogin(int player, str login) { 
+	SetCVarString(cvar(CVAR_PLAYER_LOGIN,player), login); 
+}
+function bool isLogged(int player) { 
+	return isNetworkGame() && strLen(getLogin(player)); 
+}
+
+
+#DEFINE CVAR_PLAYER_HERO_SLOT "c8_player_hero_slot"
+
+
+
+
+
+
+
+//////////////////////
+// Data definition  //
+//////////////////////
+
+
+
+int ACTOR[HERO_SIZE+ENEMY_SIZE][4];
+int heroCount = 0, enemyCount = 0;
+
+
+
+
+
+
+//////////////////////
+// Database schema  //
+//////////////////////
+
+#DEFINE DB_HERO_ID "hero_id_"
+//#DEFINE DB_EXP "exp"
+
+
+
+
+
+
+
+
+
+
+
+/////////////////
+// Clientside  //
+/////////////////
+
+/* "8C CS NET" */
+
+	// #DEFINE START_SCREEN_IN 0
+	// #DEFINE START_SCREEN_OUT 1
+	// #DEFINE START_SCREEN_HOME 2
+	// #DEFINE START_SCREEN_DATA 3
+	// #DEFINE START_SCREEN_CREATE_HERO 4	
+	// #DEFINE START_SCREEN_OPTIONS 5
+	// #DEFINE START_SCREEN_MAIN 60
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 #DEFINE MOB_COLOR 6900 
 #DEFINE MOB_COLOR_SIZE 6
