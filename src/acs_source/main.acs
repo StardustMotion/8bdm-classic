@@ -1,1195 +1,643 @@
 
 
 
-	//////////////////////////////////////////////////////////
-//                           Data             				    //
-	//////////////////////////////////////////////////////////
-
 	
-function bool isEnemy(void) { return (CheckInventory("8C ID")>=HERO_SIZE); }
-
-function void printActorTable (void) {
-	for (int i = 0; i < HERO_SIZE+ENEMY_SIZE; i++) {
-        if (i<HERO_SIZE) int j =    strParam(s:"\cn",d:i);
-        else j =                    strParam(s:"\ci",d:i-HERO_SIZE);
-		str name = getName(i);
-		if (!name) name = "---";
-		log(s:j, s:" : [ ", s:name, s:", ", d:getScore(i), s:", ", f:getHP(i), s:", ", f:getPuissance(i), s:" ]");
-    }
-}
-
-// move getter to API maybe
-function str getName(int id) { return ACTOR[id][0]; }
-function str getScore(int id) { return ACTOR[id][1]; }
-function str getHP(int id) { return ACTOR[id][2]; }
-function str getPuissance(int id) { return ACTOR[id][3]; }
-
-function int getRank(void) { return GetUserVariable(0,"user_8C_rank"); }
-function void setRank(int rank) { SetUserVariable(0,"user_8C_rank",rank); }
-
-#DEFINE STAT_PER_RANK 0.1
-function int calcStatLerp(int base, int rank) { return roundf(base + FixedMul(base,STAT_PER_RANK)*rank); }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	//////////////////////////////////////////////////////////
 //                           Events             				//
 	//////////////////////////////////////////////////////////
-
-bool forcePhysics = false;
-bool isMap8C = false;
-int playerSize = 0;
+    
 script "8C OPEN" OPEN {
-	playerSize = playerCount();
-	forcePhysics = GetCvar("CLASSIC_PHYSICS");
-	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
 	init();
-    loadActors();
 }
 
-int tct = 1;
-script "class" (int i) {
-	tct = i;
-}
-script "8C ENTER" ENTER {
-	delay(1);
-	ACS_NamedExecuteWithResult("8C", INCARNATE, tct);
-	if (isMap8C || forcePhysics) 	ACS_NamedExecuteWithResult("8C", PHYSICS_8C);
-	if (isMap8C) 					ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
-}
-script "8C RESPAWN" RESPAWN {
-	ACS_NamedExecuteWithResult("8C ENTER");
-}
-
-
-
-script "8C EVENT" (int type, int base, int damageType) EVENT {
-	switch(type) {
-		case GAMEEVENT_ACTOR_DAMAGED:
-			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
-
-            if (deflectAttack()) 
-                terminate;
-
-            SetResultValue(damageCalc(GetEventResult()));
-			
-			// ------------------------------------------------------------------
-
-			if (isEnemy()) {
-       			PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
-				type = GetUserVariable(0, "user_colorId");
-				for (int i = 0; i < 5; i++) {
-					Thing_SetTranslation(0, 68); delay(1);// CLR_BOSSPAIN
-					Thing_SetTranslation(0, type); delay(1);
-				}
-			}
-		break;		
-
-		case GAMEEVENT_PLAYERLEAVESSERVER:
-			SetCVarString(cvar(CVAR_PLAYER_LOGIN, base), "");
-			for (i = -1; i < HERO_SLOTS; i++) {
-				setPlayerHeroID(base,i,-1);
-			}
-		break;
-		
-	}
-}
+bool forcePhysics, isMap8C;
 function void init(void) {
-	for (int i = 0; i < ENEMY_SIZE+HERO_SIZE; i++) 
-        ACTOR[i][0] = 0;    
+	forcePhysics = GetCvar("C8_physics");
+	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
+
+    if (!getHeroSize()) {
+        for (int i = 0, heroCount = 0; i < MAX_HERO; i++)
+            if (strLen(strSanitize(__getNiceName(i)))) {
+                setHero(heroCount, i);
+                heroCount++;
+            }
+        SetCVar(CVAR_HERO_SIZE, heroCount);
+    }
+
 	if (isMap8C || forcePhysics) {
 		for (i = 0; i < 512; i++) 
 			Sector_SetFriction(i,-96);
 		DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
 		DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
 	}
+
 	if (isMap8C) {
-		ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), 16))); // GAMEMODE
+		ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), MAX_CLIENTS))); // GAMEMODE
 		ConsoleCommand("mm8bdm_sv_respawnprotection 0"); // side effect / need a hook
 	}
 }
-
-function void loadActors(void) {
-
-	add8cHero("8C Megaman", 60, 20);
-	add8cHero("8C Protoman", 40, 30);
-	add8cHero("8C Bass", 60, 25);
-	add8cHero("8C Roll", 60, 20);
-
-	add8cEnemy("8C Blader", 20, 60, 20);
-	add8cEnemy("8C Big Eye", 90, 60, 20);
-	add8cEnemy("8C Blaster", 35, 60, 20);
-	add8cEnemy("8C Screw Driver", 45, 60, 20);
-	add8cEnemy("8C Kamadoma", 20, 60, 20);
-	add8cEnemy("8C Adhering Suzy", 30, 60, 20);
-	add8cEnemy("8C Manbu", 40, 60, 20);
-	add8cEnemy("8C Cutting Wheel", 60, 60, 20);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-function bool deflectAttack(void) {
-	if (CheckInventory("8C Deflect")) {
-		PlaySound(0,"8CPAIN02",CHAN_VOICE,1.0,false);
-		int isValid = SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		SpawnForced("8C Deflect gfx", GetActorX(0), GetActorY(0), GetActorZ(0));
-		if (isValid && !CheckFlag(0, "DONTREFLECT")) {
-            SetPointer(AAPTR_TARGET, 0, AAPTR_DAMAGE_TARGET);
-			SetActorVelocity(0, -GetActorVelY(0), GetActorVelX(0), -16.0, false, false);
-		}
-		return true;
-	}
-    return false;
-}
-
-
-function int damageCalc(int base) {
-    SetActivator(0, AAPTR_DAMAGE_SOURCE);
-    int rank = getRank();
-    if (!rank ||  
-        (base>>14)) // if suicide/telefrag etc
-        return base;
-
-	int damage = base<<16;
-	int puissance = calcStatLerp(getPuissance(CheckInventory("8C ID")),rank);
-	int strBuild = strParam(s:"\ca[", f:FixedDiv(Timer(),35), s:"] \c-", n:0, s:" LV \ck", d:rank, s:" \ccpui ", d:puissance>>16);
-    damage = FixedMul(damage/100,puissance);
-	SetActivator(0, AAPTR_DAMAGE_TARGET);
-	damage = decimalHP(damage);
-	strBuild = strParam(s:strBuild,s:"\cc --> ", n:0, s:" -\ci", d:damage);
-	log(s:strBuild);
-	return damage;
-}
-
-			
-// round damage dealt to integer, and store decimal part on the victim actor's inventory
-function int decimalHP(int val) { // int isHeal
-	if (!(val&0xFFFF))
-		return val>>16;
-	int decimalPoints = CheckInventory("8BDM HP");
-	TakeInventory("8BDM HP", 0x1FFFF);
-	if (decimalPoints & 0x10000)
-		val += (decimalPoints & 0xFFFF);
-	else
-		val -= (decimalPoints & 0xFFFF);
-	int rounded = roundf(val);
-	if (rounded<val)
-		GiveInventory("8BDM HP", (0x10000) | (val-rounded));
-	else
-		GiveInventory("8BDM HP", 			 (rounded-val));
-	//if (CheckInventory("8BDM HP")&0x10000) 	log(s:"[ HP - ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
-	//else										log(s:"[ HP + ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
-	return rounded>>16;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
 	//////////////////////////////////////////////////////////
 //                           Core                				//
 	//////////////////////////////////////////////////////////
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Mod API ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+#DEFINE NET_START_SCREEN 256
+#DEFINE START_SCREEN 257
+    #DEFINE START_SCREEN_TITLE 0
+    #DEFINE START_SCREEN_DATA 1
+    #DEFINE START_SCREEN_CREATE_HERO 2
+    #DEFINE START_SCREEN_OPTIONS 3
+    #DEFINE START_SCREEN_ENTER_GAME 4
 
-script "8C API" (int type, int arg1, int arg2, int arg3) {
+script "8C NET CS" (int type) NET CLIENTSIDE {
 	switch(type) {
-		case API_8C_ADD_ACTOR:
-			int name  = GetCvarString("8bdm_wepTag");
-			int score = GetCvar("8bdm_wepSlot");
-			int hp = GetCvar("8bdm_wepMult");
-			int puissance = GetCvar("8bdm_wepMult2"); 
-
-			if (!arg1) {
-				int count = heroCount, limit = HERO_SIZE;
-				heroCount++;
-			}
-			else {
-				count = enemyCount, limit = ENEMY_SIZE;				
-				enemyCount++;
-				arg1 = HERO_SIZE;
-			}
-			delay(1);
-			if (count < limit) {
-				ACTOR[arg1+count][0] = name;
-				ACTOR[arg1+count][1] = score;
-				if (hp<1) hp = 1;  // ' -'
-				ACTOR[arg1+count][2] = hp<<16;
-				ACTOR[arg1+count][3] = puissance<<16;
-				if (!arg1) {
-					SetCVarString(cvar(CVAR_HERO_NAME, count), name);
-					SetCVar(CVAR_HERO_SIZE, heroCount);
-				}
-			}
-			else {
-				if (!arg1) 	arg1 = "Hero";
-				else 		arg1 = "Enemy";
-				log(l:"8C_ACTOR_OVERFLOW", s:"\cc(\ck", s:arg1, s:" \cg", d:count+1, s:" \cc/\ci ", d:limit, s:"\cc)");
-			}
-		break;
-		
-		case API_8C_SPAWN_ENEMY:
-			name = GetCvarString("8bdm_wepTag");
-			arg1 = GetCvar("8bdm_wepMult");
-			if (Timer() < 2) delay(2); // give bootup time to populate enemy table
-			type = HERO_SIZE;
-			while (true) {
-				if (!strICmp(name,getName(type)))
-					break;
-				if (type == (HERO_SIZE+ENEMY_SIZE)) {
-					Log(l:"8C_ENEMY_UNKNOWN", s:"\cc(\ca", s:type, s:"\cc)");
-					SetResultValue(false);
-					terminate;
-				}
-				type++;
-			}
-
-			arg2 = UniqueTID();
-			arg3 = SpawnSpotFacingForced(name, arg1, arg2);
-			if (!arg3) {
-				Log(l:"8C_ENEMY_CANT_SPAWN", s:"\cc(\ca", s:name, s:"\cc, on spot \ca", d:arg1, s:"\cc)");
-				SetResultValue(false);
-				terminate;
-			}
-			SetActivator(arg2);
-			if (type)
-				GiveInventory("8C ID", type);
-			arg1 = random(1,50);
-			setRank(arg1);
-			healthFormula(arg1);
-
-			arg2 = !random(0,1024);
-			if (arg2) 
-				GiveInventory("8C Shiny", 1);
-			//tmp = MOB_COLOR;//+(arg2*MOB_COLOR_SIZE)+i;///+(arg3<<1);
-			arg2 = 0;
-			SetUserVariable(0,"user_8C_color", arg2); Thing_SetTranslation(0, arg2);
-			SetUserVariable(0,"user_8C_score", getScore(type));
-			Setactorposition(0,GetActorX(0)+128.0,GetActorY(0),GetActorZ(0),false);
-			Thing_ChangeTID(0, 0);
-			Log(s:"\cnspawned \cc(\ci", s:name, s:"\cc, rank \ci", d:arg1, s:"\cc)");
-			SetResultValue(true);
-		break;
-
-		case API_8C_PLAYER_COUNT:
-			SetResultValue(playerSize);
+		case NET_START_SCREEN:
+			if (!inMenu() && PlayerIsSpectator(PlayerNumber()))
+				ACS_NamedExecuteWithResult("8C CS", START_SCREEN);
 		break;
 	}
 }
 
-
-
-
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Main script  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
-
-
-
-script "8C" (int type, int arg1, int arg2, int arg3) {
-	switch(type) {
-
-								///////////////////////
-								// Important scripts //
-								///////////////////////
-
-		/**
-		* @arg1 int : -
-		* @arg2 int : -
-		* @arg3 bool : -
-		*/
-		case INCARNATE:		
-			int player = PlayerNumber();
-			int class = GetCvar(cvar(CVAR_PLAYER_HERO_ID, player));
-			if (class == -1) {
-				terminate;
+script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
+	int localPlayer = ConsolePlayerNumber();
+    switch(type) {
+		case START_SCREEN:
+			loginPoll(localPlayer);
+			int delta = 0;
+			for (int i = 0; i < 16; i++) {
+				drawBI("8CTITLTR",-32.0 + 2.0*i, 8.0, 16,  16);
+				drawBI("8CTITLTR", 48.0 -2.0*i	, 9.0, 16, 16);
+				delay(1);
 			}
-			int rank = 10;
-			Log(n:0, s:">>>>   ", s:getName(class), s:" lv. ", d:rank);
-			int name = getName(class);
-			MorphActor(0,name,"",0x7FFFFFFF,MRF_WHENINVULNERABLE|MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR,"gfx","gfx");
-			if(class) 
-				GiveInventory("8C ID", class);
-			setRank(rank);
-			healthFormula(rank);
-			GiveInventory("BaseFlagPack",1);
-			GiveInventory(StrParam(s:name, s:" onSpawn"), 1);
-		break;
-
-		case PHYSICS_8C:
-			GiveInventory("8C Static Move Giver", 1);
-			SetAirControl(8.392333); // 5.905 for airspeed = groundspeed
-			
-			/*
-			while (true) { // airFriction control }}
-			Player air movement was planned to have lower friction + slower player speed,
-				resulting in jumps being hard to readjust direction, but gaining more momentum/speed (like doom jumps.)
-			This, as a contract to ground movement - high friction + high player speed, resulting in good dodging/position,
-			but not good to cover distances.
-
-			It was dropped because modifying player's speed based on grounded/in air (with setactorproperty or powerspeed i.e)
-			couldn't use client-side prediction to make player movement online smooth.
-			See https://zdoom.org/wiki/Creating_multiplayer-friendly_ZScript
-
-			Need Player.Forward/Side move properties but for in-air specific :D
-
-			-----------------------------------------------------------------------------------------------
-
-			Also for some reason when an actor (the player) is standing on a solid actor (i.e yoku block),
-			the aircontrol (friction) stops applying, giving player a surge of speed
-			We reposition the player 1 unit above the solid actor, with no gravity, just so aircontrol applies again (code below)
+			delta = 0;		
+			LocalSetMusic("8CDATA");
+			arg1 = 0;
+			setMenu(START_SCREEN_TITLE);
+			int status = getMenu();
+			int fade = 8;
+			while (fade < 9) {
+				draw("8CTITLBL", false, 0, 0, 1, 1, 0.05, FixedDiv(fade<<16,8.0));
 				
-			Limitations though : there's still 1 tic of speed surge (when landing on the actor),
-			also jump reproduction not accurate ; it allows jumping on the same time 't' when you land on the actor
-			*/
-			while(!isGone(0)) {
-				if ((GetActorZ(0)-GetActorFloorZ(0))>=1.0)
-					if (!checkFooting(-1.0)) {
-						SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),0.0,false,false);
-						SetActorPosition(0,GetActorX(0),GetActorY(0),GetActorZ(0)+1.0,false);
-						GiveInventory("8C On actor gravity Giver", 1);
-						do {
-							delay(1);
-							if (isGone(0)) 
-								terminate;
-							if (GetPlayerInput(-1,INPUT_BUTTONS)&BT_JUMP) {
-								SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),GetActorProperty(0,APROP_JumpZ),false,false);
-								break;
-							}
-						}  while (!checkFooting(-2.0));
-						TakeInventory("8C On actor gravity", 1);
+				if (!inMenu())  fade++;
+				else if (fade)  fade--;
+
+				// if (inMenu())
+                //     arg2 = startScreen(arg1);
+
+				if (arg1 != arg2) {
+					LocalAmbientSound("menu/cursor", 120); 
+					arg1 = arg2;
+				}
+				if (status != getMenu()) {
+					LocalAmbientSound("misc/introstardroiddash", 120);
+					fade = 0; 
+					status = getMenu();
+					if (!inMenu()) 
 						continue;
+					arg1 = 0;
+					delay(15);
+				}
+				for (int picX = 0; picX < 7; picX++) {
+					for (int picY = 0; picY < 4; picY++) {
+						drawSBI("8CTITLBG", 
+								-96.0 + ((delta*80)&0xFFFF0000) + 80.0*picX, 
+								-64.0 + ((delta*96)&0xFFFF0000) + 96.0*picY);
 					}
+				}
+				delta = (delta+512)&0xFFFF;
+				delay(1);
+				if (getMenu() == START_SCREEN_ENTER_GAME) break;
+			}
+
+			for (i = 16; i >= 0; i--) {
+				drawBI("8CTITLTR",-32.0 + 2.0*i, 8.0, 16,  16);
+				drawBI("8CTITLTR", 48.0 -2.0*i	, 9.0, 16, 16);
 				delay(1);
 			}
+			LocalSetMusic("*");
+
+            setMenu(-1);
+			// --
+			// if (menuStatus == START_SCREEN_ENTER_GAME) {
+			// 	consolecommand("menu_joingame");
+			// }
 		break;
 
-		// From control disable to control enabled again, takes 130 tics
-		case INTRO_ANIMATION:
-			SetActorProperty(0, APROP_Health, 1);
-			ACS_NamedExecuteWithResult("core_freezeplayer", 0, true);
-			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, true);
-			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, true);
-			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, true);
-			GiveInventory("noInteractionOn",1);
-							
-			arg3 = CAMERA_TID+PlayerNumber();
-			arg2 = ActivatorTID();
-			SpawnForced("8C Camera",0,0,0,arg3,0);
-			SetActivator(arg3);
-			SetPointer(AAPTR_TARGET,arg2);
-			SetActivator(arg2);
-
-			ACS_NamedExecuteWithResult("8C CS", CS_INTRO_HUD_ANIMATION, PlayerNumber());
-			delay(INCARNATION_PREINTRO_TIME);
-
-			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, false);
-			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, false);
-			GiveInventory("noInteractionOff",1);
-			SetActorState(0,"intro8C",true);
-
-			// ---- INCARNATION_INTRO_SPAWN TIME start ---- //
-			delay(35);
-			type = ((GetActorProperty(0,APROP_SpawnHealth)-1)<<16)/40;
-			for (int i=1; i <= 40; i++) {
-				SetActorProperty(0,APROP_Health, 1+((type*i)>>16));
-				if (i%2) 
-					LocalAmbientSound("8CHPFILL", 127);
-				delay(1);
-			}
-			SetActorProperty(0,APROP_Health, GetActorProperty(0,APROP_SpawnHealth));
-			delay(15);
-			ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
-			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, false);
-			// ---- INCARNATION_INTRO_SPAWN TIME end ---- //
-		break;
-
-
-
-
-
-
-
-
-
-								///////////////////////
-								// Utility   scripts //
-								///////////////////////
-
-		case XY_DIST:
-			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
-			SetResultValue(xyDistance(0,arg1));
-		break;
-
-		case Z_DIST:
-			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
-			SetResultValue(zDistance(0,arg1));
-		break;
-
-		case IS_GONE:
-			SetResultValue(isGone(arg1));
-		break;
-		
-		case COPY_VELOCITY:
-			GiveInventory("8C follower",1);
-			do {
-				arg2 = ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);				
-				SetActorVelocity(0, 
-					((1-((arg2>>23)&0x2))*(arg2&0xFF))<<16, 
-					((1-((arg2>>24)&0x2))*(arg2&0xFF00))<<8, 
-					(1-((arg2>>25)&0x2))*(arg2&0xFF0000), 
-				false, false);
-				delay(1);
-			} while (CheckInventory("8C follower"));
-		break;
-
-		case GET_VELOCITY:
-			SetActivator(0, arg1);
-			SetResultValue(
-				(abs(GetActorVelX(0)>>16)&0xFF) |
-				((abs(GetActorVelY(0)>>16)&0xFF) << 8) |
-				((abs(GetActorVelZ(0)>>16)&0xFF) << 16) |
-				((GetActorVelX(0)<0)<<24) |
-				((GetActorVelY(0)<0)<<25) |
-				((GetActorVelZ(0)<0)<<26)
-			);
-		break;
-
-		// detect lateral collision with terrain/actors. Used i.e by Cutting Wheel to climb
-		case CHECK_COLLISION:
-			arg1 = GetActorAngle(0)+ 0.25*arg1;
-			i = GetActorProperty(0,APROP_Radius)>>16;
-
-			// increase this to help non axis aligned collision detection but at the cost of overall worsened collision accuracy
-			arg3 = (i*5)/3;
-			
-			if (arg2) 	int tmp = "8C Check Collision";
-			else 			tmp = "8C Check Terrain";
-
-			arg2 = UniqueTID();
-			while (true) {
-				type = !Spawn(tmp,
-					GetActorX(0) + (arg3 * cos(arg1)) - i*sin(arg1),
-					GetActorY(0) + (arg3 * sin(arg1)) + i*cos(arg1),
-					GetActorZ(0), arg2);
-				if (type) break;
-				type = !Spawn(tmp,
-					GetActorX(0) + (arg3 * cos(arg1)) + i*sin(arg1),
-					GetActorY(0) + (arg3 * sin(arg1)) - i*cos(arg1),
-					GetActorZ(0)+GetActorProperty(0,APROP_Height)-12.0, arg2);
-				break;
-			}
-			SetResultValue(type);
-			Thing_Remove(arg2);
-		break;
-
-		// core_unsolidplayer but more simple, usable for monsters
-		case SOLID_TOGGLE:
-			if (!arg1) {
-				GiveInventory("PlayerPropertyUnsolid", 1);
-				GiveInventory("PlayerPropertySolidOff",1);
-			}
-			else if (CheckInventory("PlayerPropertyUnsolid")) {
-				TakeInventory("PlayerPropertyUnsolid", 1);				
-				if (!CheckInventory("PlayerPropertyUnsolid"))
-					GiveInventory("PlayerPropertySolidOn", 1);
-			}
-		break;
-
-		// to generalize
-		case GET_USERVAR:
-			if (arg1) SetActivator(0,arg1);
-			SetResultValue(GetUserVariable(0, "user_colorId"));
-		break;
-
-		// 6b "map_teleportfog" script overwrite
-		case NO_8C_FOG:
-			if (Timer() < 2) delay(2); // give bootup time to determine isMap8C
-			if (isMap8C) terminate;
-			// edit end
-			arg1 = ACS_NamedExecuteWithResult("core_getptrtid", AAPTR_TARGET);
-			arg2 = UniqueTID();
-			SpawnForced("TeleportFogFX", GetActorX(0), GetActorY(0), GetActorZ(0), arg2, 0);
-			SetActivator(arg2);
-			SetPointer(AAPTR_TARGET, arg1);
-			SetActivator(arg1);
-			Thing_SetTranslation(arg2, -1);
-			Thing_ChangeTID(arg2, 0);
-		break;
-	}
+    }
+    
 }
 
 
-// mostly used to Puke server-side info from client side
-script "8C NET" (int type, int arg1, int arg2, int arg3) NET {
+// // weird design pattern XD? ?
+// function int startScreen(int state) {
+// 	int base = 60.0;
+// 	int back = 160.0;
+// 	int player = PlayerNumber();
+// 	int index;
+//     int menu = getMenu();
+
+// 	switch(menu&0xFF) {
+// 		case START_SCREEN_TITLE:
+// 			bool isLocalLogged = isLogged(player);
+// 			bool isFirstHero = !hasHero(player,false);
+
+// 			if (isNetworkGame()) {
+// 				if (isLocalLogged) {
+// 					drawSBT(strParam(s:"logged in as ", s:getLogin(player)), 160.0, base-TITLE_SPACING);
+// 					drawTitleElement(isFirstHero ? "START" : "CONTINUE", 0, !state);
+// 				}
+// 				else {
+// 					drawTitleElement("LOGIN", 0, !state);
+// 					if ( !(Timer()&0x1F) )
+// 						loginPoll(player);
+
+// 				}
+// 			}
+
+// 			drawTitleElement("QUICK PLAY", 0+isNetworkGame(), state==1);
+// 			drawTitleElement("OPTIONS", 1+isNetworkGame(), state==2);
+// 			drawTitleElement("BACK TO GAME", 2+isNetworkGame(), state==3);
+
+// 			// --------- logic ---------- //
+			
+// 			if (!state && !isNetworkGame()) {
+// 				state=1;
+// 			}
+// 			if (isPressed(MENHUD_NO))
+// 				menuStatus = -1;
+// 			else if (isPressed(MENHUD_YES))
+// 				switch(state) {
+// 					// Slot A/B (online)
+// 					case 0:
+// 						if (!isLocalLogged) consolecommand("toggleconsole");
+// 						else {
+// 							if (isFirstHero) 
+// 								menuStatus = (1<<8) | START_SCREEN_CREATE_HERO;
+// 							else 
+// 								menuStatus = (1<<8) | START_SCREEN_DATA;
+// 						}
+// 					break;
+
+// 					// Quick play
+// 					case 1:						
+// 						if ((getPlayerHeroId(player,-1)==-1)) 
+// 							menuStatus = (0<<8) | START_SCREEN_CREATE_HERO;
+// 						else menuStatus = START_SCREEN_DATA;						
+// 					break;
+
+// 					case 2: menuStatus = START_SCREEN_OPTIONS; break;
+// 					case 3: menuStatus = -1; break;
+// 				}
+// 			else if (isPressed(MENHUD_UP) && (state > !isNetworkGame()))
+// 				state--;
+// 			else if (isPressed(MENHUD_DOWN) && (state<3))
+// 				state++;
+// 		break;
+		
+// 		// case START_SCREEN_OPTIONS:
+
+// 		// 	if (isNetworkGame())
+// 		// 		drawTitleElement(strParam(s:"AUTO LOGIN is ", s:(GetCvar(CVAR_AUTOLOGIN) ? "\cdon" : "\off")), 0, !state);
+
+// 		// 	drawTitleElement("KEY BINDS", isNetworkGame(), state==1);
+// 		// 	drawTitleElement("BACK", 1, state==2);
+			
+// 		// 	// --------- logic ---------- //
+			
+// 		// 	if (!state && !isNetworkGame()) {
+// 		// 		state=1;
+// 		// 	}
+// 		// 	if (isPressed(MENHUD_NO))
+// 		// 		menuStatus = START_SCREEN_TITLE;
+// 		// 	else if (isPressed(MENHUD_YES))
+// 		// 		switch(state) {
+// 		// 			case 0: consolecommand(strParam(s:CVAR_AUTOLOGIN, s:" ", d:!GetCvar(CVAR_AUTOLOGIN))); break;
+// 		// 			case 1: log(s:"bounder"); break;
+// 		// 			case 2: menuStatus = START_SCREEN_TITLE; break;
+// 		// 		}
+// 		// 	else if (isPressed(MENHUD_UP) && (state > !isNetworkGame()))
+// 		// 		state--;
+// 		// 	else if (isPressed(MENHUD_DOWN) && state<2) 
+// 		// 		state++;
+// 		// break;
+
+// 		// // FFFF FF FF = confirmScreen menuIndex heroID
+// 		// case START_SCREEN_CREATE_HERO:
+// 		// 	index = state&0xFF;
+// 		// 	drawSBT(getHeroName(index), 160.0, base);
+// 		// 	drawSBT("BACK", 160.0, back);
+			
+// 		// 	bool confirm = state>>16;
+// 		// 	if (confirm) {
+// 		// 		drawSBT("Start adventure with this character?", 160.0, 110.0);
+// 		// 		drawSBT("Confirm", 160.0, 110.0+TITLE_SPACING);
+// 		// 		drawSBT("Back", 160.0, 110.0+TITLE_SPACING*2);
+// 		// 	}
+			
+// 		// 	// --------- logic ---------- //
+// 		// 	int heroN = GetCvar(CVAR_HERO_SIZE);
+
+// 		// 	if (isPressed(MENHUD_NO)) {
+// 		// 		if (confirm) state&=0xFFFF;
+// 		// 		else menuStatus = START_SCREEN_TITLE;
+// 		// 	}
+// 		// 	else if (isPressed(MENHUD_YES)) {
+// 		// 		if (confirm) {
+// 		// 			// Confirm creation
+// 		// 			if (!(confirm-1)) {
+// 		// 				LocalAmbientSound("misc/secret", 127);
+// 		// 				// do a "please wait.. lock here
+// 		// 				ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_HERO_CREATE, index, (menu>>8)-1);
+// 		// 				menuStatus = (menu&0xFF00) | START_SCREEN_DATA;
+// 		// 			}
+// 		// 			// Cancel creation
+// 		// 			else 
+// 		// 				state&=0xFFFF;
+// 		// 		}
+// 		// 		else {
+// 		// 			switch(getBit(state,8)) {
+// 		// 				case 0: state |= 0x10000; break;
+// 		// 				case 1: menuStatus = START_SCREEN_TITLE; break;
+// 		// 			}
+// 		// 		}
+// 		// 	}
+// 		// 	else if (isPressed(MENHUD_LEFT) && !(state>>8))
+// 		// 		state = (state&0xFFFFFF00) | ((state+heroN-1) % heroN);
+			
+// 		// 	else if (isPressed(MENHUD_RIGHT) && !(state>>8))
+// 		// 		state = (state&0xFFFFFF00) | ((state+1) % heroN);
+
+// 		// 	else if (isPressed(MENHUD_UP)) {
+// 		// 		if (confirm) {
+// 		// 			if (confirm>>1) state -= 0x10000;
+// 		// 		}
+// 		// 		else if (getBit(state,8))
+// 		// 			state = resetBit(state,8);
+// 		// 	}
+			
+// 		// 	else if (isPressed(MENHUD_DOWN)) {
+// 		// 		if (confirm) {
+// 		// 			if (!(confirm>>1)) state += 0x10000;
+// 		// 		}
+// 		// 		else if (!getBit(state,8))
+// 		// 			state = setBit(state,8);
+// 		// 	}			
+// 		// break;
+
+// 		// case START_SCREEN_DATA:
+// 		// 	index = state&0xFF;
+// 		// 	bool isQuickPlay = !(menu>>8);
+// 		// 	confirm = (state>>8)&0xFF;
+// 		// 	int erase = state>>16;
+// 		// 	int slots[MAX_SLOTS];
+// 		// 	bool isFreeSlot = false;
+// 		// 	if (isQuickPlay) {
+// 		// 		slots[0] = getPlayerHeroId(player,-1);
+// 		// 		drawSBT("QUICK PLAY", 160.0, base);
+// 		// 		drawSBT(strParam(s:"DEFAULT : ", s:getHeroName(slots[0])), 160.0, base);
+// 		// 	}
+// 		// 	else {
+// 		// 		drawSBT("DATA SAVES", 160.0, base);
+// 		// 		for (int i = 0; i < MAX_SLOTS; i++) {
+// 		// 			slots[i] = getPlayerHeroId(player,i);
+// 		// 			drawSBT(strParam(s:"SLOT ", d:i, s:" : ",
+// 		// 				s:(slots[i] != -1 ? getHeroName(slots[i]) : "---")),
+// 		// 				160.0, base);
+// 		// 		}
+// 		// 	}
+// 		// 	drawTitleElement("BACK", 4, !(index < (isQuickPlay ? 1 : MAX_SLOTS)));
+			
+// 		// 	// --------- logic ---------- //
+
+// 		// 	if (!isQuickPlay) {
+// 		// 		isFreeSlot = (getPlayerHeroId(player,index) == -1) && (index < MAX_SLOTS);
+// 		// 	}
+			
+// 		// 	if (erase) {
+// 		// 		drawSBT("Do you really want to reset data?", 160.0, 130.0);
+				
+// 		// 		drawTitleElement("NO", 4, !(erase>>1));
+// 		// 		drawTitleElement("YES", 5, erase>>1);
+// 		// 	}
+// 		// 	else if (confirm) {
+// 		// 		drawSBT(strParam(s:">> picked slot ", d:index, s:" <<"), 160.0, 110.0);
+				
+// 		// 		if (isFreeSlot) {
+// 		// 			drawSBT("Create hero", 160.0, 110.0);
+// 		// 			drawSBT("Back-slot", 160.0, 110.0);
+// 		// 		}
+// 		// 		else {
+// 		// 			drawTitleElement("Start game", 2, !(confirm>>1));
+// 		// 			drawTitleElement("Back", 3, !(confirm&0x1));
+// 		// 			drawTitleElement("Erase data", 4, confirm&0x1);
+// 		// 		}
+// 		// 	}
+// 		// 	// --------- logic ---------- //
+			
+// 		// 	if (isPressed(MENHUD_NO)) {
+// 		// 		if (erase) 
+// 		// 			state &= 0xFFFF;
+// 		// 		else if (confirm)
+// 		// 			state &= 0xFF;
+// 		// 		else 
+// 		// 			menuStatus = START_SCREEN_TITLE;
+// 		// 	}
+//  		// 	else if (isPressed(MENHUD_YES)) {
+// 		// 		if (erase) {
+// 		// 			if (!(erase>>1)) state &= 0xFFFF;
+// 		// 			else {
+// 		// 				LocalAmbientSound("misc/brgstaff", 127);
+// 		// 				ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_HERO_DELETE, (isQuickPlay ? -1 : index));
+// 		// 				// migrate slot B to A !!
+// 		// 				menuStatus = START_SCREEN_TITLE;	
+// 		// 			}
+// 		// 		}
+				
+// 		// 		else if (confirm) {
+// 		// 			if (!(confirm>>1)) {
+// 		// 				// character creation screen
+// 		// 				if (isFreeSlot) {
+// 		// 					menuStatus = ((index+1)<<8) | START_SCREEN_CREATE_HERO;
+// 		// 				}
+// 		// 				// start /join game
+// 		// 				else {
+// 		// 					LocalAmbientSound("misc/kingblast", 127);
+// 		// 					log(s:"start!!");
+// 		// 					menuStatus = START_SCREEN_ENTER_GAME;
+// 		// 					ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_SLOT_SELECT, (isQuickPlay ? -1 : index));
+// 		// 				}
+// 		// 			}
+// 		// 			// back
+// 		// 			else if (!(confirm&0x1)) 
+// 		// 				state &= 0xFF;
+
+// 		// 			// erase data
+// 		// 			else
+// 		// 				state |= 0x10000;
+// 		// 		}
+// 		// 		else {
+// 		// 			if (index < (isQuickPlay ? 1 : MAX_SLOTS))
+// 		// 				state |= (1<<8);
+// 		// 			else
+// 		// 				menuStatus = START_SCREEN_TITLE;
+// 		// 		}
+
+// 		// 	}
+// 		// 	else if (isPressed(MENHUD_UP)) {
+// 		// 		if (erase) {
+// 		// 			if (erase>>1)
+// 		// 				state -= 0x10000;
+// 		// 		}
+// 		// 		else if (confirm) {
+// 		// 			if (confirm>1)
+// 		// 				state -= 0x100;
+// 		// 		}
+// 		// 		else if (index) 
+// 		// 			state--;
+// 		// 	}
+// 		// 	else if (isPressed(MENHUD_DOWN)) {
+// 		// 		if (erase) {
+// 		// 			if (!(erase>>1))
+// 		// 				state += 0x10000;
+// 		// 		}
+// 		// 		else if (confirm) {
+// 		// 			if (confirm<(3-isFreeSlot))
+// 		// 				state += 0x100;
+// 		// 		}
+// 		// 		else if (index < (HERO_SLOTS-isQuickPlay))
+// 		// 			state++;
+// 		// 	}
+// 		// break;
+
+// 	}
+// 	//if (!(timer()%2)) log(s:"menu status/slot ", d:(menu>>8)-1, s: " --- " , s:"erase? ", d:erase, s:" confirming?  ", d:confirm, s:" menu index ", d:(state&0xFF));
+// 	return state;
+// }
+
+#DEFINE PUKE_HERO_CREATE 0
+#DEFINE PUKE_HERO_DELETE 1
+#DEFINE PUKE_LOGIN_REFRESH 2
+#DEFINE PUKE_SLOT_SELECT 3
+
+    #DEFINE PUKE_TIMED_OUT 0
+    #DEFINE PUKE_OK 1
+    #DEFINE PUKE_ERROR 2
+    #DEFINE PUKE_SKIPPED 3
+
+script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
 	clearInv("8C Puke Response");
 	if (CheckInventory("8C Puke Request")) {
 		pukeReply(PUKE_SKIPPED);
 		terminate;
 	}
 	GiveInventory("8C Puke Request", 1);
+    int player = PlayerNumber();
 	switch(type) {
+        
+        /*
+        @arg1 slot
+        @arg2 hero index
+        */
 		case PUKE_HERO_CREATE:
-			int player = PlayerNumber();
-			if (!PlayerIsSpectator(player)) {
-				pukeReply(PUKE_ERROR); terminate;
-			}
-			if ((arg1<0) || (arg1 >= heroCount)) {
-				pukeReply(PUKE_ERROR); log(s:"not a valid hero ID."); terminate;
-			}
-			int precheck = getPlayerHeroID(player, arg2);
-			if (precheck != -1) {
-				pukeReply(PUKE_ERROR); log(s:"already have a hero"); terminate;
-			}
-			setPlayerHeroID(player,arg2,arg1);
-			pukeReply(PUKE_OK);
+            Log(s:"hero create player ", d:player, s:" slot ", d:arg1, s:" hero index ", d:arg2);
+            if ((arg2<0) || (arg2>=getHeroSize())) {
+                log(s:"// hero index out of bounds");
+				pukeReply(PUKE_ERROR); terminate; 
+            }
+            if ((arg1 < -1) || (arg1 >= MAX_SLOTS)) {
+                log(s:"// slot out of bounds");
+                pukeReply(PUKE_ERROR); terminate; 
+            }
+            if (getPlayerHero(player,arg1) != -1) {
+                log(s:"// already have a hero on this slot");
+                pukeReply(PUKE_ERROR); terminate;  
+            }
+            createHero(player,arg1,getHero(arg2));
+            pukeReply(PUKE_OK);
 		break;
-		
+        
+        /*
+        @arg1 slot to delete
+        */
 		case PUKE_HERO_DELETE:
-			player = PlayerNumber();
-			log(s:"asked to del ", d:arg1);
+            Log(s:"hero delete player ", d:player, s:" slot ", d:arg1);
+			if (!PlayerIsSpectator(player)) {
+                log(s:"// is spect");
+				pukeReply(PUKE_ERROR); terminate;
+            }
+            else if (getPlayerHero(player,arg1) == -1) {
+                log(s:"// nothing to delete here");
+                pukeReply(PUKE_ERROR); terminate; 
+            }
+            deleteHero(player,arg1);
+                // delete slot if slot == this hero's?
+            pukeReply(PUKE_OK);
+		break;
+
+        /* no args */
+		case PUKE_LOGIN_REFRESH:
+            if (!isNetworkGame()) {
+				pukeReply(PUKE_ERROR); terminate;
+            }
+			else if (!PlayerIsLoggedIn(arg1)) {
+				setLogin(arg1, "");
+				pukeReply(PUKE_ERROR); terminate;
+			}
+            pukeReply(PUKE_OK);
+            if (isLoggedIn(arg1))                 
+                terminate; // was already logged in, nothing to update
+
+            setLogin(arg1, GetPlayerAccountName(arg1));
+            //accountLoad(arg1);
+		break;
+
+        /*
+        @arg1 slot index
+        */
+		case PUKE_SLOT_SELECT:
 			if (!PlayerIsSpectator(player)) {
 				pukeReply(PUKE_ERROR); terminate;
 			}
-			precheck = getPlayerHeroID(player, arg1);
-			if (GetCvar(precheck) == -1) {
-				log(s:"theres nothing to delete..."); pukeReply(PUKE_ERROR); terminate;
+			else if ((arg1 < -1) || (arg1 >= MAX_SLOTS)) {
+				pukeReply(PUKE_ERROR); terminate; // slot index out of bounds
 			}
-			setPlayerHeroID(player,arg1,-1);
+			if (getPlayerHero(player,arg1) == -1) {
+				pukeReply(PUKE_ERROR); terminate; // this is an empty slot
+			}
+			setSlot(player,arg1);
 			pukeReply(PUKE_OK);
 		break;
-
-		case PUKE_LOGIN_REFRESH:
-			if (!PlayerIsLoggedIn(arg1)) {
-				setLogin(arg1, "");
-				pukeReply(PUKE_ERROR);
-			}
-			else {
-				setLogin(arg1, GetPlayerAccountName(arg1));
-				pukeReply(PUKE_OK);
-			}
-		break;
 	}
 }
 
-script "heh" (void) net {
-	int player = PlayerNumber();
-	if (!PlayerIsLoggedIn(player)) 
-		terminate;
-	str login = GetPlayerAccountName(player);
-	log(s:"lets go  ", s:login);
-
+#DEFINE DB_CREATE_HERO 0
+#DEFINE DB_DELETE_HERO 1
+function void dbOperation(int player, int type, int arg0, int arg1) {
+    if (!PlayerIsLoggedIn(player))
+        return;
+    str login = GetPlayerAccountName(player);
 	BeginDBTransaction();
-	
-	// int exp = GetDBEntry(login,DB_EXP);
-	// log(s:"xp is ", d:exp);
+    Log(s:">>> \ckDB transaction ", d:type, s:" for ", s:login, s:" (", d:player, s:") [", d:arg0, s:", ", d:arg1, s:"]");
+    switch(type) {
 
-	// exp = GetDBEntry(login,"hein");
-	// log(s:"other is is ", d:exp);
+        /*
+        @arg0 slot
+        @arg1 heroId
+        */
+        case DB_CREATE_HERO:
+            SetDBEntry(login, strParam(s:DB_FIELD_HERO_ID, d:arg0), arg1+1);
+            SetDBEntry(login, strParam(s:DB_FIELD_WEAPON, d:arg0), 0);
+            SetDBEntry(login, strParam(s:DB_FIELD_EXP, d:arg0), 0);
+        break;
 
-	// exp = GetDBEntry(login,"oh");
-	// log(s:"other other is is ", d:exp);
+        /*
+        @arg0 slot
+        */
+        case DB_DELETE_HERO:
+            SetDBEntry(login, strParam(s:DB_FIELD_HERO_ID, d:arg0), 0);
+        break;
+    }
 
-	EndDBTransaction();
-}
-
-script "load"  (void) net {
-	accountLoad(PlayerNumber());
-}
-script "save"  (void) net {
-	accountSave(PlayerNumber());
-}
-
-function void accountLoad(int player) {
-	if (!PlayerIsLoggedIn(player))  return; 
-	str login = GetPlayerAccountName(player); 
-	log(s:"lets go  ", s:login);
-
-	log(s:"loading for ", s:login);
-	BeginDBTransaction();
-
-	for (int i = 0; i < HERO_SLOTS; i++) {
-		int tmp = GetDBEntry(login, strParam(s:DB_HERO_ID, d:i));
-		if (tmp) {
-			log(s:"loaded ", d:tmp-1, s:" into ", s:login);
-			setPlayerHeroID(player,i,tmp-1);
-		}
-	}
-
-	EndDBTransaction();
-}
-
-function void accountSave(int player) {
-	if (!PlayerIsLoggedIn(player))  return; 
-	str login = GetPlayerAccountName(player); 
-	log(s:"lets go  ", s:login);
-
-	log(s:"saving for ", s:login);
-	BeginDBTransaction();
-
-	for (int i = 0; i < HERO_SLOTS; i++) {
-		SetDBEntry(login, strParam(s:DB_HERO_ID, d:i), 1+getPlayerHeroID(player,i));
-	}
-
-	EndDBTransaction();
-}
-
-int menuStatus = -1;
-// weird design pattern XD? ?
-function int startScreen(int menu, int state) {
-	int y = 20.0;
-	int base = 60.0;
-	int back = 160.0;
-	int player = PlayerNumber();
-	int index;
-
-	switch(menu&0xFF) {
-		case START_SCREEN_TITLE:
-			bool isLocalLogged = isLogged(player);
-			bool isFirstHero = !hasHero(player,false);
-
-			if (isNetworkGame()) {
-				if (isLocalLogged) {
-					drawSBT(strParam(s:"logged in as ", s:getLogin(player)), 160.0, base-y);
-					drawSBT(isFirstHero ? "START" : "CONTINUE", 160.0, base);
-				}
-				else {
-					drawSBT("LOGIN", 160.0, base);
-					if (!(Timer()&0x10)) 
-						ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_LOGIN_REFRESH);
-
-				}
-			}
-			drawSBT("QUICK PLAY", 160.0, base + y*(1+!isNetworkGame()));
-			drawSBT("OPTIONS", 160.0, base + y*(2+!isNetworkGame()));
-			drawSBT("BACK TO GAME", 160.0, back);
-
-			// --------- logic ---------- //
-			
-			if (!state && !isNetworkGame()) {
-				state=1;
-			}
-			if (isPressed(MENHUD_NO))
-				menuStatus = -1;
-			else if (isPressed(MENHUD_YES))
-				switch(state) {
-					// Slot A/B (online)
-					case 0:
-						if (!isLocalLogged) consolecommand("toggleconsole");
-						else {
-							if (isFirstHero) 
-								menuStatus = (1<<8) | START_SCREEN_CREATE_HERO;
-							else 
-								menuStatus = (1<<8) | START_SCREEN_DATA;
-						}
-					break;
-
-					// Quick play
-					case 1:						
-						if ((getPlayerHeroID(player,-1)==-1)) 
-							menuStatus = (0<<8) | START_SCREEN_CREATE_HERO;
-						else menuStatus = START_SCREEN_DATA;						
-					break;
-
-					case 2: menuStatus = START_SCREEN_OPTIONS; break;
-					case 3: menuStatus = -1; break;
-				}
-			else if (isPressed(MENHUD_UP) && (state > !isNetworkGame()))
-				state--;
-			else if (isPressed(MENHUD_DOWN) && (state<3))
-				state++;
-		break;
-		
-		case START_SCREEN_OPTIONS:
-			if (isNetworkGame())
-				drawSBT(strParam(s:"AUTO LOGIN is ", s:(GetCvar(CVAR_AUTOLOGIN) ? "on" : "off")), 160.0, base);
-			drawSBT("BINDINGS", 160.0, base+y);
-			drawSBT("BACK", 160.0, back);
-			
-			// --------- logic ---------- //
-			
-			if (!state && !isNetworkGame()) {
-				state=1;
-			}
-			if (isPressed(MENHUD_NO))
-				menuStatus = START_SCREEN_TITLE;
-			else if (isPressed(MENHUD_YES))
-				switch(state) {
-					case 0: consolecommand(strParam(s:CVAR_AUTOLOGIN, s:" ", d:!GetCvar(CVAR_AUTOLOGIN))); break;
-					case 1: log(s:"bounder"); break;
-					case 2: menuStatus = START_SCREEN_TITLE; break;
-				}
-			else if (isPressed(MENHUD_UP) && (state > !isNetworkGame()))
-				state--;
-			else if (isPressed(MENHUD_DOWN) && state<2) 
-				state++;
-		break;
-
-		// FFFF FF FF = confirmScreen menuIndex heroID
-		case START_SCREEN_CREATE_HERO:
-			index = state&0xFF;
-			drawSBT(getHeroName(index), 160.0, base);
-			drawSBT("BACK", 160.0, back);
-			
-			bool confirm = state>>16;
-			if (confirm) {
-				drawSBT("Start adventure with this character?", 160.0, 110.0);
-				drawSBT("Confirm", 160.0, 110.0+y);
-				drawSBT("Back", 160.0, 110.0+y*2);
-			}
-			
-			// --------- logic ---------- //
-			int heroN = GetCvar(CVAR_HERO_SIZE);
-
-			if (isPressed(MENHUD_NO)) {
-				if (confirm) state&=0xFFFF;
-				else menuStatus = START_SCREEN_TITLE;
-			}
-			else if (isPressed(MENHUD_YES)) {
-				if (confirm) {
-					// Confirm creation
-					if (!(confirm-1)) {
-						LocalAmbientSound("misc/secret", 127);
-						// do a "please wait.. lock here
-						ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_HERO_CREATE, index, (menu>>8)-1);
-						menuStatus = (menu&0xFF00) | START_SCREEN_DATA;
-					}
-					// Cancel creation
-					else 
-						state&=0xFFFF;
-				}
-				else {
-					switch(getBit(state,8)) {
-						case 0: state |= 0x10000; break;
-						case 1: menuStatus = START_SCREEN_TITLE; break;
-					}
-				}
-			}
-			else if (isPressed(MENHUD_LEFT) && !(state>>8))
-				state = (state&0xFFFFFF00) | ((state+heroN-1) % heroN);
-			
-			else if (isPressed(MENHUD_RIGHT) && !(state>>8))
-				state = (state&0xFFFFFF00) | ((state+1) % heroN);
-
-			else if (isPressed(MENHUD_UP)) {
-				if (confirm) {
-					if (confirm>>1) state -= 0x10000;
-				}
-				else if (getBit(state,8))
-					state = resetBit(state,8);
-			}
-			
-			else if (isPressed(MENHUD_DOWN)) {
-				if (confirm) {
-					if (!(confirm>>1)) state += 0x10000;
-				}
-				else if (!getBit(state,8))
-					state = setBit(state,8);
-			}			
-		break;
-
-		case START_SCREEN_DATA:
-			index = state&0xFF;
-			bool isQuickPlay = !(menu>>8);
-			confirm = (state>>8)&0xFF;
-			int erase = state>>16;
-			int slots[HERO_SLOTS];
-			bool isFreeSlot = false;
-			if (isQuickPlay) {
-				slots[0] = getPlayerHeroID(player,-1);
-				drawSBT("QUICK PLAY", 160.0, base-y);
-				drawSBT(strParam(s:"DEFAULT : ", s:getHeroName(slots[0])), 160.0, base+y);
-			}
-			else {
-				drawSBT("DATA SAVES", 160.0, base-y);
-				for (int i = 0; i < HERO_SLOTS; i++) {
-					slots[i] = getPlayerHeroID(player,i);
-					drawSBT(strParam(s:"SLOT ", d:i, s:" : ",
-						s:(slots[i] != -1 ? getHeroName(slots[i]) : "---")),
-						160.0, base+y*(1+i));
-				}
-			}
- 			drawSBT("BACK", 160.0, back);
-			
-			// --------- logic ---------- //
-
-			if (!isQuickPlay) {
-				isFreeSlot = (getPlayerHeroID(player,index) == -1) && (index < HERO_SLOTS);
-			}
-			
-			if (erase) {
-				drawSBT("Do you really want to reset data?", 160.0, 130.0);
-				
-				drawSBT("No", 160.0, 40.0+y);
-				drawSBT("Yes", 160.0, 40.0+y*2);
-			}
-			else if (confirm) {
-				drawSBT(strParam(s:">> picked slot ", d:index, s:" <<"), 160.0, 110.0);
-				
-				if (isFreeSlot) {
-					drawSBT("Create hero", 160.0, 110.0+y);
-					drawSBT("Back-slot", 160.0, 110.0+y*2);
-				}
-				else {
-					drawSBT("Start game", 160.0, 110.0+y);
-					drawSBT("Back", 160.0, 110.0+y*2);
-					drawSBT("Erase data", 160.0, 110.0+y*4);
-
-				}
-			}
-			// --------- logic ---------- //
-			
-			if (isPressed(MENHUD_NO)) {
-				if (erase) 
-					state &= 0xFFFF;
-				else if (confirm)
-					state &= 0xFF;
-				else 
-					menuStatus = START_SCREEN_TITLE;
-			}
- 			else if (isPressed(MENHUD_YES)) {
-				if (erase) {
-					if (!(erase>>1)) state &= 0xFFFF;
-					else {
-						LocalAmbientSound("misc/brgstaff", 127);
-						ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_HERO_DELETE, (isQuickPlay ? -1 : index));
-						// migrate slot B to A !!
-						menuStatus = START_SCREEN_TITLE;	
-					}
-				}
-				
-				else if (confirm) {
-					if (!(confirm>>1)) {
-						// character creation screen
-						if (isFreeSlot) {
-							menuStatus = ((index+1)<<8) | START_SCREEN_CREATE_HERO;
-						}
-						// start /join game
-						else {
-							LocalAmbientSound("misc/kingblast", 127);
-							log(s:"start!!");
-							localsetmusic("*");
-							//menuStatus = -1;
-							//consolecommand("menu_joingame");
-
-						}
-					}
-					// back
-					else if (!(confirm&0x1)) 
-						state &= 0xFF;
-
-					// erase data
-					else
-						state |= 0x10000;
-				}
-				else {
-					if (index < (isQuickPlay ? 1 : HERO_SLOTS))
-						state |= (1<<8);
-					else
-						menuStatus = START_SCREEN_TITLE;
-				}
-
-			}
-			else if (isPressed(MENHUD_UP)) {
-				if (erase) {
-					if (erase>>1)
-						state -= 0x10000;
-				}
-				else if (confirm) {
-					if (confirm>1)
-						state -= 0x100;
-				}
-				else if (index) 
-					state--;
-			}
-			else if (isPressed(MENHUD_DOWN)) {
-				if (erase) {
-					if (!(erase>>1))
-						state += 0x10000;
-				}
-				else if (confirm) {
-					if (confirm<(3-isFreeSlot))
-						state += 0x100;
-				}
-				else if (index < (HERO_SLOTS-isQuickPlay))
-					state++;
-			}
-		break;
-
-	}
-	if (!(timer()%10)) log(s:"menu status/slot ", d:(menu>>8)-1, s: " --- " , s:"erase? ", d:erase, s:" confirming?  ", 
-		d:confirm, s:" menu index ", d:(state&0xFF));
-	return state;
+    EndDBTransaction();
 }
 
 
-script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
-	int localPlayer = ConsolePlayerNumber();
-	switch(type) {
+function void createHero(int player, int slot, int heroId) {
+    setPlayerHero(player, slot, heroId);
+    setPlayerWeapons(player, slot, 0);
+	setExp(player, slot, 0);
+    if (slot >= 0)
+        dbOperation(player, DB_CREATE_HERO, slot, heroId);
+}
 
-		// arg1 = the server NET script to puke
-		// arg2/3 = 2 usable arguments
-		case CS_PUKE:
-			str pukeDebug = strParam(
-				s:"\cdPUKE [net ", d:arg1, 
-				s:" - arg1 ", d:arg2, 
-				s:" - arg2 ", d:arg3, s:"]"
-			);
-			log(s:pukeDebug);
-			type = 0;
-			do {
-				NamedRequestScriptPuke("8C NET", arg1, arg2, arg3);
-				delay(1);
-				if (type<PUKE_TIMEOUT) 
-					int status = CheckInventory("8C Puke Response");
-				else {
-					status = PUKE_TIMED_OUT;
-					break;
-				}
-				type++;
-			} while(!status);
-			log(s:pukeDebug, s:" --> ", 
-				s:( status == PUKE_OK ? "\cvOK" : 
-					status == PUKE_ERROR ? "\caERROR" : 
-					status == PUKE_SKIPPED ? "\ccSKIPPED" : 
-					"\cqTIMED OUT"));
-		break;
+function void deleteHero(int player, int slot) {
+    setPlayerHero(player, slot, -1);
+    if (slot >= 0)
+        dbOperation(player, DB_DELETE_HERO, slot, 0);
+}
 
-		case CS_CAMERA:
-			type = activatorTID();
-			if (localPlayer != type-CAMERA_TID) {
-				Thing_Remove(0);
-				terminate;
-			}
-			SetActivatorToTarget(0);
-			arg1 = (GetActorProperty(0,APROP_ViewHeight)); // eye level
-			arg2 = INCARNATION_INTRO_CAMDIST/INCARNATION_INTRO_ZOOM;
-			for (int i = INCARNATION_INTRO_TIME; i; i--) {
-				ChangeCamera(type,0,0);
-				Warp(type, 
-					-4.0, 0, -(GetActorZ(0)-GetActorFloorZ(0))+arg1, 
-					0, WARPF_MOVEPTR | WARPF_NOCHECKPOSITION);
-				SetActorPitch(type,0);
-				if (i <= INCARNATION_INTRO_ZOOM)	cameraExtend(type, INCARNATION_INTRO_CAMDIST-((INCARNATION_INTRO_ZOOM-i)*arg2));	
-				else								cameraExtend(type, INCARNATION_INTRO_CAMDIST);	
-				ActorLookAt(type,0,arg1,0);
-				delay(1);
-			}
-			Thing_Remove(type);
-		break;
-
-		case CS_INTRO_HUD_ANIMATION:
-			if (localPlayer != arg1) terminate;
-			arg1 = 0; // main scene view order offset
-			arg2 = 0; // "ready" space border offset
-			arg3 = 0; // zoom to char border offset
-			int tmp = 0;
-			type = 4;
-			for (i = 0; i < INCARNATION_INTRO_TIME; i++) {
-				if (i > INCARNATION_INTRO_TIME-INCARNATION_INTRO_ZOOM) 
-					arg3 += 1.5; //FixedDiv(30.0,INCARNATION_INTRO_ZOOM<<16);
-
-				for (int j = 0; j < 3; j++) {
-					// borders
-					drawSBI("8CINTROB", (384.1-(tmp<<16))-(254.0*j), -11.0 -arg1-arg2-arg3);
-					drawSBI("8CINTRO7", (-384.1+(tmp<<16))+(254.0*j), 99.0 +arg1+arg2+arg3);
-				}
-				if (arg2 < 16.0) 
-					arg2 += 4.0;
-				else {
-					if (i < INCARNATION_INTRO_READY_TIME) {
-						if (type) 	localPlayer = 0.65;
-						else		localPlayer = (!!((i>>2)&0x1))<<16;
-						// "ready" text
-						draw("8CINTROC", false, 159.0-(type<<22), 139.0, 320, 280, 0.05, localPlayer);
-						draw("8CINTROD", false, 161.0+(type<<22), 141.0, 320, 280, 0.05, localPlayer);
-						if (i >= (INCARNATION_INTRO_READY_TIME-4)) 
-							type++;
-						else if (type) 
-							type--;
-					}
-					if ((i >= INCARNATION_PREINTRO_TIME) && (arg1 < 55.0)) 
-						arg1 += 5.0;
-				}				
-				tmp = (tmp+8)&0xFF; // %256
-				delay(1);
-			}
-		break;
-		
-		case CS_START_SCREEN:
-			if ((localPlayer != arg1) || !PlayerIsSpectator(localPlayer)) 
-				terminate;
-
-			if (GetCvar(CVAR_AUTOLOGIN) && !isLogged(localPlayer)) {
-				consolecommand("login");
-				ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_LOGIN_REFRESH);
-
-			} 
-
-			for (i = 0.1; i < 1.0; i+=0.1) {
-				fadeto(0,0,0,i,0);
-				delay(1);
-			}
-			LocalSetMusic("8CDATA");
-
-			arg1 = 0;
-			menuStatus = START_SCREEN_TITLE;
-			status = menuStatus;
-			while (menuStatus != -1) {
-				arg2 = startScreen(menuStatus, arg1);
-				if (arg1 != arg2) {
-					LocalAmbientSound("menu/cursor", 120); 
-					arg1 = arg2;
-				}
-				if (status != menuStatus) {
-					LocalAmbientSound("misc/introstardroiddash", 120); 
-					if (menuStatus == -1) break;
-					status = menuStatus;
-					arg1 = 0;
-					delay(15);
-				}
-				delay(1);
-			}
-
-
-			log(s:"finish :)");
-			for (i = 1.0; i > 0.0; i-=0.1) {
-				fadeto(0,0,0,i,0);
-				delay(1);
-			}
-
-			LocalSetMusic("*");
-			// --
-			fadeto(0,0,0,0.0,0);
-		break;
-
-		// case 55:
-
-
-
-		// break;
+function void pukeReply(int responseCode) {
+	GiveInventory("8C Puke Response", responseCode);
+}
+    
+function void loginPoll(int player) {
+	if (!isLoggedIn(player)) {
+		if (GetCvar(CVAR_AUTOLOGIN)) 
+            consolecommand("login");
+		ACS_NamedExecuteWithResult("8C Puke", PUKE_LOGIN_REFRESH);
 	}
 }
-
-
-
-
-
-int instance = 0;
-script "8C NET CS" (int type) NET CLIENTSIDE {
-	switch(type) {
-		case CS_NET_START_SCREEN:
-			ACS_NamedExecuteWithResult("8C CS", CS_START_SCREEN, PlayerNumber());
-		break;
-	}
-}
-			
-
-#DEFINE CAMERA_T 4
-function void cameraExtend(int camera, int dist) {
-	int dx = cos(GetActorAngle(camera))*CAMERA_T;
-	int dy = sin(GetActorAngle(camera))*CAMERA_T;
-	int dz = sin(GetActorPitch(camera))*CAMERA_T;
-	int tMax = (dist/CAMERA_T)>>16;
-	for (int t = 1; t <= tMax; t++) {
-		int test = Warp(camera,
-			GetActorX(camera)-dx, GetActorY(camera)-dy, GetActorZ(camera)-dz,
-			0, WARPF_MOVEPTR | WARPF_ABSOLUTEPOSITION		
-		);		
-		if (!test) break;
-	}
-}
-
-
-
-function void healthFormula(int rank) {
-	int hp = calcStatLerp(getHP(CheckInventory("8C ID")), rank)>>16;
-	SetActorProperty(0,APROP_SpawnHealth,hp); // note monsters max/spawn hp can't be modified at current time zandro versions
-	SetActorProperty(0,APROP_Health,hp);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//////////////////////////////////////////////////////////
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //////////////////////////////////////////////////////////
 //                           Misc/utils            				//
 	//////////////////////////////////////////////////////////
 
-function int roundf(int f) { return (f+0.5)&0xFFFF0000; }
-    
-// from xover weapons 2.1.0
-script "EarthQuake" (int strength, int duration, int range) {
-	Radius_Quake(strength, duration, 0, range/64, 0); }
+// 16 values of [2 bits]
+function int get2bFlagVal(str cvar, bool incrCvar,  int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0xF, 4, 0xFFFF); }
+function void set2bFlagVal(str cvar, bool incrCvar, int var, int val) { __setNbitFlagVal(cvar, incrCvar, var, 0xF, 4, 0xFFFF, val); }
 
-// from vanilla but /w zOffset param
-function bool checkFooting(int zOffset) {
-	int tid = UniqueTID();
-	bool check = Spawn("8bdmFootholdCheck",GetActorX(0),GetActorY(0),GetActorZ(0)+zOffset,tid);
-	Thing_Remove(tid);
-	return check;
+// 8 values of [4 bits]
+function int get4bFlagVal(str cvar, bool incrCvar, int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0x7, 3, 0xFF); }
+function void set4bFlagVal(str cvar, bool incrCvar, int var, int val) 	{ __setNbitFlagVal(cvar, incrCvar, var, 0x7, 3, 0xFF, val); }
+
+// 4 values of [8 bits]
+function int get8bFlagVal(str cvar, bool incrCvar, int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0x3, 2, 0xF); } 
+function void set8bFlagVal(str cvar, bool incrCvar, int var, int val) 	{ __setNbitFlagVal(cvar, incrCvar, var, 0x3, 2, 0xF, val); }
+
+// 2 values of [16 bits]
+function int get16bFlagVal(str cvar, bool incrCvar, int var) 				{ return __getNbitFlagVal(cvar, incrCvar, var, 0x1, 1, 0x7); }
+function void set16bFlagVal(str cvar, bool incrCvar, int var, int val) 	{ __setNbitFlagVal(cvar, incrCvar, var, 0x1, 1, 0x7, val); }
+
+function int __getNbitFlagVal(str cvar, bool incrCvar, int var, int n, int log2n, int mask) {
+	n = (var&n)<<log2n;
+	return ((GetCvar(incrCvar ? strParam(s:cvar, d:var>>log2n) : cvar) & (mask<<n))>>n)&mask; // "woaaah my head is spinning"
 }
 
-function bool isGone(int ptr) {
-	if (ptr) {
-		SetActivator(0,ptr);
-		ptr = 0;
-	} 
-	int flags = ClassifyActor(ptr);
-	return (flags & (ACTOR_WORLD | ACTOR_DEAD)) || ((flags & ACTOR_PLAYER) && PlayerIsSpectator(PlayerNumber()));
+function void __setNbitFlagVal(str cvar, bool incrCvar, int var, int n, int log2n, int mask, int val) {
+	if (incrCvar)
+		cvar = strParam(s:cvar, d:var>>log2n);
+	n = (var&n)<<log2n;
+	SetCVar(cvar,  (GetCvar(cvar) & ~(mask<<n)) | (val<<n));		
 }
+
+
+function int valueOr(int object, int or) {
+	if (object) return object;
+	return or;
+}
+
+// the str returned by GetCvarString can cause issues when the Cvar requested doesn't exist
+function str strSanitize(str string) {
+	return valueOr(string,"");
+}
+
+function void clearInv(str item) { 
+	TakeInventory(item,INT_MAX);
+}
+
 
 // general HUD draw wrapper / to call from clientside
 function void draw(str data, bool isText, int x, int y, int xScreen, int yScreen, int time, int alpha) {
@@ -1199,8 +647,8 @@ function void draw(str data, bool isText, int x, int y, int xScreen, int yScreen
 		int val = data;
 	}
 	else {
-		SetFont(data);
-		val="A";
+		SetFont(data); 
+        val="A";
 	}
 	HudMessageBold(s:val;HUDMSG_PLAIN|HUDMSG_ALPHA ,Get_And_Inc_AssistDisplayID(),CR_UNTRANSLATED,x,y,time,alpha);
 }
@@ -1212,82 +660,3 @@ function void drawBT(str text, int x, int y, int xScreen, int yScreen) { draw(te
 // super basic version
 function void drawSBI(str image, int x, int y) { draw(image, false, x, y, 320, 200, 0.04, 1.0); }
 function void drawSBT(str text, int x, int y) { draw(text, true, x, y, 320, 200, 0.04, 1.0); }
-
-
-function void pukeReply(int toReturn) {
-	GiveInventory("8C Puke Response", toReturn);
-}
-
-function str cvar(str radical, int id) {
-	return strParam(s:radical, d:id);
-}
-
-function void clearInv(str item) { 
-	TakeInventory(item,INT_MAX);
-}
-
-function int valueOr(int object, int or) {
-	if (object) 
-		return object;
-	return or;
-}
-
-
-function int getBit(int x, int b) { return (x & (1 << b))>>b; }
-function int setBit(int x, int b) { return x | (1 << b); }
-function int resetBit(int x, int b) { return x & ~(1 << b); }
-
-function bool isPressed(int key) {
-	return 
-		!(GetPlayerInput(-1, INPUT_OLDBUTTONS) & key) &&
-		(GetPlayerInput(-1, INPUT_BUTTONS) & key);
-}
-
-
-
-	//////////////////////////////////////////////////////////
-//                           debug/tmp             				//
-	//////////////////////////////////////////////////////////
-
-	
-
-// /* ALIGNER
-// x
-// .0 = positions center of box
-// .1 = positions left edge of box
-// .2 = positions right edge of box
-// .4 = centers text inside box and aligns center
-// .5 = centers text and aligns left edge
-// .6 = centers text and aligns right edge
-// For y:
-
-// .0 = positions center of box
-// .1 = positions top edge of box
-// .2 = positions bottom edge of box*/
-
-script "draw" (int x, int y, int scx, int scy) {
-	draw("8CINTRO7", false, x<<16, y<<16, scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
-}
-
-script "print" (void) { printActorTable(); }
-
-
-script "sum" (int id, int minplayer) {
-	str name = getName(id+HERO_SIZE);
-	int tid = activatorTID();
-	if (minplayer) spawn8cMin(name,tid,minplayer);
-	else spawn8c(name,tid);
-}
-	
-
-
-	//////////////////////////////////////////////////////////
-//                           db/persistence         			//
-	//////////////////////////////////////////////////////////
-
-/*
-	hero: int
-	xp: int
-	robotMaster: int (32 bit bitflag)
-*/
-

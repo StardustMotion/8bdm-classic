@@ -1,4 +1,6 @@
 
+// sprite <sprite>, 1, 1 {}     are ANIMDEFS definition for <sprite>
+
 sprite 8CABG0, 16, 16 { offset 8,14 patch 8CABC0, 0, 0 { flipy }}
 sprite 8CABH0, 15, 16{ offset 7,16 patch 8CABD0, 0, 0{ flipy }}
 sprite 8CABI0, 16, 16{ offset 8,16 patch 8CABE0, 0, 0{ flipy }}
@@ -12,12 +14,32 @@ sprite 8CAAY6Y4, 18, 16 { offset 9, 16 patch 8CAAY8Y2, 0, 0 { flipx }}
 
 
 // Intro effect
-sprite 8CINTRO4, 256, 112 { offset 0, 0 patch 8CINTRO0, 0, 0 offset 0, 0 patch 8CINTRO1, 0, 0 }
-sprite 8CINTRO5, 256, 112 { offset 0, 0 patch 8CINTRO4, 0, 0 offset 0, 0 patch 8CINTRO2, 0, 0 }
-sprite 8CINTRO6, 256, 112 { offset 0, 0 patch 8CINTRO4, 0, 0 offset 0, 0 patch 8CINTRO3, 0, 0 }
-sprite 8CINTRO7, 1, 1 {} // anim
+sprite 8CINTRO4, 256, 112 { patch 8CINTRO0, 0, 0 patch 8CINTRO1, 0, 0 }
+sprite 8CINTRO5, 256, 112 { patch 8CINTRO4, 0, 0 patch 8CINTRO2, 0, 0 }
+sprite 8CINTRO6, 256, 112 { patch 8CINTRO4, 0, 0 patch 8CINTRO3, 0, 0 }
+sprite 8CINTRO7, 1, 1 {}
 
-sprite 8CINTRO8, 256, 112 { offset 0, 0 patch 8CINTRO0, 0, 0 offset 0, 0 patch 8CINTRO1, 0, 102 { flipy }}
-sprite 8CINTRO9, 256, 112 { offset 0, 0 patch 8CINTRO8, 0, 0 offset 0, 0 patch 8CINTRO2, 0, 104 { flipy }}
-sprite 8CINTROA, 256, 112 { offset 0, 0 patch 8CINTRO8, 0, 0 offset 0, 0 patch 8CINTRO3, 0, 104 { flipy }}
-sprite 8CINTROB, 1, 1 {} // anim
+sprite 8CINTRO8, 256, 112 { patch 8CINTRO0, 0, 0 patch 8CINTRO1, 0, 102 { flipy }}
+sprite 8CINTRO9, 256, 112 { patch 8CINTRO8, 0, 0 patch 8CINTRO2, 0, 104 { flipy }}
+sprite 8CINTROA, 256, 112 { patch 8CINTRO8, 0, 0 patch 8CINTRO3, 0, 104 { flipy }}
+sprite 8CINTROB, 1, 1 {}
+
+
+sprite 8CTITLM0, 1, 1 {}
+sprite 8CTITLM1, 1, 1 {}
+
+
+
+////////////////////
+// character select
+////////////////////
+sprite 8CCHRAN0, 1, 1 {}
+sprite 8CCHRAN1, 1, 1 {}
+sprite 8CCHRAN2, 1, 1 {}
+sprite 8CCHRAN3, 1, 1 {}
+
+// megaman sprite recycle
+sprite 8CCHAR00, 21, 24 { offset 10, 24 patch MEGMA8A2, 0, 0 }
+sprite 8CCHAR01, 21, 24 { offset 10, 24 patch 0MEGA8A2, 0, 0 }
+
+

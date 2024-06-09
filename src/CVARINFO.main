@@ -1,0 +1,337 @@
+// cvars not allowed to start with a number, so 8C is C8 instead  ' -'
+
+server bool C8_physics = false;
+user bool C8_autologin = false;
+
+/*
+	Top level view
+		<s> = slot [0,2]    
+		<p> = value based on player number
+		(x) = data stored per CVAR is x
+
+	- int: C8_hero_size (1)				How much heroes are loaded in the server
+	- int: C8_hero_<i> (4)				array index <-> Universal (compile time) hero ID mapping
+	- string: C8_login_<p> (1)			Player Zandronum account name
+	- int: C8_slot (16)					Slot currently used/allowed by the server
+	- int: C8_player_hero_<s><p> (4)	Player's saved universal hero ID
+	- int: C8_exp_<s><p> (1)			Experience owned
+	- int: C8_weapon_<s><p> (32)		Weapon unlocked status
+*/
+
+
+
+
+
+
+// initialized once : when server starts
+server noarchive int C8_hero_size = 0;
+
+
+// map compile time hero ID to runtime hero ID, 4 hero ID per var
+server noarchive int C8_hero_0 = 0; server noarchive int C8_hero_1 = 0;
+server noarchive int C8_hero_2 = 0; server noarchive int C8_hero_3 = 0;
+server noarchive int C8_hero_4 = 0; server noarchive int C8_hero_5 = 0;
+server noarchive int C8_hero_6 = 0; server noarchive int C8_hero_7 = 0;
+server noarchive int C8_hero_8 = 0; server noarchive int C8_hero_9 = 0;
+server noarchive int C8_hero_10 = 0; server noarchive int C8_hero_11 = 0;
+server noarchive int C8_hero_12 = 0; server noarchive int C8_hero_13 = 0;
+server noarchive int C8_hero_14 = 0; server noarchive int C8_hero_15 = 0;
+server noarchive int C8_hero_16 = 0; server noarchive int C8_hero_17 = 0;
+server noarchive int C8_hero_18 = 0; server noarchive int C8_hero_19 = 0;
+server noarchive int C8_hero_20 = 0; server noarchive int C8_hero_21 = 0;
+server noarchive int C8_hero_22 = 0; server noarchive int C8_hero_23 = 0;
+server noarchive int C8_hero_24 = 0; server noarchive int C8_hero_25 = 0;
+server noarchive int C8_hero_26 = 0; server noarchive int C8_hero_27 = 0;
+server noarchive int C8_hero_28 = 0; server noarchive int C8_hero_29 = 0;
+server noarchive int C8_hero_30 = 0; server noarchive int C8_hero_31 = 0;
+server noarchive int C8_hero_32 = 0; server noarchive int C8_hero_33 = 0;
+server noarchive int C8_hero_34 = 0; server noarchive int C8_hero_35 = 0;
+server noarchive int C8_hero_36 = 0; server noarchive int C8_hero_37 = 0;
+server noarchive int C8_hero_38 = 0; server noarchive int C8_hero_39 = 0;
+server noarchive int C8_hero_40 = 0; server noarchive int C8_hero_41 = 0;
+server noarchive int C8_hero_42 = 0; server noarchive int C8_hero_43 = 0;
+server noarchive int C8_hero_44 = 0; server noarchive int C8_hero_45 = 0;
+server noarchive int C8_hero_46 = 0; server noarchive int C8_hero_47 = 0;
+server noarchive int C8_hero_48 = 0; server noarchive int C8_hero_49 = 0;
+server noarchive int C8_hero_50 = 0; server noarchive int C8_hero_51 = 0;
+server noarchive int C8_hero_52 = 0; server noarchive int C8_hero_53 = 0;
+server noarchive int C8_hero_54 = 0; server noarchive int C8_hero_55 = 0;
+server noarchive int C8_hero_56 = 0; server noarchive int C8_hero_57 = 0;
+server noarchive int C8_hero_58 = 0; server noarchive int C8_hero_59 = 0;
+server noarchive int C8_hero_60 = 0; server noarchive int C8_hero_61 = 0;
+server noarchive int C8_hero_62 = 0; server noarchive int C8_hero_63 = 0;
+
+
+
+
+
+
+
+// each player's zandronum account login
+server noarchive string C8_login_0 = "";	server noarchive string C8_login_1 = "";
+server noarchive string C8_login_2 = "";	server noarchive string C8_login_3 = "";
+server noarchive string C8_login_4 = "";	server noarchive string C8_login_5 = "";
+server noarchive string C8_login_6 = "";	server noarchive string C8_login_7 = "";
+server noarchive string C8_login_8 = "";	server noarchive string C8_login_9 = "";
+server noarchive string C8_login_10 = ""; server noarchive string C8_login_11 = "";
+server noarchive string C8_login_12 = ""; server noarchive string C8_login_13 = "";
+server noarchive string C8_login_14 = ""; server noarchive string C8_login_15 = "";
+
+// which slot each player is currently using/allowed to use by server (quickplay is 0)
+server noarchive int C8_slot = 0;
+
+// players saved hero ID
+server noarchive int C8_player_hero_00 = 0;	server noarchive int C8_player_hero_01 = 0;
+server noarchive int C8_player_hero_02 = 0;	server noarchive int C8_player_hero_03 = 0;
+server noarchive int C8_player_hero_10 = 0;	server noarchive int C8_player_hero_11 = 0;
+server noarchive int C8_player_hero_12 = 0;	server noarchive int C8_player_hero_13 = 0;
+server noarchive int C8_player_hero_20 = 0;	server noarchive int C8_player_hero_21 = 0;
+server noarchive int C8_player_hero_22 = 0;	server noarchive int C8_player_hero_23 = 0;
+
+
+// players experience on each of their slots
+server noarchive int C8_exp_00 = 0; server noarchive int C8_exp_01 = 0;
+server noarchive int C8_exp_02 = 0; server noarchive int C8_exp_03 = 0;
+server noarchive int C8_exp_04 = 0; server noarchive int C8_exp_05 = 0;
+server noarchive int C8_exp_06 = 0; server noarchive int C8_exp_07 = 0;
+server noarchive int C8_exp_08 = 0; server noarchive int C8_exp_09 = 0;
+server noarchive int C8_exp_010 = 0; server noarchive int C8_exp_011 = 0;
+server noarchive int C8_exp_012 = 0; server noarchive int C8_exp_013 = 0;
+server noarchive int C8_exp_014 = 0; server noarchive int C8_exp_015 = 0;
+
+server noarchive int C8_exp_10 = 0; server noarchive int C8_exp_11 = 0;
+server noarchive int C8_exp_12 = 0; server noarchive int C8_exp_13 = 0;
+server noarchive int C8_exp_14 = 0; server noarchive int C8_exp_15 = 0;
+server noarchive int C8_exp_16 = 0; server noarchive int C8_exp_17 = 0;
+server noarchive int C8_exp_18 = 0; server noarchive int C8_exp_19 = 0;
+server noarchive int C8_exp_110 = 0; server noarchive int C8_exp_111 = 0;
+server noarchive int C8_exp_112 = 0; server noarchive int C8_exp_113 = 0;
+server noarchive int C8_exp_114 = 0; server noarchive int C8_exp_115 = 0;
+
+server noarchive int C8_exp_20 = 0; server noarchive int C8_exp_21 = 0;
+server noarchive int C8_exp_22 = 0; server noarchive int C8_exp_23 = 0;
+server noarchive int C8_exp_24 = 0; server noarchive int C8_exp_25 = 0;
+server noarchive int C8_exp_26 = 0; server noarchive int C8_exp_27 = 0;
+server noarchive int C8_exp_28 = 0; server noarchive int C8_exp_29 = 0;
+server noarchive int C8_exp_210 = 0; server noarchive int C8_exp_211 = 0;
+server noarchive int C8_exp_212 = 0; server noarchive int C8_exp_213 = 0;
+server noarchive int C8_exp_214 = 0; server noarchive int C8_exp_215 = 0;
+
+
+// players special weapon obtained bitflag on each of their slots
+server noarchive int C8_weapon_00 = 0;	server noarchive int C8_weapon_01 = 0;
+server noarchive int C8_weapon_02 = 0;	server noarchive int C8_weapon_03 = 0;
+server noarchive int C8_weapon_04 = 0;	server noarchive int C8_weapon_05 = 0;
+server noarchive int C8_weapon_06 = 0;	server noarchive int C8_weapon_07 = 0;
+server noarchive int C8_weapon_08 = 0;	server noarchive int C8_weapon_09 = 0;
+server noarchive int C8_weapon_010 = 0;	server noarchive int C8_weapon_011 = 0;
+server noarchive int C8_weapon_012 = 0;	server noarchive int C8_weapon_013 = 0;
+server noarchive int C8_weapon_014 = 0;	server noarchive int C8_weapon_015 = 0;
+
+server noarchive int C8_weapon_10 = 0;	server noarchive int C8_weapon_11 = 0;
+server noarchive int C8_weapon_12 = 0;	server noarchive int C8_weapon_13 = 0;
+server noarchive int C8_weapon_14 = 0;	server noarchive int C8_weapon_15 = 0;
+server noarchive int C8_weapon_16 = 0;	server noarchive int C8_weapon_17 = 0;
+server noarchive int C8_weapon_18 = 0;	server noarchive int C8_weapon_19 = 0;
+server noarchive int C8_weapon_110 = 0;	server noarchive int C8_weapon_111 = 0;
+server noarchive int C8_weapon_112 = 0;	server noarchive int C8_weapon_113 = 0;
+server noarchive int C8_weapon_114 = 0;	server noarchive int C8_weapon_115 = 0;
+
+server noarchive int C8_weapon_20 = 0;	server noarchive int C8_weapon_21 = 0;
+server noarchive int C8_weapon_22 = 0;	server noarchive int C8_weapon_23 = 0;
+server noarchive int C8_weapon_24 = 0;	server noarchive int C8_weapon_25 = 0;
+server noarchive int C8_weapon_26 = 0;	server noarchive int C8_weapon_27 = 0;
+server noarchive int C8_weapon_28 = 0;	server noarchive int C8_weapon_29 = 0;
+server noarchive int C8_weapon_210 = 0;	server noarchive int C8_weapon_211 = 0;
+server noarchive int C8_weapon_212 = 0;	server noarchive int C8_weapon_213 = 0;
+server noarchive int C8_weapon_214 = 0;	server noarchive int C8_weapon_215 = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

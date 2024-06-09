@@ -1,0 +1,377 @@
+
+
+////////////////////
+// Script header  //
+////////////////////
+
+// ------------------------------------------ //
+//    "8C"      //
+// ------------------------------------------ //
+
+#DEFINE INCARNATE 0
+#DEFINE INTRO_ANIMATION 1
+#DEFINE PHYSICS_8C 2
+
+#DEFINE XY_DIST 64
+#DEFINE Z_DIST 65
+#DEFINE IS_GONE 66
+#DEFINE COPY_VELOCITY 67
+#DEFINE GET_VELOCITY 68
+#DEFINE CHECK_COLLISION 69
+#DEFINE SOLID_TOGGLE 70
+#DEFINE GET_USERVAR 71
+//#DEFINE NO_8C_FOG 72 // 8C.acs
+
+
+// ------------------------------------------ //
+//    "8C NET"      //
+// ------------------------------------------ //
+
+//
+
+// ------------------------------------------ //
+//    "8C CS"      //
+// ------------------------------------------ //
+#DEFINE CS_PUKE 0
+
+#DEFINE CS_CAMERA 64
+#DEFINE CS_INTRO_HUD_ANIMATION 65
+
+
+// ------------------------------------------ //
+//    "8C NET CS"      //
+// ------------------------------------------ //
+
+#DEFINE CS_NET_START_SCREEN 0
+
+// ------------------------------------------------------------------------------------ //
+// ------------------------------------------------------------------------------------ //
+// ------------------------------------------------------------------------------------ //
+
+
+
+/////////////////
+//  Constants  //
+/////////////////
+
+#DEFINE MAX_8C_PLAYERS 16
+
+#DEFINE ENEMY_SIZE 24
+
+#DEFINE CAMERA_TID 7800
+
+#DEFINE INCARNATION_PREINTRO_TIME 25 // tics before actor plays its intro8C state
+#DEFINE INCARNATION_INTRO_SPAWN_TIME 90 // tics allowed for intro8C duration
+#DEFINE INCARNATION_INTRO_TIME INCARNATION_PREINTRO_TIME+INCARNATION_INTRO_SPAWN_TIME
+#DEFINE INCARNATION_INTRO_READY_TIME INCARNATION_PREINTRO_TIME+25 // "ready" animation display time
+
+
+#DEFINE INCARNATION_INTRO_CAMDIST 256.0
+#DEFINE INCARNATION_INTRO_ZOOM 20
+
+#DEFINE MENHUD_UP (BT_FORWARD)
+#DEFINE MENHUD_DOWN (BT_BACK)
+#DEFINE MENHUD_LEFT (BT_LEFT|BT_MOVELEFT)
+#DEFINE MENHUD_RIGHT (BT_RIGHT|BT_MOVERIGHT)
+#DEFINE MENHUD_YES (BT_ATTACK)
+#DEFINE MENHUD_NO (BT_ALTATTACK)
+
+
+
+
+#DEFINE PUKE_TIMEOUT 35
+
+#DEFINE SMALL_FONT 0
+#DEFINE BIG_FONT 1
+
+
+
+// CVARs  //
+
+
+#DEFINE CVAR_HERO_ID "c8_hero_id_"
+
+
+
+
+
+#DEFINE CVAR_HERO_SIZE "c8_hero_size"
+
+
+
+
+
+
+
+
+
+
+//////////////////////
+// Data definition  //
+//////////////////////
+
+
+int heroCount = 0, enemyCount = 0;
+
+
+function bool hasHero(int player, bool isQuickPlay) {
+	if (isQuickPlay) 
+		return getPlayerHeroId(player,-1) != -1;
+	else {
+		for (int i = 0; i < MAX_SLOTS; i++)
+			if (getPlayerHeroId(player,i) != -1) { return true; }
+	}
+	return false;
+}
+
+
+
+
+bool inMenu = 0;
+
+
+
+
+
+
+
+function int toRank(int experience) {
+	return experience/50;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////
+// Clientside  //
+/////////////////
+
+/* "8C CS NET" */
+
+	// #DEFINE START_SCREEN_IN 0
+	// #DEFINE START_SCREEN_OUT 1
+	// #DEFINE START_SCREEN_HOME 2
+	// #DEFINE START_SCREEN_DATA 3
+	// #DEFINE START_SCREEN_CREATE_HERO 4	
+	// #DEFINE START_SCREEN_OPTIONS 5
+	// #DEFINE START_SCREEN_MAIN 60
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+#DEFINE MOB_COLOR 6900 
+#DEFINE MOB_COLOR_SIZE 6
+#DEFINE MOB_V1 0
+#DEFINE MOB_V2 MOB_V1+1
+#DEFINE MOB_V3 MOB_V2+1
+*/
+
+// Script "8C OPEN Client" OPEN CLIENTSIDE
+// {
+// 	Delay(25); // Fixes P_PlayerThink spam ?
+//     int i = MOB_COLOR+(BLADER*MOB_COLOR_SIZE); // B G O
+// 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+1, 192:192=66:66, 198:198=251:251, 0:0=79:79);
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+3, 192:192=202:202, 198:198=205:205, 0:0=207:207);
+// 	CreateTranslation (i+4, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=41:41, 0:0=47:47);
+
+// 	// Big Eye
+//     i = MOB_COLOR+(BIG_EYE*MOB_COLOR_SIZE); // R B G
+// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74 );
+// 	CreateTranslation (i+3, 192:192=66:66,198:198=251:251,  247:247=79:79);		
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=158:158, 247:247=11:11);	
+
+// 	// Blaster
+//     i = MOB_COLOR+(BLASTER*MOB_COLOR_SIZE); // O R B
+// 	CreateTranslation (i, 	192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+3, 192:192=217:217, 198:198=225:225, 247:247=188:188);		
+// 	CreateTranslation (i+4, 192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
+
+// 	// Screw Driver
+//     i = MOB_COLOR+(SCREW_DRIVER*MOB_COLOR_SIZE); // B O R
+// 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+1, 192:192=66:66, 198:198=251:251, 247:247=79:79);
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+3, 192:192=104:104, 198:198=109:109, 247:247=125:125);
+// 	CreateTranslation (i+4, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=217:217, 247:247=188:188);
+
+
+// 	// Kamadoma
+//     i = MOB_COLOR+(KAMADOMA*MOB_COLOR_SIZE); // R B G
+// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+3, 192:192=66:66, 198:198=251:251, 247:247=79:79);		
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=225:225, 247:247=11:11);	
+
+// 	// Adhering Suzy
+//     i = MOB_COLOR+(ADHERING_SUZY*MOB_COLOR_SIZE); // R O B
+// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+3, 192:192=104:104, 198:198=109:109, 247:247=125:125);	
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
+
+// 	// Manbu
+//     i = MOB_COLOR+(MANBU*MOB_COLOR_SIZE); // O G R
+// 	CreateTranslation (i, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+3, 192:192=202:202, 198:198=205:205, 0:0=207:207);
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=228:228, 247:247=158:158);	
+
+// 	// Cutting Wheel
+//     i = MOB_COLOR+(CUTTING_WHEEL*MOB_COLOR_SIZE); // ? ? ?
+// 	CreateTranslation (i, 192:192=178:178, 198:198=245:245, 4:4=168:168, 0:0=6:6);
+// 	CreateTranslation (i+1, 192:192=6:6, 4:4=80:80, 0:0=6:6, 198:198=91:91);
+// 	CreateTranslation (i+2, 192:192=225:225, 198:198=109:109, 4:4=168:168, 0:0=6:6);
+// 	CreateTranslation (i+3, 192:192=91:91, 198:198=83:83, 4:4=168:168, 0:0=91:91);
+// 	CreateTranslation (i+4, 192:192=74:74, 198:198=41:41, 4:4=168:168, 0:0=6:6);
+// 	CreateTranslation (i+5, 192:192=80:80, 198:198=91:91, 4:4=6:6, 0:0=168:168);
+
+
+
+// 	// run custom translatinos
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// new cvar
+
+function int getHeroId(int index) {
+	//return get8bFlagVal
+	return 0;
+
+}
+
+function void setHeroId(int index) {
+
+}
+
+#DEFINE CVAR_LOADED_HERO "C8_loaded_hero_"
+function str __loadedHeroCvar(int index) {
+	return strParam(s:CVAR_LOADED_HERO, d:index>>2);
+}
+
+function bool isHeroDefined(int hero) { 
+	return strLen(getHeroName(hero)); }
+
+
+function str getNiceName(int hero) { 
+	return GetCvarString(strParam(s:"C8_nice_name_",d:hero)); }
+
+function str getHeroHP(int hero) { 
+	return GetCvarString(strParam(s:"C8_hero_hp_",d:hero)); }
+
+function str getHeroPuissance(int hero) { 
+	return GetCvarString(strParam(s:"C8_hero_puissance_",d:hero)); }
+
+
+
+
+
+/////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#DEFINE HERO_SIZE HERO_MAX // /!\

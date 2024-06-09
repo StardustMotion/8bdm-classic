@@ -13,7 +13,7 @@ OptionMenu ZA_JoinMenu
 	StaticText	" "
 	StaticText	" "
 
-    Command "START GAME", "8c_start"
+    Command "START GAME", "8c_title"
     //  class ?
     //
 

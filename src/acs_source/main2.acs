@@ -1,0 +1,886 @@
+
+
+
+	//////////////////////////////////////////////////////////
+//                           Data             				    //
+	//////////////////////////////////////////////////////////
+
+	
+function bool isEnemy(void) { return (CheckInventory("8C ID")>=HERO_SIZE); }
+
+function void printActorTable (void) {
+	for (int i = 0; i < HERO_SIZE+ENEMY_SIZE; i++) {
+        if (i<HERO_SIZE) int j =    strParam(s:"\cn",d:i);
+        else j =                    strParam(s:"\ci",d:i-HERO_SIZE);
+		str name = getName(i);
+		if (!name) name = "---";
+		log(s:j, s:" : [ ", s:name, s:", ", d:getScore(i), s:", ", f:getHP(i), s:", ", f:getPuissance(i), s:" ]");
+    }
+}
+
+// move getter to API maybe
+int ACTOR[8][8];
+function str getName(int id) { return ACTOR[id][0]; }
+function str getScore(int id) { return ACTOR[id][1]; }
+function str getHP(int id) { return ACTOR[id][2]; }
+function str getPuissance(int id) { return ACTOR[id][3]; }
+
+function int getRank(void) { return GetUserVariable(0,"user_8C_rank"); }
+function void setRank(int rank) { SetUserVariable(0,"user_8C_rank",rank); }
+
+#DEFINE STAT_PER_RANK 0.1
+function int calcStatLerp(int base, int rank) { return roundf(base + FixedMul(base,STAT_PER_RANK)*rank); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//////////////////////////////////////////////////////////
+//                           Events             				//
+	//////////////////////////////////////////////////////////
+
+bool forcePhysics = false;
+bool isMap8C = false;
+int playerSize = 0;
+
+
+script "8C ENTER" ENTER {
+	delay(1);
+	ACS_NamedExecuteWithResult("8C", INCARNATE);
+	if (isMap8C || forcePhysics) 	ACS_NamedExecuteWithResult("8C", PHYSICS_8C);
+	if (isMap8C) 					ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
+}
+script "8C RESPAWN" RESPAWN {
+	ACS_NamedExecuteWithResult("8C ENTER");
+}
+
+
+
+script "8C EVENT" (int type, int base, int damageType) EVENT {
+	switch(type) {
+		case GAMEEVENT_ACTOR_DAMAGED:
+			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
+
+            if (deflectAttack()) 
+                terminate;
+
+            SetResultValue(damageCalc(GetEventResult()));
+			
+			// ------------------------------------------------------------------
+
+			if (isEnemy()) {
+       			PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
+				type = GetUserVariable(0, "user_colorId");
+				for (int i = 0; i < 5; i++) {
+					Thing_SetTranslation(0, 68); delay(1);// CLR_BOSSPAIN
+					Thing_SetTranslation(0, type); delay(1);
+				}
+			}
+		break;		
+
+		case GAMEEVENT_PLAYERLEAVESSERVER:
+			SetCVarString(svar(CVAR_LOGIN, base), "");
+			for (i = -1; i < MAX_SLOTS; i++) {
+				deleteHero(base, i);
+			}
+		break;
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+function bool deflectAttack(void) {
+	if (CheckInventory("8C Deflect")) {
+		PlaySound(0,"8CPAIN02",CHAN_VOICE,1.0,false);
+		int isValid = SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		SpawnForced("8C Deflect gfx", GetActorX(0), GetActorY(0), GetActorZ(0));
+		if (isValid && !CheckFlag(0, "DONTREFLECT")) {
+            SetPointer(AAPTR_TARGET, 0, AAPTR_DAMAGE_TARGET);
+			SetActorVelocity(0, -GetActorVelY(0), GetActorVelX(0), -16.0, false, false);
+		}
+		return true;
+	}
+    return false;
+}
+
+
+function int damageCalc(int base) {
+    SetActivator(0, AAPTR_DAMAGE_SOURCE);
+    int rank = getRank();
+    if (!rank ||  
+        (base>>14)) // if suicide/telefrag etc
+        return base;
+
+	int damage = base<<16;
+	int puissance = calcStatLerp(getPuissance(CheckInventory("8C ID")),rank);
+	int strBuild = strParam(s:"\ca[", f:FixedDiv(Timer(),35), s:"] \c-", n:0, s:" LV \ck", d:rank, s:" \ccpui ", d:puissance>>16);
+    damage = FixedMul(damage/100,puissance);
+	SetActivator(0, AAPTR_DAMAGE_TARGET);
+	damage = decimalHP(damage);
+	strBuild = strParam(s:strBuild,s:"\cc --> ", n:0, s:" -\ci", d:damage);
+	log(s:strBuild);
+	return damage;
+}
+
+			
+// round damage dealt to integer, and store decimal part on the victim actor's inventory
+function int decimalHP(int val) { // int isHeal
+	if (!(val&0xFFFF))
+		return val>>16;
+	int decimalPoints = CheckInventory("8BDM HP");
+	TakeInventory("8BDM HP", 0x1FFFF);
+	if (decimalPoints & 0x10000)
+		val += (decimalPoints & 0xFFFF);
+	else
+		val -= (decimalPoints & 0xFFFF);
+	int rounded = roundf(val);
+	if (rounded<val)
+		GiveInventory("8BDM HP", (0x10000) | (val-rounded));
+	else
+		GiveInventory("8BDM HP", 			 (rounded-val));
+	//if (CheckInventory("8BDM HP")&0x10000) 	log(s:"[ HP - ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
+	//else										log(s:"[ HP + ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
+	return rounded>>16;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//////////////////////////////////////////////////////////
+//                           Core                				//
+	//////////////////////////////////////////////////////////
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Mod API ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+
+script "8C API" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {		
+		// case API_8C_SPAWN_ENEMY:
+		// 	name = GetCvarString("8bdm_wepTag");
+		// 	arg1 = GetCvar("8bdm_wepMult");
+		// 	if (Timer() < 2) delay(2); // give bootup time to populate enemy table
+		// 	type = HERO_SIZE;
+		// 	while (true) {
+		// 		if (!strICmp(name,getName(type)))
+		// 			break;
+		// 		if (type == (HERO_SIZE+ENEMY_SIZE)) {
+		// 			Log(l:"8C_ENEMY_UNKNOWN", s:"\cc(\ca", s:type, s:"\cc)");
+		// 			SetResultValue(false);
+		// 			terminate;
+		// 		}
+		// 		type++;
+		// 	}
+
+		// 	arg2 = UniqueTID();
+		// 	arg3 = SpawnSpotFacingForced(name, arg1, arg2);
+		// 	if (!arg3) {
+		// 		Log(l:"8C_ENEMY_CANT_SPAWN", s:"\cc(\ca", s:name, s:"\cc, on spot \ca", d:arg1, s:"\cc)");
+		// 		SetResultValue(false);
+		// 		terminate;
+		// 	}
+		// 	SetActivator(arg2);
+		// 	if (type)
+		// 		GiveInventory("8C ID", type);
+		// 	arg1 = random(1,50);
+		// 	setRank(arg1);
+		// 	healthFormula(arg1);
+
+		// 	arg2 = !random(0,1024);
+		// 	if (arg2) 
+		// 		GiveInventory("8C Shiny", 1);
+		// 	//tmp = MOB_COLOR;//+(arg2*MOB_COLOR_SIZE)+i;///+(arg3<<1);
+		// 	arg2 = 0;
+		// 	SetUserVariable(0,"user_8C_color", arg2); Thing_SetTranslation(0, arg2);
+		// 	SetUserVariable(0,"user_8C_score", getScore(type));
+		// 	Setactorposition(0,GetActorX(0)+128.0,GetActorY(0),GetActorZ(0),false);
+		// 	Thing_ChangeTID(0, 0);
+		// 	Log(s:"\cnspawned \cc(\ci", s:name, s:"\cc, rank \ci", d:arg1, s:"\cc)");
+		// 	SetResultValue(true);
+		// break;
+
+		case API_8C_PLAYER_COUNT:
+			SetResultValue(playerSize);
+		break;
+	}
+}
+
+
+
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Main script  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+
+
+
+script "8C" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {
+
+								///////////////////////
+								// Important scripts //
+								///////////////////////
+
+		case INCARNATE:		
+			int player = PlayerNumber();
+			int slot = 0;//getPlayerSlot(player);
+			int class = getPlayerHeroId(player,slot);
+			if (class == -1) {
+				if(isMap8C)
+					KickFromGame(player, "Tried to join without a class defined");
+				log(s:"no morph ", n:0);
+				terminate;
+			}
+			int rank = 10;
+			Log(n:0, s:">>>>   ", s:getName(class), s:" lv. ", d:rank);
+			int name = getName(class);
+			MorphActor(0,name,"",0x7FFFFFFF,MRF_WHENINVULNERABLE|MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR,"gfx","gfx");
+			if(class) 
+				GiveInventory("8C ID", class);
+			setRank(rank);
+			healthFormula(rank);
+			GiveInventory("BaseFlagPack",1);
+			GiveInventory(StrParam(s:name, s:" onSpawn"), 1);
+		break;
+
+		case PHYSICS_8C:
+			GiveInventory("8C Static Move Giver", 1);
+			SetAirControl(8.392333); // 5.905 for airspeed = groundspeed
+			
+			/*
+			while (true) { // airFriction control }}
+			Player air movement was planned to have lower friction + slower player speed,
+				resulting in jumps being hard to readjust direction, but gaining more momentum/speed (like doom jumps.)
+			This, as a contract to ground movement - high friction + high player speed, resulting in good dodging/position,
+			but not good to cover distances.
+
+			It was dropped because modifying player's speed based on grounded/in air (with setactorproperty or powerspeed i.e)
+			couldn't use client-side prediction to make player movement online smooth.
+			See https://zdoom.org/wiki/Creating_multiplayer-friendly_ZScript
+
+			Need Player.Forward/Side move properties but for in-air specific :D
+
+			-----------------------------------------------------------------------------------------------
+
+			Also for some reason when an actor (the player) is standing on a solid actor (i.e yoku block),
+			the aircontrol (friction) stops applying, giving player a surge of speed
+			We reposition the player 1 unit above the solid actor, with no gravity, just so aircontrol applies again (code below)
+				
+			Limitations though : there's still 1 tic of speed surge (when landing on the actor),
+			also jump reproduction not accurate ; it allows jumping on the same time 't' when you land on the actor
+			*/
+			while(!isGone(0)) {
+				if ((GetActorZ(0)-GetActorFloorZ(0))>=1.0)
+					if (!checkFooting(-1.0)) {
+						SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),0.0,false,false);
+						SetActorPosition(0,GetActorX(0),GetActorY(0),GetActorZ(0)+1.0,false);
+						GiveInventory("8C On actor gravity Giver", 1);
+						do {
+							delay(1);
+							if (isGone(0)) 
+								terminate;
+							if (GetPlayerInput(-1,INPUT_BUTTONS)&BT_JUMP) {
+								SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),GetActorProperty(0,APROP_JumpZ),false,false);
+								break;
+							}
+						}  while (!checkFooting(-2.0));
+						TakeInventory("8C On actor gravity", 1);
+						continue;
+					}
+				delay(1);
+			}
+		break;
+
+		// From control disable to control enabled again, takes 130 tics
+		case INTRO_ANIMATION:
+			SetActorProperty(0, APROP_Health, 1);
+			ACS_NamedExecuteWithResult("core_freezeplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, true);
+			GiveInventory("noInteractionOn",1);
+							
+			arg3 = CAMERA_TID+PlayerNumber();
+			arg2 = ActivatorTID();
+			SpawnForced("8C Camera",0,0,0,arg3,0);
+			SetActivator(arg3);
+			SetPointer(AAPTR_TARGET,arg2);
+			SetActivator(arg2);
+
+			ACS_NamedExecuteWithResult("8C CS", CS_INTRO_HUD_ANIMATION, PlayerNumber());
+			delay(INCARNATION_PREINTRO_TIME);
+
+			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, false);
+			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, false);
+			GiveInventory("noInteractionOff",1);
+			SetActorState(0,"intro8C",true);
+
+			// ---- INCARNATION_INTRO_SPAWN TIME start ---- //
+			delay(35);
+			type = ((GetActorProperty(0,APROP_SpawnHealth)-1)<<16)/40;
+			for (int i=1; i <= 40; i++) {
+				SetActorProperty(0,APROP_Health, 1+((type*i)>>16));
+				if (i%2) 
+					LocalAmbientSound("8CHPFILL", 127);
+				delay(1);
+			}
+			SetActorProperty(0,APROP_Health, GetActorProperty(0,APROP_SpawnHealth));
+			delay(15);
+			ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
+			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, false);
+			// ---- INCARNATION_INTRO_SPAWN TIME end ---- //
+		break;
+
+
+
+
+
+
+
+
+
+								///////////////////////
+								// Utility   scripts //
+								///////////////////////
+
+		case XY_DIST:
+			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
+			SetResultValue(xyDistance(0,arg1));
+		break;
+
+		case Z_DIST:
+			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
+			SetResultValue(zDistance(0,arg1));
+		break;
+
+		case IS_GONE:
+			SetResultValue(isGone(arg1));
+		break;
+		
+		case COPY_VELOCITY:
+			GiveInventory("8C follower",1);
+			do {
+				arg2 = ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);				
+				SetActorVelocity(0, 
+					((1-((arg2>>23)&0x2))*(arg2&0xFF))<<16, 
+					((1-((arg2>>24)&0x2))*(arg2&0xFF00))<<8, 
+					(1-((arg2>>25)&0x2))*(arg2&0xFF0000), 
+				false, false);
+				delay(1);
+			} while (CheckInventory("8C follower"));
+		break;
+
+		case GET_VELOCITY:
+			SetActivator(0, arg1);
+			SetResultValue(
+				(abs(GetActorVelX(0)>>16)&0xFF) |
+				((abs(GetActorVelY(0)>>16)&0xFF) << 8) |
+				((abs(GetActorVelZ(0)>>16)&0xFF) << 16) |
+				((GetActorVelX(0)<0)<<24) |
+				((GetActorVelY(0)<0)<<25) |
+				((GetActorVelZ(0)<0)<<26)
+			);
+		break;
+
+		// detect lateral collision with terrain/actors. Used i.e by Cutting Wheel to climb
+		case CHECK_COLLISION:
+			arg1 = GetActorAngle(0)+ 0.25*arg1;
+			i = GetActorProperty(0,APROP_Radius)>>16;
+
+			// increase this to help non axis aligned collision detection but at the cost of overall worsened collision accuracy
+			arg3 = (i*5)/3;
+			
+			if (arg2) 	int tmp = "8C Check Collision";
+			else 			tmp = "8C Check Terrain";
+
+			arg2 = UniqueTID();
+			while (true) {
+				type = !Spawn(tmp,
+					GetActorX(0) + (arg3 * cos(arg1)) - i*sin(arg1),
+					GetActorY(0) + (arg3 * sin(arg1)) + i*cos(arg1),
+					GetActorZ(0), arg2);
+				if (type) break;
+				type = !Spawn(tmp,
+					GetActorX(0) + (arg3 * cos(arg1)) + i*sin(arg1),
+					GetActorY(0) + (arg3 * sin(arg1)) - i*cos(arg1),
+					GetActorZ(0)+GetActorProperty(0,APROP_Height)-12.0, arg2);
+				break;
+			}
+			SetResultValue(type);
+			Thing_Remove(arg2);
+		break;
+
+		// core_unsolidplayer but more simple, usable for monsters
+		case SOLID_TOGGLE:
+			if (!arg1) {
+				GiveInventory("PlayerPropertyUnsolid", 1);
+				GiveInventory("PlayerPropertySolidOff",1);
+			}
+			else if (CheckInventory("PlayerPropertyUnsolid")) {
+				TakeInventory("PlayerPropertyUnsolid", 1);				
+				if (!CheckInventory("PlayerPropertyUnsolid"))
+					GiveInventory("PlayerPropertySolidOn", 1);
+			}
+		break;
+
+		// to generalize
+		case GET_USERVAR:
+			if (arg1) SetActivator(0,arg1);
+			SetResultValue(GetUserVariable(0, "user_colorId"));
+		break;
+
+		// 6b "map_teleportfog" script overwrite
+		case NO_8C_FOG:
+			if (Timer() < 2) delay(2); // give bootup time to determine isMap8C
+			if (isMap8C) terminate;
+			// edit end
+			arg1 = ACS_NamedExecuteWithResult("core_getptrtid", AAPTR_TARGET);
+			arg2 = UniqueTID();
+			SpawnForced("TeleportFogFX", GetActorX(0), GetActorY(0), GetActorZ(0), arg2, 0);
+			SetActivator(arg2);
+			SetPointer(AAPTR_TARGET, arg1);
+			SetActivator(arg1);
+			Thing_SetTranslation(arg2, -1);
+			Thing_ChangeTID(arg2, 0);
+		break;
+	}
+}
+
+
+// mostly used to Puke server-side info from client side
+script "8C NET" (int type, int arg1, int arg2, int arg3) NET {
+	clearInv("8C Puke Response");
+	if (CheckInventory("8C Puke Request")) {
+		pukeReply(PUKE_SKIPPED);
+		terminate;
+	}
+	GiveInventory("8C Puke Request", 1);
+	switch(type) {
+		case PUKE_HERO_CREATE:
+			int player = PlayerNumber();
+			if (!PlayerIsSpectator(player)) {
+				log(s:"is spec");
+				pukeReply(PUKE_ERROR); terminate;
+			}
+			if ((arg1<0) || (arg1 >= heroCount)) {
+				pukeReply(PUKE_ERROR); log(s:"not a valid hero ID."); terminate;
+			}
+			int precheck = getPlayerHeroId(player, arg2);
+			if (precheck != -1) {
+				pukeReply(PUKE_ERROR); log(s:"already have a hero"); terminate;
+			}
+			createHero(player,arg2,arg1);
+			pukeReply(PUKE_OK);
+		break;
+		
+		case PUKE_HERO_DELETE:
+			player = PlayerNumber();
+			log(s:"asked to del ", d:arg1);
+			if (!PlayerIsSpectator(player)) {
+				log(s:"is spec");
+				pukeReply(PUKE_ERROR); terminate;
+			}
+			precheck = getPlayerHeroId(player, arg1);
+			if (GetCvar(precheck) == -1) {
+				log(s:"theres nothing to delete..."); pukeReply(PUKE_ERROR); terminate;
+			}
+			deleteHero(player,arg1);
+			// delete slot if slot == this hero's?
+			pukeReply(PUKE_OK);
+		break;
+
+		case PUKE_LOGIN_REFRESH:
+			if (!PlayerIsLoggedIn(arg1)) {
+				setLogin(arg1, "");
+				log(s:"player is not logged in");
+				pukeReply(PUKE_ERROR);
+			}
+			else {
+				if (isLogged(arg1)) {
+					log(s:"already logged in, nothing to do");
+					pukeReply(PUKE_ERROR);
+				}
+				else {
+					setLogin(arg1, GetPlayerAccountName(arg1));
+					accountLoad(arg1);
+					pukeReply(PUKE_OK);
+				}
+			}
+		break;
+
+		case PUKE_SLOT_SELECT:
+			if (!PlayerIsSpectator(player)) {
+				log(s:"is spec");
+				pukeReply(PUKE_ERROR); terminate;
+			}
+			if ((arg1 < -1) || (arg1 >= MAX_SLOTS)) {
+				log(s:"slot is not valid");
+				pukeReply(PUKE_ERROR); terminate;
+			}
+			if (getPlayerHeroId(player,arg1)==-1) {
+				log(s:"hero id was -1");
+				pukeReply(PUKE_ERROR); terminate;
+			}
+			//setPlayerSlot(player,arg1);
+			pukeReply(PUKE_OK);
+		break;
+	}
+}
+
+
+script "load"  (void) net {
+	accountLoad(PlayerNumber());
+}
+script "save"  (void) net {
+	accountSave(PlayerNumber());
+}
+
+function void accountLoad(int player) {
+	if (!PlayerIsLoggedIn(player))  
+		return; 
+	str login = GetPlayerAccountName(player); 
+
+	BeginDBTransaction();
+
+	for (int slot = 0; slot < MAX_SLOTS; slot++) {
+		int heroId = GetDBEntry(login, svar(DB_HERO_ID,slot));
+		if (heroId) {
+			log(s:"loading existing hero ", d:heroId, s:" from db into ", s:login);
+
+			setPlayerHeroId(player,slot,heroID-1);
+			setPlayerExp(player, slot, GetDBEntry(login, svar(DB_EXP,slot)));
+			setUnlockedWeapons(player,slot,GetDBEntry(login,svar(DB_WEAPON,slot)));
+		}
+	}
+
+	EndDBTransaction();
+}
+
+function void accountSave(int player) {
+	if (!PlayerIsLoggedIn(player))  return; 
+	str login = GetPlayerAccountName(player); 
+	log(s:"lets go  ", s:login);
+
+	log(s:"saving for ", s:login);
+	BeginDBTransaction();
+
+	for (int i = 0; i < MAX_SLOTS; i++) {
+		SetDBEntry(login, strParam(s:DB_HERO_ID, d:i), 1+getPlayerHeroId(player,i));
+	}
+
+	EndDBTransaction();
+}
+
+
+#DEFINE TITLE_SPACING 42.0
+function void drawTitleElement(str text, int offset, bool isSelected) {	
+	drawBT(strParam(s:"\cc", s:text), 200.0, 40.0+offset*TITLE_SPACING, 400, 250);
+	drawBI(strParam(s:"8CTITLM", d:isSelected), 140.0, 24.0+offset*TITLE_SPACING, 400, 250);
+}
+
+int menuStatus = -1;
+
+
+script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
+	int localPlayer = ConsolePlayerNumber();
+	switch(type) {
+
+		// arg1 = the server NET script to puke
+		// arg2/3 = 2 usable arguments
+		case CS_PUKE:
+			str pukeDebug = strParam(
+				s:"\cdPUKE [net ", d:arg1, 
+				s:" - arg1 ", d:arg2, 
+				s:" - arg2 ", d:arg3, s:"]"
+			);
+			//log(s:pukeDebug);
+			type = 0;
+			do {
+				NamedRequestScriptPuke("8C NET", arg1, arg2, arg3);
+				delay(1);
+				if (type<PUKE_TIMEOUT) 
+					int status = CheckInventory("8C Puke Response");
+				else {
+					status = PUKE_TIMED_OUT;
+					break;
+				}
+				type++;
+			} while(!status);
+			log(s:pukeDebug, s:" --> ", 
+				s:( status == PUKE_OK ? "\cvOK" : 
+					status == PUKE_ERROR ? "\caERROR" : 
+					status == PUKE_SKIPPED ? "\ccSKIPPED" : 
+					"\cqTIMED OUT"));
+		break;
+
+		case CS_CAMERA:
+			type = activatorTID();
+			if (localPlayer != type-CAMERA_TID) {
+				Thing_Remove(0);
+				terminate;
+			}
+			SetActivatorToTarget(0);
+			arg1 = (GetActorProperty(0,APROP_ViewHeight)); // eye level
+			arg2 = INCARNATION_INTRO_CAMDIST/INCARNATION_INTRO_ZOOM;
+			for (int i = INCARNATION_INTRO_TIME; i; i--) {
+				ChangeCamera(type,0,0);
+				Warp(type, 
+					-4.0, 0, -(GetActorZ(0)-GetActorFloorZ(0))+arg1, 
+					0, WARPF_MOVEPTR | WARPF_NOCHECKPOSITION);
+				SetActorPitch(type,0);
+				if (i <= INCARNATION_INTRO_ZOOM)	cameraExtend(type, INCARNATION_INTRO_CAMDIST-((INCARNATION_INTRO_ZOOM-i)*arg2));	
+				else								cameraExtend(type, INCARNATION_INTRO_CAMDIST);	
+				ActorLookAt(type,0,arg1,0);
+				delay(1);
+			}
+			Thing_Remove(type);
+		break;
+
+		case CS_INTRO_HUD_ANIMATION:
+			if (localPlayer != arg1) terminate;
+			arg1 = 0; // main scene view order offset
+			arg2 = 0; // "ready" space border offset
+			arg3 = 0; // zoom to char border offset
+			int tmp = 0;
+			type = 4;
+			for (i = 0; i < INCARNATION_INTRO_TIME; i++) {
+				if (i > INCARNATION_INTRO_TIME-INCARNATION_INTRO_ZOOM) 
+					arg3 += 1.5; //FixedDiv(30.0,INCARNATION_INTRO_ZOOM<<16);
+
+				for (int j = 0; j < 3; j++) {
+					// borders
+					drawSBI("8CINTROB", (384.1-(tmp<<16))-(254.0*j), -11.0 -arg1-arg2-arg3);
+					drawSBI("8CINTRO7", (-384.1+(tmp<<16))+(254.0*j), 99.0 +arg1+arg2+arg3);
+				}
+				if (arg2 < 16.0) 
+					arg2 += 4.0;
+				else {
+					if (i < INCARNATION_INTRO_READY_TIME) {
+						if (type) 	localPlayer = 0.65;
+						else		localPlayer = (!!((i>>2)&0x1))<<16;
+						// "ready" text
+						draw("8CINTROC", false, 159.0-(type<<22), 139.0, 320, 280, 0.05, localPlayer);
+						draw("8CINTROD", false, 161.0+(type<<22), 141.0, 320, 280, 0.05, localPlayer);
+						if (i >= (INCARNATION_INTRO_READY_TIME-4)) 
+							type++;
+						else if (type) 
+							type--;
+					}
+					if ((i >= INCARNATION_PREINTRO_TIME) && (arg1 < 55.0)) 
+						arg1 += 5.0;
+				}				
+				tmp = (tmp+8)&0xFF; // %256
+				delay(1);
+			}
+		break;
+		
+
+		// case 55:
+
+
+
+		// break;
+	}
+}
+
+
+
+
+			
+
+#DEFINE CAMERA_T 4
+function void cameraExtend(int camera, int dist) {
+	int dx = cos(GetActorAngle(camera))*CAMERA_T;
+	int dy = sin(GetActorAngle(camera))*CAMERA_T;
+	int dz = sin(GetActorPitch(camera))*CAMERA_T;
+	int tMax = (dist/CAMERA_T)>>16;
+	for (int t = 1; t <= tMax; t++) {
+		int test = Warp(camera,
+			GetActorX(camera)-dx, GetActorY(camera)-dy, GetActorZ(camera)-dz,
+			0, WARPF_MOVEPTR | WARPF_ABSOLUTEPOSITION		
+		);		
+		if (!test) break;
+	}
+}
+
+
+
+function void healthFormula(int rank) {
+	int hp = calcStatLerp(getHP(CheckInventory("8C ID")), rank)>>16;
+	SetActorProperty(0,APROP_SpawnHealth,hp); // note monsters max/spawn hp can't be modified at current time zandro versions
+	SetActorProperty(0,APROP_Health,hp);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//////////////////////////////////////////////////////////
+//                           Misc/utils            				//
+	//////////////////////////////////////////////////////////
+
+function int roundf(int f) { return (f+0.5)&0xFFFF0000; }
+    
+// from xover weapons 2.1.0
+script "EarthQuake" (int strength, int duration, int range) {
+	Radius_Quake(strength, duration, 0, range/64, 0); }
+
+// from vanilla but /w zOffset param
+function bool checkFooting(int zOffset) {
+	int tid = UniqueTID();
+	bool check = Spawn("8bdmFootholdCheck",GetActorX(0),GetActorY(0),GetActorZ(0)+zOffset,tid);
+	Thing_Remove(tid);
+	return check;
+}
+
+function bool isGone(int ptr) {
+	if (ptr) {
+		SetActivator(0,ptr);
+		ptr = 0;
+	} 
+	int flags = ClassifyActor(ptr);
+	return (flags & (ACTOR_WORLD | ACTOR_DEAD)) || ((flags & ACTOR_PLAYER) && PlayerIsSpectator(PlayerNumber()));
+}
+
+
+// drawn right to left!
+function void draw8cNumber(int number, int font, int x, int y) {
+	switch(font) {
+		case SMALL_FONT: int space = 11.0; break;
+		case BIG_FONT: space = 14.0; break;
+	}
+	font = strParam(s:"8CNUMB",d:font);
+	int dx = 0;
+	while (true) {
+		int digit = number%10;
+		drawSBI(strParam(s:font, d:digit), x+ (space*dx), y);
+		if (number) number /= 10;
+		else break;
+		dx--;
+	}
+}
+
+
+
+function str svar(str radical, int id) {
+	return strParam(s:radical, d:id);
+}
+
+
+
+
+function int getBit(int x, int b) { return (x & (1 << b))>>b; }
+function int setBit(int x, int b) { return x | (1 << b); }
+function int resetBit(int x, int b) { return x & ~(1 << b); }
+
+function bool isPressed(int key) {
+	return 
+		!(GetPlayerInput(-1, INPUT_OLDBUTTONS) & key) &&
+		(GetPlayerInput(-1, INPUT_BUTTONS) & key);
+}
+
+
+
+
+	//////////////////////////////////////////////////////////
+//                           debug/tmp             				//
+	//////////////////////////////////////////////////////////
+
+	
+
+// /* ALIGNER
+// x
+// .0 = positions center of box
+// .1 = positions left edge of box
+// .2 = positions right edge of box
+// .4 = centers text inside box and aligns center
+// .5 = centers text and aligns left edge
+// .6 = centers text and aligns right edge
+// For y:
+
+// .0 = positions center of box
+// .1 = positions top edge of box
+// .2 = positions bottom edge of box*/
+
+// pukename draw 20 20 320 200
+script "draw" (int x, int y, int scx, int scy) {
+	// draw("8CCHRAN0", false, x<<16, y<<16, scx, scy, 2.0,1.0); 
+	// draw("8CCHRAN1", false, x<<16, (20+y)<<16, scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
+	// draw("8CCHRAN2", false, x<<16, (40+y)<<16, scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
+	 draw("8CCHRAN3", false, x<<16, (y<<16), scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
+	draw("8CCHRAN4", false, x<<16, (y<<16), scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
+}
+
+script "print" (void) { printActorTable(); }
+
+
+script "sum" (int id, int minplayer) {
+	str name = getName(id+HERO_SIZE);
+	int tid = activatorTID();
+	if (minplayer) spawn8cMin(name,tid,minplayer);
+	else spawn8c(name,tid);
+}
+	
+
+
+	//////////////////////////////////////////////////////////
+//                           db/persistence         			//
+	//////////////////////////////////////////////////////////
+
+/*
+	hero: int
+	xp: int
+	robotMaster: int (32 bit bitflag)
+*/
+

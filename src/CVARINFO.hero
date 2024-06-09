@@ -1,0 +1,24 @@
+
+server noarchive string C8_hero_name_0 = 		"8C Megaman";
+server noarchive int	C8_hero_hp_0 = 			60;
+server noarchive int	C8_hero_puissance_0 = 	20;
+server noarchive string C8_nice_name_0 = 		"\cvMega Man\c-";
+server noarchive string C8_select_0 = 			"8CCHRAN0 8CCHRAN0";
+
+server noarchive string C8_hero_name_1 = 		"8C Protoman";
+server noarchive int	C8_hero_hp_1 = 			60;
+server noarchive int	C8_hero_puissance_1 = 	20;
+server noarchive string C8_nice_name_1 = 		"\cgProto Man\c-";
+server noarchive string C8_select_1 = 			"8CCHRAN1 8CCHRAN1";
+
+server noarchive string C8_hero_name_2 = 		"8C Bass";
+server noarchive int	C8_hero_hp_2 = 			60;
+server noarchive int	C8_hero_puissance_2 = 	20;
+server noarchive string C8_nice_name_2 = 		"\cuBass\c-";
+server noarchive string C8_select_2 = 			"8CCHRAN2 8CCHRAN2";
+
+server noarchive string C8_hero_name_3 = 		"8C Roll";
+server noarchive int	C8_hero_hp_3 = 			60;
+server noarchive int	C8_hero_puissance_3 = 	20;
+server noarchive string C8_nice_name_3 = 		"\caRoll\c-";
+server noarchive string C8_select_3 = 			"8CCHRAN3 8CCHRAN3";

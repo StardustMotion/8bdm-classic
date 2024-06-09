@@ -90,7 +90,7 @@ cooperative {
 		////////////////////////////////////////////////////
 		sv_maxplayers = 8 // comme dans dofus mdr
 		//sv_maxclientsperip = 1 // where you going
-		//sv_maxclients 16
+		//sv_maxclients 16 // MAX_8C_PLAYERS.acs
 		////////////////////////////////////////////////////
 		
 

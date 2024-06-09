@@ -10,3 +10,35 @@ texture 8CINTROB
 	pic 8CINTRO9 tics 2
 	pic 8CINTROA tics 2
 	pic 8CINTRO9 tics 2
+
+texture 8CTITLM0
+	pic 8CTITLM2 tics 35
+	pic 8CTITLM2 tics 35
+
+texture 8CTITLM1
+	pic 8CTITLM2 tics 6
+	pic 8CTITLM3 tics 6
+	pic 8CTITLM4 tics 6
+	pic 8CTITLM3 tics 6
+
+
+
+// Character selection
+texture 8CCHRAN0
+	pic 8CCHAR00 tics 70
+	pic 8CCHAR01 tics 6
+	
+texture 8CCHRAN1
+	pic 8CCHAR02 tics 6
+	pic 8CCHAR03 tics 6
+	
+texture 8CCHRAN2
+	pic 8CCHAR04 tics 70
+	pic 8CCHAR05 tics 6
+	
+texture 8CCHRAN3
+	pic 8CCHAR06 tics 10
+	pic 8CCHAR07 tics 10
+	pic 8CCHAR08 tics 10
+	pic 8CCHAR07 tics 10
+	

@@ -2,8 +2,11 @@
 	"folder": "src",
 	"libraries": [
 		"8C.acs",
+		"8C2.acs",
 		"data.acs",
-		"main.acs"
+		"data2.acs",
+		"main.acs",
+		"main2.acs"
 	],
 	"file_name": "8bdm-classic",
 	"version": "1.0.0"

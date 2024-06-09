@@ -1,53 +1,82 @@
 
 
-////////////////////
-// Script header  //
-////////////////////
+#DEFINE CVAR_HERO_SIZE "C8_hero_size"
+function int getHeroSize(void) { 				        	    	return GetCvar(CVAR_HERO_SIZE); }
 
-// ------------------------------------------ //
-//    "8C"      //
-// ------------------------------------------ //
+#DEFINE CVAR_HERO "C8_hero_"
+function int getHero(int heroId) { 				        	    	return get8bFlagVal(CVAR_HERO, true, heroId); }
+function void setHero(int heroId, int val) { 		            	set8bFlagVal(CVAR_HERO, true, heroId, val); }
 
-#DEFINE INCARNATE 0
-#DEFINE INTRO_ANIMATION 1
-#DEFINE PHYSICS_8C 2
+#DEFINE CVAR_LOGIN "C8_login_"
+function str getLogin(int player) { 								return strSanitize(GetCvarString(__login(player))); }
+function void setLogin(int player, str login) { 					SetCVarString(__login(player), login); }
+function str __login(int player) { 									return strParam(s:CVAR_LOGIN, d:player); }
+function bool isLoggedIn(int player) { 								return isNetworkGame() && strLen(getLogin(player)); }
 
-#DEFINE XY_DIST 64
-#DEFINE Z_DIST 65
-#DEFINE IS_GONE 66
-#DEFINE COPY_VELOCITY 67
-#DEFINE GET_VELOCITY 68
-#DEFINE CHECK_COLLISION 69
-#DEFINE SOLID_TOGGLE 70
-#DEFINE GET_USERVAR 71
-//#DEFINE NO_8C_FOG 72 // 8C.acs
+#DEFINE CVAR_SLOT "C8_slot"
+// return -1 for quick play, 0 and 1 for account slots
+function int getSlot(int player) { 									return get2bFlagVal(CVAR_SLOT, false, player)-1; }
+function void setSlot(int player, int val) { 						set2bFlagVal(CVAR_SLOT, false, player, val+1); }
+
+#DEFINE CVAR_PLAYER_HERO "C8_player_hero_"
+function int getPlayerHero(int player, int slot) { 					return get8bFlagVal(__playerHero(player,slot), true, player)-1; }
+function void setPlayerHero(int player, int slot, int val) { 		set8bFlagVal(__playerHero(player,slot), true, player, val+1); }
+function str __playerHero(int player, int slot) { 					return strParam(s:CVAR_PLAYER_HERO, d:slot+1); }
+
+#DEFINE CVAR_EXP "C8_exp_"
+function int getExp(int player, int slot) {							return GetCvar(__exp(player,slot)); }
+function void setExp(int player, int slot, int exp) {				SetCVar(__exp(player,slot), exp); }
+function str __exp(int player, int slot) {							return strParam(s:CVAR_EXP, d:slot+1, d:player); }
+
+#DEFINE CVAR_WEAPON "C8_weapon_"
+function bool getPlayerWeapons(int player, int slot) {				return GetCvar(__playerWeapons(player,slot)); }
+function void unlockWeapon(int player, int slot, int wepId) {
+	str cvar = __playerWeapons(player,slot); 
+	SetCVar(cvar, GetCvar(cvar) | (1 << wepId));
+}
+function void setPlayerWeapons(int player, int slot, int weps) {	SetCVar(__playerWeapons(player,slot), weps); }
+function str __playerWeapons(int player, int slot) {				return strParam(s:CVAR_WEAPON, d:slot+1, d:player); }
+
+#DEFINE CVAR_AUTOLOGIN "C8_autologin"
 
 
-// ------------------------------------------ //
-//    "8C NET"      //
-// ------------------------------------------ //
+////////////////////////////////////
+//  Hero/enemy specific fields    //
+////////////////////////////////////
 
-//
+// Hero
 
-// ------------------------------------------ //
-//    "8C CS"      //
-// ------------------------------------------ //
-#DEFINE CS_PUKE 0
+// server noarchive string C8_hero_name_0 = 		"8C Megaman";
+// server noarchive int	C8_hero_hp_0 = 			60;
+// server noarchive int	C8_hero_puissance_0 = 	20;
+// server noarchive string C8_nice_name_0 = 		"\cvMega Man\c-";
+// server noarchive string C8_select_0 = 			"8CCHRAN0 8CCHRAN0";
 
-#DEFINE CS_CAMERA 64
-#DEFINE CS_INTRO_HUD_ANIMATION 65
-#DEFINE CS_START_SCREEN 66
+function str getNiceName(int index) {                                return __getNiceName(getHero(index)); }
+function str __getNiceName(int heroId) {                             return GetCvarString(strParam(s:"C8_nice_name_", d:heroId)); }
+
+    
+
+// testers
+script "seto" (int i, int j) { setSlot(i,j); delay(1); log(d:getSlot(i)); }
+script "geto" (int i) { log(s:getNiceName(i)); }
 
 
-// ------------------------------------------ //
-//    "8C NET CS"      //
-// ------------------------------------------ //
 
-#DEFINE CS_NET_START_SCREEN 0
 
-// ------------------------------------------------------------------------------------ //
-// ------------------------------------------------------------------------------------ //
-// ------------------------------------------------------------------------------------ //
+
+//////////////////////
+// Database schema  //
+//////////////////////
+
+#DEFINE DB_FIELD_HERO_ID "player_hero_"
+#DEFINE DB_FIELD_WEAPON "weapon_"
+#DEFINE DB_FIELD_EXP "exp_"
+
+
+
+
+
 
 
 
@@ -58,141 +87,10 @@
 #DEFINE INT_MAX 0x7fffffff
 #DEFINE INT_MIN 0x80000000
 
-#DEFINE HERO_SIZE 6 // 32 128 // dont exceed 256
-#DEFINE ENEMY_SIZE 24
-
-#DEFINE CAMERA_TID 7800
-
-#DEFINE INCARNATION_PREINTRO_TIME 25 // tics before actor plays its intro8C state
-#DEFINE INCARNATION_INTRO_SPAWN_TIME 90 // tics allowed for intro8C duration
-#DEFINE INCARNATION_INTRO_TIME INCARNATION_PREINTRO_TIME+INCARNATION_INTRO_SPAWN_TIME
-#DEFINE INCARNATION_INTRO_READY_TIME INCARNATION_PREINTRO_TIME+25 // "ready" animation display time
-
-#DEFINE PUKE_TIMED_OUT 0
-#DEFINE PUKE_OK 1
-#DEFINE PUKE_ERROR 2
-#DEFINE PUKE_SKIPPED 3
-
-#DEFINE INCARNATION_INTRO_CAMDIST 256.0
-#DEFINE INCARNATION_INTRO_ZOOM 20
-
-#DEFINE MENHUD_UP (BT_FORWARD)
-#DEFINE MENHUD_DOWN (BT_BACK)
-#DEFINE MENHUD_LEFT (BT_LEFT|BT_MOVELEFT)
-#DEFINE MENHUD_RIGHT (BT_RIGHT|BT_MOVERIGHT)
-#DEFINE MENHUD_YES (BT_ATTACK)
-#DEFINE MENHUD_NO (BT_ALTATTACK)
-
-#DEFINE START_SCREEN_TITLE 0
-#DEFINE START_SCREEN_DATA 1
-#DEFINE START_SCREEN_CREATE_HERO 2
-#DEFINE START_SCREEN_OPTIONS 3
-
-
-#DEFINE PUKE_HERO_CREATE 0
-#DEFINE PUKE_HERO_DELETE 1
-#DEFINE PUKE_LOGIN_REFRESH 2
-
-#DEFINE PUKE_TIMEOUT 35
-
-
-// CVARs  //
-
-#DEFINE CVAR_HERO_NAME "c8_hero_name_"
-
-function str getHeroName(int id) {
-	return GetCvarString(cvar(CVAR_HERO_NAME,id));
-}
-
-
-#DEFINE CVAR_PLAYER_HERO_ID "c8_player_hero_id_"
-
-// slot -1 is quick play, 0/1 are A/B. Return -1 if there's no hero defined
-#DEFINE HERO_SLOTS 2
-function int getPlayerHeroID(int player, int slot) {
-	return getByteFlagVal(GetCvar(__playerHeroIDcvar(player,slot)), player) - 1;
-}
-function void setPlayerHeroID(int player, int slot, int heroID) {	
-	SetCVar(__playerHeroIDcvar(player,slot), 
-		setByteFlagVal(heroID+1, player, GetCvar(__playerHeroIDcvar(player,slot)))		
-	);
-}
-function str __playerHeroIDcvar(int player, int slot) {
-	slot = (slot==-1 ? "" : slot);	
-	str var = strParam(s:CVAR_PLAYER_HERO_ID, d:slot, d:player>>2);
-	return var;
-}
-
-// un/marshalls four bytes into one 32 bit int
-function int setByteFlagVal(int val, int n, int bitfield) {
-	int shift = ((n & 0x3)<<3); // 0, 8, 16 or 24
-	bitfield &= ~(0xFF << shift); // erase destination bits
-	return bitfield | (val << shift);
-}
-function int getByteFlagVal(int byte, int n) {
-	return (byte >> ((n & 0x3)<<3))&0xFF;
-}
-
-function bool hasHero(int player, bool isQuickPlay) {
-	if (isQuickPlay) 
-		return getPlayerHeroID(player,-1) != -1;
-	else {
-		for (int i = 0; i < HERO_SLOTS; i++)
-			if (getPlayerHeroID(player,i) != -1) { return true; }
-	}
-	return false;
-}
-
-
-#DEFINE CVAR_HERO_SIZE "c8_hero_size"
-
-#DEFINE CVAR_AUTOLOGIN "C8_AUTOLOGIN"
-
-
-#DEFINE CVAR_PLAYER_LOGIN "c8_player_login_"
-function str getLogin(int player) { 
-	return GetCvarString(cvar(CVAR_PLAYER_LOGIN,player)); 
-}
-function void setLogin(int player, str login) { 
-	SetCVarString(cvar(CVAR_PLAYER_LOGIN,player), login); 
-}
-function bool isLogged(int player) { 
-	return isNetworkGame() && strLen(getLogin(player)); 
-}
-
-
-#DEFINE CVAR_PLAYER_HERO_SLOT "c8_player_hero_slot"
-
-
-
-
-
-
-
-//////////////////////
-// Data definition  //
-//////////////////////
-
-
-
-int ACTOR[HERO_SIZE+ENEMY_SIZE][4];
-int heroCount = 0, enemyCount = 0;
-
-
-
-
-
-
-//////////////////////
-// Database schema  //
-//////////////////////
-
-#DEFINE DB_HERO_ID "hero_id_"
-//#DEFINE DB_EXP "exp"
-
-
-
-
+#DEFINE MAX_HERO 256
+#DEFINE MAX_CLIENTS 16
+// -1 value is used to refer to quick play slot
+#DEFINE MAX_SLOTS 2
 
 
 
@@ -201,115 +99,11 @@ int heroCount = 0, enemyCount = 0;
 
 
 /////////////////
-// Clientside  //
+//  Runtime   //
 /////////////////
 
-/* "8C CS NET" */
-
-	// #DEFINE START_SCREEN_IN 0
-	// #DEFINE START_SCREEN_OUT 1
-	// #DEFINE START_SCREEN_HOME 2
-	// #DEFINE START_SCREEN_DATA 3
-	// #DEFINE START_SCREEN_CREATE_HERO 4	
-	// #DEFINE START_SCREEN_OPTIONS 5
-	// #DEFINE START_SCREEN_MAIN 60
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-#DEFINE MOB_COLOR 6900 
-#DEFINE MOB_COLOR_SIZE 6
-#DEFINE MOB_V1 0
-#DEFINE MOB_V2 MOB_V1+1
-#DEFINE MOB_V3 MOB_V2+1
-*/
-
-// Script "8C OPEN Client" OPEN CLIENTSIDE
-// {
-// 	Delay(25); // Fixes P_PlayerThink spam ?
-//     int i = MOB_COLOR+(BLADER*MOB_COLOR_SIZE); // B G O
-// 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
-// 	CreateTranslation (i+1, 192:192=66:66, 198:198=251:251, 0:0=79:79);
-// 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
-// 	CreateTranslation (i+3, 192:192=202:202, 198:198=205:205, 0:0=207:207);
-// 	CreateTranslation (i+4, 192:192=168:168, 198:198=225:225);
-// 	CreateTranslation (i+5, 192:192=160:160, 198:198=41:41, 0:0=47:47);
-
-// 	// Big Eye
-//     i = MOB_COLOR+(BIG_EYE*MOB_COLOR_SIZE); // R B G
-// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
-// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
-// 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74 );
-// 	CreateTranslation (i+3, 192:192=66:66,198:198=251:251,  247:247=79:79);		
-// 	CreateTranslation (i+4,  192:192=168:168, 198:198=109:109);
-// 	CreateTranslation (i+5, 192:192=160:160, 198:198=158:158, 247:247=11:11);	
-
-// 	// Blaster
-//     i = MOB_COLOR+(BLASTER*MOB_COLOR_SIZE); // O R B
-// 	CreateTranslation (i, 	192:192=168:168, 198:198=225:225);
-// 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);	
-// 	CreateTranslation (i+2, 192:192=168:168, 198:198=41:41);
-// 	CreateTranslation (i+3, 192:192=217:217, 198:198=225:225, 247:247=188:188);		
-// 	CreateTranslation (i+4, 192:192=168:168, 198:198=74:74);
-// 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
-
-// 	// Screw Driver
-//     i = MOB_COLOR+(SCREW_DRIVER*MOB_COLOR_SIZE); // B O R
-// 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
-// 	CreateTranslation (i+1, 192:192=66:66, 198:198=251:251, 247:247=79:79);
-// 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
-// 	CreateTranslation (i+3, 192:192=104:104, 198:198=109:109, 247:247=125:125);
-// 	CreateTranslation (i+4, 192:192=168:168, 198:198=41:41);
-// 	CreateTranslation (i+5, 192:192=160:160, 198:198=217:217, 247:247=188:188);
-
-
-// 	// Kamadoma
-//     i = MOB_COLOR+(KAMADOMA*MOB_COLOR_SIZE); // R B G
-// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
-// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
-// 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
-// 	CreateTranslation (i+3, 192:192=66:66, 198:198=251:251, 247:247=79:79);		
-// 	CreateTranslation (i+4,  192:192=168:168, 198:198=74:74);
-// 	CreateTranslation (i+5, 192:192=160:160, 198:198=225:225, 247:247=11:11);	
-
-// 	// Adhering Suzy
-//     i = MOB_COLOR+(ADHERING_SUZY*MOB_COLOR_SIZE); // R O B
-// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
-// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
-// 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74);
-// 	CreateTranslation (i+3, 192:192=104:104, 198:198=109:109, 247:247=125:125);	
-// 	CreateTranslation (i+4,  192:192=168:168, 198:198=109:109);
-// 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
-
-// 	// Manbu
-//     i = MOB_COLOR+(MANBU*MOB_COLOR_SIZE); // O G R
-// 	CreateTranslation (i, 192:192=168:168, 198:198=225:225);
-// 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);
-// 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
-// 	CreateTranslation (i+3, 192:192=202:202, 198:198=205:205, 0:0=207:207);
-// 	CreateTranslation (i+4,  192:192=168:168, 198:198=41:41);
-// 	CreateTranslation (i+5, 192:192=160:160, 198:198=228:228, 247:247=158:158);	
-
-// 	// Cutting Wheel
-//     i = MOB_COLOR+(CUTTING_WHEEL*MOB_COLOR_SIZE); // ? ? ?
-// 	CreateTranslation (i, 192:192=178:178, 198:198=245:245, 4:4=168:168, 0:0=6:6);
-// 	CreateTranslation (i+1, 192:192=6:6, 4:4=80:80, 0:0=6:6, 198:198=91:91);
-// 	CreateTranslation (i+2, 192:192=225:225, 198:198=109:109, 4:4=168:168, 0:0=6:6);
-// 	CreateTranslation (i+3, 192:192=91:91, 198:198=83:83, 4:4=168:168, 0:0=91:91);
-// 	CreateTranslation (i+4, 192:192=74:74, 198:198=41:41, 4:4=168:168, 0:0=6:6);
-// 	CreateTranslation (i+5, 192:192=80:80, 198:198=91:91, 4:4=6:6, 0:0=168:168);
-
-
-
-// 	// run custom translatinos
-// }
+// Used for title screen and weapon selection
+int client_menuStatus = -1;
+function int getMenu(void) { return client_menuStatus; }
+function void setMenu(int id) { client_menuStatus = id; }
+function bool inMenu(void) { return getMenu() != -1; }
