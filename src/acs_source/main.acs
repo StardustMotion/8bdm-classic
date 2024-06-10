@@ -17,16 +17,16 @@ function void init(void) {
 	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
 
     if (!getHeroSize()) {
-        for (int i = 0, heroCount = 0; i < MAX_HERO; i++)
-            if (strLen(strSanitize(__getNiceName(i)))) {
-                setHero(heroCount, i);
+        for (int heroId = 0, heroCount = 0; heroId < MAX_HERO; heroId++)
+            if (strLen(strSanitize(__getHeroName(heroId)))) {
+                setHeroFromIndex(heroCount, heroId);
                 heroCount++;
             }
         SetCVar(CVAR_HERO_SIZE, heroCount);
     }
 
 	if (isMap8C || forcePhysics) {
-		for (i = 0; i < 512; i++) 
+		for (int i = 0; i < 512; i++) 
 			Sector_SetFriction(i,-96);
 		DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
 		DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
@@ -50,6 +50,7 @@ function void init(void) {
     #DEFINE START_SCREEN_CREATE_HERO 2
     #DEFINE START_SCREEN_OPTIONS 3
     #DEFINE START_SCREEN_ENTER_GAME 4
+    #DEFINE START_SCREEN_EXIT 5
 
 script "8C NET CS" (int type) NET CLIENTSIDE {
 	switch(type) {
@@ -63,228 +64,61 @@ script "8C NET CS" (int type) NET CLIENTSIDE {
 script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 	int localPlayer = ConsolePlayerNumber();
     switch(type) {
-		case START_SCREEN:
-			loginPoll(localPlayer);
-			int delta = 0;
-			for (int i = 0; i < 16; i++) {
-				drawBI("8CTITLTR",-32.0 + 2.0*i, 8.0, 16,  16);
-				drawBI("8CTITLTR", 48.0 -2.0*i	, 9.0, 16, 16);
+        case START_SCREEN:
+            for (int i = 0; i < 16; i++) {
+				drawBI("8CTITLTR", -32.0 + 2.0*i, 8.0, 16, 16);
+				drawBI("8CTITLTR", 48.0  - 2.0*i, 9.0, 16, 16);
 				delay(1);
 			}
-			delta = 0;		
 			LocalSetMusic("8CDATA");
-			arg1 = 0;
+			type = 8;
 			setMenu(START_SCREEN_TITLE);
-			int status = getMenu();
-			int fade = 8;
-			while (fade < 9) {
-				draw("8CTITLBL", false, 0, 0, 1, 1, 0.05, FixedDiv(fade<<16,8.0));
-				
-				if (!inMenu())  fade++;
-				else if (fade)  fade--;
-
-				// if (inMenu())
-                //     arg2 = startScreen(arg1);
-
+            arg3 = getMenu();
+            i = 0;
+            while (type < 9) {
+				draw("8CTITLBL", false, 0, 0, 1, 1, 0.05, FixedDiv(type<<16,8.0));
+				if (getMenu()==START_SCREEN_EXIT)
+                    type++;
+				else if (type)
+                    type--;           
+				arg2 = startScreen(arg1);    
 				if (arg1 != arg2) {
-					LocalAmbientSound("menu/cursor", 120); 
+					if (!(arg2>>24)) 
+                        LocalAmbientSound("menu/cursor", 120); 
 					arg1 = arg2;
 				}
-				if (status != getMenu()) {
+				if (arg3 != getMenu()) {
 					LocalAmbientSound("misc/introstardroiddash", 120);
-					fade = 0; 
-					status = getMenu();
-					if (!inMenu()) 
+					arg3 = getMenu();
+					if (getMenu()==START_SCREEN_EXIT) 
 						continue;
 					arg1 = 0;
 					delay(15);
 				}
-				for (int picX = 0; picX < 7; picX++) {
-					for (int picY = 0; picY < 4; picY++) {
-						drawSBI("8CTITLBG", 
-								-96.0 + ((delta*80)&0xFFFF0000) + 80.0*picX, 
-								-64.0 + ((delta*96)&0xFFFF0000) + 96.0*picY);
-					}
-				}
-				delta = (delta+512)&0xFFFF;
-				delay(1);
-				if (getMenu() == START_SCREEN_ENTER_GAME) break;
-			}
-
+                drawSBI("8CTITBG1",-160.1+((i*80)&0xFFFF0000), -96.1+((i*96)&0xFFFF0000));
+				i = (i+512)&0xFFFF;
+                delay(1);
+            }
 			for (i = 16; i >= 0; i--) {
-				drawBI("8CTITLTR",-32.0 + 2.0*i, 8.0, 16,  16);
-				drawBI("8CTITLTR", 48.0 -2.0*i	, 9.0, 16, 16);
+				drawBI("8CTITLTR", -32.0 + 2.0*i, 8.0, 16, 16);
+				drawBI("8CTITLTR", 48.0  - 2.0*i, 9.0, 16, 16);
 				delay(1);
 			}
-			LocalSetMusic("*");
-
+			LocalSetMusic("*"); // if8Cmap ...
             setMenu(-1);
-			// --
-			// if (menuStatus == START_SCREEN_ENTER_GAME) {
-			// 	consolecommand("menu_joingame");
-			// }
-		break;
-
+            // 	// if (menuStatus == START_SCREEN_ENTER_GAME) {
+            // 	// 	consolecommand("menu_joingame");
+            // 	// }
+        break;
     }
     
 }
 
 
-// // weird design pattern XD? ?
 // function int startScreen(int state) {
-// 	int base = 60.0;
-// 	int back = 160.0;
-// 	int player = PlayerNumber();
-// 	int index;
-//     int menu = getMenu();
-
-// 	switch(menu&0xFF) {
-// 		case START_SCREEN_TITLE:
-// 			bool isLocalLogged = isLogged(player);
-// 			bool isFirstHero = !hasHero(player,false);
-
-// 			if (isNetworkGame()) {
-// 				if (isLocalLogged) {
-// 					drawSBT(strParam(s:"logged in as ", s:getLogin(player)), 160.0, base-TITLE_SPACING);
-// 					drawTitleElement(isFirstHero ? "START" : "CONTINUE", 0, !state);
-// 				}
-// 				else {
-// 					drawTitleElement("LOGIN", 0, !state);
-// 					if ( !(Timer()&0x1F) )
-// 						loginPoll(player);
-
-// 				}
-// 			}
-
-// 			drawTitleElement("QUICK PLAY", 0+isNetworkGame(), state==1);
-// 			drawTitleElement("OPTIONS", 1+isNetworkGame(), state==2);
-// 			drawTitleElement("BACK TO GAME", 2+isNetworkGame(), state==3);
-
-// 			// --------- logic ---------- //
-			
-// 			if (!state && !isNetworkGame()) {
-// 				state=1;
-// 			}
-// 			if (isPressed(MENHUD_NO))
-// 				menuStatus = -1;
-// 			else if (isPressed(MENHUD_YES))
-// 				switch(state) {
-// 					// Slot A/B (online)
-// 					case 0:
-// 						if (!isLocalLogged) consolecommand("toggleconsole");
-// 						else {
-// 							if (isFirstHero) 
-// 								menuStatus = (1<<8) | START_SCREEN_CREATE_HERO;
-// 							else 
-// 								menuStatus = (1<<8) | START_SCREEN_DATA;
-// 						}
-// 					break;
-
-// 					// Quick play
-// 					case 1:						
-// 						if ((getPlayerHeroId(player,-1)==-1)) 
-// 							menuStatus = (0<<8) | START_SCREEN_CREATE_HERO;
-// 						else menuStatus = START_SCREEN_DATA;						
-// 					break;
-
-// 					case 2: menuStatus = START_SCREEN_OPTIONS; break;
-// 					case 3: menuStatus = -1; break;
-// 				}
-// 			else if (isPressed(MENHUD_UP) && (state > !isNetworkGame()))
-// 				state--;
-// 			else if (isPressed(MENHUD_DOWN) && (state<3))
-// 				state++;
-// 		break;
-		
-// 		// case START_SCREEN_OPTIONS:
-
-// 		// 	if (isNetworkGame())
-// 		// 		drawTitleElement(strParam(s:"AUTO LOGIN is ", s:(GetCvar(CVAR_AUTOLOGIN) ? "\cdon" : "\off")), 0, !state);
-
-// 		// 	drawTitleElement("KEY BINDS", isNetworkGame(), state==1);
-// 		// 	drawTitleElement("BACK", 1, state==2);
-			
-// 		// 	// --------- logic ---------- //
-			
-// 		// 	if (!state && !isNetworkGame()) {
-// 		// 		state=1;
-// 		// 	}
-// 		// 	if (isPressed(MENHUD_NO))
-// 		// 		menuStatus = START_SCREEN_TITLE;
-// 		// 	else if (isPressed(MENHUD_YES))
-// 		// 		switch(state) {
-// 		// 			case 0: consolecommand(strParam(s:CVAR_AUTOLOGIN, s:" ", d:!GetCvar(CVAR_AUTOLOGIN))); break;
-// 		// 			case 1: log(s:"bounder"); break;
-// 		// 			case 2: menuStatus = START_SCREEN_TITLE; break;
-// 		// 		}
-// 		// 	else if (isPressed(MENHUD_UP) && (state > !isNetworkGame()))
-// 		// 		state--;
-// 		// 	else if (isPressed(MENHUD_DOWN) && state<2) 
-// 		// 		state++;
-// 		// break;
 
 // 		// // FFFF FF FF = confirmScreen menuIndex heroID
-// 		// case START_SCREEN_CREATE_HERO:
-// 		// 	index = state&0xFF;
-// 		// 	drawSBT(getHeroName(index), 160.0, base);
-// 		// 	drawSBT("BACK", 160.0, back);
-			
-// 		// 	bool confirm = state>>16;
-// 		// 	if (confirm) {
-// 		// 		drawSBT("Start adventure with this character?", 160.0, 110.0);
-// 		// 		drawSBT("Confirm", 160.0, 110.0+TITLE_SPACING);
-// 		// 		drawSBT("Back", 160.0, 110.0+TITLE_SPACING*2);
-// 		// 	}
-			
-// 		// 	// --------- logic ---------- //
-// 		// 	int heroN = GetCvar(CVAR_HERO_SIZE);
 
-// 		// 	if (isPressed(MENHUD_NO)) {
-// 		// 		if (confirm) state&=0xFFFF;
-// 		// 		else menuStatus = START_SCREEN_TITLE;
-// 		// 	}
-// 		// 	else if (isPressed(MENHUD_YES)) {
-// 		// 		if (confirm) {
-// 		// 			// Confirm creation
-// 		// 			if (!(confirm-1)) {
-// 		// 				LocalAmbientSound("misc/secret", 127);
-// 		// 				// do a "please wait.. lock here
-// 		// 				ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_HERO_CREATE, index, (menu>>8)-1);
-// 		// 				menuStatus = (menu&0xFF00) | START_SCREEN_DATA;
-// 		// 			}
-// 		// 			// Cancel creation
-// 		// 			else 
-// 		// 				state&=0xFFFF;
-// 		// 		}
-// 		// 		else {
-// 		// 			switch(getBit(state,8)) {
-// 		// 				case 0: state |= 0x10000; break;
-// 		// 				case 1: menuStatus = START_SCREEN_TITLE; break;
-// 		// 			}
-// 		// 		}
-// 		// 	}
-// 		// 	else if (isPressed(MENHUD_LEFT) && !(state>>8))
-// 		// 		state = (state&0xFFFFFF00) | ((state+heroN-1) % heroN);
-			
-// 		// 	else if (isPressed(MENHUD_RIGHT) && !(state>>8))
-// 		// 		state = (state&0xFFFFFF00) | ((state+1) % heroN);
-
-// 		// 	else if (isPressed(MENHUD_UP)) {
-// 		// 		if (confirm) {
-// 		// 			if (confirm>>1) state -= 0x10000;
-// 		// 		}
-// 		// 		else if (getBit(state,8))
-// 		// 			state = resetBit(state,8);
-// 		// 	}
-			
-// 		// 	else if (isPressed(MENHUD_DOWN)) {
-// 		// 		if (confirm) {
-// 		// 			if (!(confirm>>1)) state += 0x10000;
-// 		// 		}
-// 		// 		else if (!getBit(state,8))
-// 		// 			state = setBit(state,8);
-// 		// 	}			
-// 		// break;
 
 // 		// case START_SCREEN_DATA:
 // 		// 	index = state&0xFF;
@@ -416,6 +250,223 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 // 	return state;
 // }
 
+// wtf is this design pattern ? o wo ' -' ' -'XD? ?
+// render/process logic, and return the new logic state
+function int startScreen(int state) {
+    switch(getMenu()&0xFF) {
+        case START_SCREEN_TITLE:
+            int player = ConsolePlayerNumber();
+            bool isFirstHero = isSlotEmpty(player,0) && isSlotEmpty(player,1);
+            bool isOnline = isNetworkGame(), logged = isLoggedIn(player);
+
+			// --------- render ---------- //	
+            if (isOnline) {
+                if (logged) {
+                    drawTitle(strParam(s:"logged in as ", s:getLogin(player)), -1, false);
+                    drawTitle(isFirstHero ? "START" : "CONTINUE", 0, !state);
+                }
+                else {
+                    drawTitle("LOGIN", 0, !state);
+					if (!(Timer()&0x1F)) 
+                        loginPoll(player);
+                }
+            }
+            drawTitle("QUICK PLAY", 0+isOnline, state==1);
+            drawTitle("OPTIONS", 1+isOnline, state==2);
+            drawTitle("BACK TO GAME", 2+isOnline, state==3);
+
+
+			// --------- logic ---------- //			
+			if (!state && !isOnline) {
+				state=1;
+			}
+			if (isPressed(MENU_NO)) 
+                setMenu(START_SCREEN_EXIT);
+			else if (isPressed(MENU_UP) && (state > !isOnline))
+				state--;
+			else if (isPressed(MENU_DOWN) && (state < 3))
+				state++;
+            else if (isPressed(MENU_YES))
+                switch(state) {
+                    case 0:
+                        if (!logged) // "LOGIN"
+                            consolecommand("toggleconsole");
+                        else {                            
+							if (isFirstHero)             // "START"
+								setMenu((1<<8) | START_SCREEN_CREATE_HERO);                          
+							else                         // "CONTINUE"
+								setMenu((1<<8) | START_SCREEN_DATA);      
+						}
+                    break;
+
+                    case 1: // "QUICK PLAY"
+                        setMenu(isSlotEmpty(player,-1) ?
+                                    (0<<8) | START_SCREEN_CREATE_HERO :
+                                    START_SCREEN_DATA);
+                    break;
+                    
+                    case 2: setMenu(START_SCREEN_OPTIONS);  break;
+                    case 3: setMenu(START_SCREEN_EXIT);     break;
+                }
+
+        break;
+
+        case START_SCREEN_OPTIONS:
+            isOnline = isNetworkGame();
+
+            // PICKUP STYLE MM7 MM8 ETC
+
+			// --------- render ---------- //
+            if (isOnline)
+                drawTitle(strParam(s:"AUTO LOGIN is ", s:(GetCvar(CVAR_AUTOLOGIN) ? "\cdon" : "\cgff")), 0, !state);
+            drawTitle("KEY BINDS", 0+isOnline, state==1);
+			drawTitle("BACK", 1+isOnline, state==2);
+
+			// --------- logic ---------- //	
+			if (!state && !isOnline) {
+				state=1;
+			}
+			if (isPressed(MENU_NO))
+				setMenu(START_SCREEN_TITLE);
+			else if (isPressed(MENU_UP) && (state > !isOnline))
+				state--;
+			else if (isPressed(MENU_DOWN) && (state < 2)) 
+				state++;
+			else if (isPressed(MENU_YES))
+				switch(state) {
+					case 0: consolecommand(strParam(s:CVAR_AUTOLOGIN, s:" ", d:!GetCvar(CVAR_AUTOLOGIN))); break;
+					case 1: log(s:"bounder"); break;
+					case 2: setMenu(START_SCREEN_TITLE); break;
+				}
+        break;
+
+        case START_SCREEN_CREATE_HERO:
+            int n = getHeroSize();
+            int confirmStatus = (state>>16)&0x3;
+            int delta = (state>>24);
+            player = state&0xFF;
+
+			// --------- render ---------- //
+
+
+            log(s:"delta ", d:delta, s:" state ", d:state&0xFF);
+            if (delta) {
+                drawSBI("8CTITLW1", 160.0, 0.1);
+                drawBI(getHeroMugshot((player+n-1)%n), 260.0, 8.1, 640, 400);
+                drawBI(getHeroMugshot(player), 295.0, 41.1, 640, 400);
+                drawBI(getHeroMugshot((player+1)%n), 343.0, 41.1, 640, 400);
+                drawBI(getHeroMugshot((player+2)%n), 376.0, 8.1, 640, 400);
+            }
+            else {
+                drawSBI("8CTITLW0", 160.0, 0.1);
+                drawBI(getHeroMugshot((player+n-2)%n), 256.0, -18.1, 640, 400);
+                drawBI(getHeroMugshot((player+n-1)%n), 274.0, 32.1, 640, 400);
+                drawBI(getHeroMugshot(player), 320.0, 48.1, 640, 400);
+                drawBI(getHeroMugshot((player+1)%n), 366.0, 32.1, 640, 400);
+                drawBI(getHeroMugshot((player+2)%n), 384.0, -18.1, 640, 400);
+            }
+            
+            
+            
+            /*
+            */
+
+
+            drawBI(getHeroIdle(player), 50.0, 110.0, 200, 125);
+            drawSBT(getHeroName(player), 160.0, 40.0);
+            
+            //drawSBT(lineBreak(getHeroText(player),16), 160.0, 120.0);
+
+            
+            drawBT(strParam(d:getHeroWeapons(player), 
+                s:" * ", d:getHeroWeaponGroups(player)), 220.2, 65.0, 400, 250);
+            
+            drawBT(getSpSkill(player), 327.2, 112.0, 400, 250);
+
+            drawBI("8CTITLM5", 148.0, 100.0, 288, 180);
+            drawSBI("8CTITLM7", 65.0, 105.0);
+            drawSBI("8CTITLME", 80.0, 50.0);
+
+            if (confirmStatus) {
+                //drawSBT("Start adventure with this character?", 160.0, 110.0);
+			    drawTitle("Confirm", -2, false);
+			    drawTitle("Cancel", -1, false);
+            }
+
+			//drawTitle("Back", 0, (state>>8));
+
+
+			// --------- logic ---------- //
+            if (delta) {                
+                if ((delta&0xF)==5) {
+                    if (delta>>4) // <=
+                        state &= 0xFFFFFF;
+                    else // =>
+                        state = (state&0xFFFF00) | ((player+1) % n);
+                }
+                else 
+                    state += 0x01000000;
+                break;
+            }
+			if (isPressed(MENU_NO)) {
+				if (confirmStatus) state &= 0xFFFF;
+				else setMenu(START_SCREEN_TITLE);
+			}
+            else if (isPressed(MENU_LEFT) && !(state>>8)) {
+                state = 0x11000000 | (state&0x00FFFF00) | ((player+n-1) % n);
+            }
+            else if (isPressed(MENU_RIGHT) && !(state>>8)) {
+                state |= 0x01000000;
+            }
+            else if (isPressed(MENU_UP)) {
+                if (confirmStatus) {
+                    if (confirmStatus>>1) state -= 0x10000;
+                }
+                else if (getBit(state,8))
+                    state = bitOff(state,8);
+            }
+            else if (isPressed(MENU_DOWN)) {
+                if (confirmStatus) {
+                    if (!(confirmStatus>>1)) state += 0x10000;
+                }
+                else if (!getBit(state,8))
+                    state = bitOn(state,8);
+            }
+            else if (isPressed(MENU_YES)) {
+                if (confirmStatus) {
+                    if (!(confirmStatus-1)) {
+						LocalAmbientSound("misc/secret", 127);
+						// do a "please wait.. lock here
+						//ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_HERO_CREATE, player, (menu>>8)-1);
+						//setMenu((getMenu()&0xFF00) | START_SCREEN_DATA);
+						setMenu(START_SCREEN_TITLE);
+                    }
+                    else // Cancel creation
+                        state &= 0xFFFF;
+                }
+                else {
+					switch(getBit(state,8)) {
+						case 0: state |= 0x10000; break;
+						case 1: setMenu(START_SCREEN_TITLE); break;
+					}
+                }
+            }
+            
+        break;
+
+			
+    }
+    if (!(timer()&0x1F) )
+        log(s:"confirm ", d:confirmStatus,  s:" player ", d:player);
+    return state;
+}
+
+#DEFINE TITLE_SPACING 42.0
+function void drawTitle(str label, int offset, bool isSelected) {	
+	drawBT(strParam(s:"\cc", s:label), 200.0, 40.0+offset*TITLE_SPACING, 400, 250);
+	drawBI(strParam(s:"8CTITLM", d:isSelected), 140.0, 24.0+offset*TITLE_SPACING, 400, 250);
+}
+
 #DEFINE PUKE_HERO_CREATE 0
 #DEFINE PUKE_HERO_DELETE 1
 #DEFINE PUKE_LOGIN_REFRESH 2
@@ -450,11 +501,11 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
                 log(s:"// slot out of bounds");
                 pukeReply(PUKE_ERROR); terminate; 
             }
-            if (getPlayerHero(player,arg1) != -1) {
+            if (!isSlotEmpty(player,arg1)) {
                 log(s:"// already have a hero on this slot");
                 pukeReply(PUKE_ERROR); terminate;  
             }
-            createHero(player,arg1,getHero(arg2));
+            createHero(player,arg1,getHeroFromIndex(arg2));
             pukeReply(PUKE_OK);
 		break;
         
@@ -467,7 +518,7 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
                 log(s:"// is spect");
 				pukeReply(PUKE_ERROR); terminate;
             }
-            else if (getPlayerHero(player,arg1) == -1) {
+            else if (isSlotEmpty(player,arg1)) {
                 log(s:"// nothing to delete here");
                 pukeReply(PUKE_ERROR); terminate; 
             }
@@ -503,7 +554,7 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
 			else if ((arg1 < -1) || (arg1 >= MAX_SLOTS)) {
 				pukeReply(PUKE_ERROR); terminate; // slot index out of bounds
 			}
-			if (getPlayerHero(player,arg1) == -1) {
+			if (isSlotEmpty(player,arg1)) {
 				pukeReply(PUKE_ERROR); terminate; // this is an empty slot
 			}
 			setSlot(player,arg1);
@@ -546,7 +597,7 @@ function void dbOperation(int player, int type, int arg0, int arg1) {
 
 function void createHero(int player, int slot, int heroId) {
     setPlayerHero(player, slot, heroId);
-    setPlayerWeapons(player, slot, 0);
+    setWepUnlocked(player, slot, 0);
 	setExp(player, slot, 0);
     if (slot >= 0)
         dbOperation(player, DB_CREATE_HERO, slot, heroId);
@@ -594,6 +645,10 @@ function void loginPoll(int player) {
     //////////////////////////////////////////////////////////
 //                           Misc/utils            				//
 	//////////////////////////////////////////////////////////
+    
+function int getBit(int x, int b) { return (x & (1 << b))>>b; }
+function int bitOn(int x, int b) { return x | (1 << b); }
+function int bitOff(int x, int b) { return x & ~(1 << b); }
 
 // 16 values of [2 bits]
 function int get2bFlagVal(str cvar, bool incrCvar,  int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0xF, 4, 0xFFFF); }
@@ -623,7 +678,6 @@ function void __setNbitFlagVal(str cvar, bool incrCvar, int var, int n, int log2
 	SetCVar(cvar,  (GetCvar(cvar) & ~(mask<<n)) | (val<<n));		
 }
 
-
 function int valueOr(int object, int or) {
 	if (object) return object;
 	return or;
@@ -637,7 +691,6 @@ function str strSanitize(str string) {
 function void clearInv(str item) { 
 	TakeInventory(item,INT_MAX);
 }
-
 
 // general HUD draw wrapper / to call from clientside
 function void draw(str data, bool isText, int x, int y, int xScreen, int yScreen, int time, int alpha) {
@@ -660,3 +713,18 @@ function void drawBT(str text, int x, int y, int xScreen, int yScreen) { draw(te
 // super basic version
 function void drawSBI(str image, int x, int y) { draw(image, false, x, y, 320, 200, 0.04, 1.0); }
 function void drawSBT(str text, int x, int y) { draw(text, true, x, y, 320, 200, 0.04, 1.0); }
+
+function bool isPressed(int key) {
+	return !(GetPlayerInput(-1, INPUT_OLDBUTTONS) & key) && (GetPlayerInput(-1, INPUT_BUTTONS) & key);
+}
+
+function str lineBreak(str string, int every) {
+    str s = "";
+    int length = strLen(string);
+    while (length>0) {
+        s = strParam(s:s, s:strLeft(string, every), s:"\n");
+        length-=every;
+        string = strRight(string, length);
+    }
+    return s;
+}

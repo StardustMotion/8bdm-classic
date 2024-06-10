@@ -28,6 +28,12 @@ sprite 8CINTROB, 1, 1 {}
 sprite 8CTITLM0, 1, 1 {}
 sprite 8CTITLM1, 1, 1 {}
 
+sprite 8CTITBG1, 560, 384 {
+    patch 8CTITBG0, 0, 0 patch 8CTITBG0, 80, 0 patch 8CTITBG0, 160, 0 patch 8CTITBG0, 240, 0 patch 8CTITBG0, 320, 0 patch 8CTITBG0, 400, 0 patch 8CTITBG0, 480, 0
+    patch 8CTITBG0, 0, 96 patch 8CTITBG0, 80, 96 patch 8CTITBG0, 160, 96 patch 8CTITBG0, 240, 96 patch 8CTITBG0, 320, 96 patch 8CTITBG0, 400, 96 patch 8CTITBG0, 480, 96
+    patch 8CTITBG0, 0, 192 patch 8CTITBG0, 80, 192 patch 8CTITBG0, 160, 192 patch 8CTITBG0, 240, 192 patch 8CTITBG0, 320, 192 patch 8CTITBG0, 400, 192 patch 8CTITBG0, 480, 192
+    patch 8CTITBG0, 0, 288 patch 8CTITBG0, 80, 288 patch 8CTITBG0, 160, 288 patch 8CTITBG0, 240, 288 patch 8CTITBG0, 320, 288 patch 8CTITBG0, 400, 288 patch 8CTITBG0, 480, 288
+}
 
 
 ////////////////////
@@ -42,4 +48,32 @@ sprite 8CCHRAN3, 1, 1 {}
 sprite 8CCHAR00, 21, 24 { offset 10, 24 patch MEGMA8A2, 0, 0 }
 sprite 8CCHAR01, 21, 24 { offset 10, 24 patch 0MEGA8A2, 0, 0 }
 
+// standard 28 piece megaman bar (wily wars shading)
+texture 8CVAR, 56, 8 { 
+    patch 8CBARBIT, 0, 0 patch 8CBARBIT, 0, 2 patch 8CBARBIT, 0, 4 patch 8CBARBIT, 0, 6 patch 8CBARBIT, 0, 8
+    patch 8CBARBIT, 0, 10 patch 8CBARBIT, 0, 12 patch 8CBARBIT, 0, 14 patch 8CBARBIT, 0, 16 patch 8CBARBIT, 0, 18
+    patch 8CBARBIT, 0, 20 patch 8CBARBIT, 0, 22 patch 8CBARBIT, 0, 24 patch 8CBARBIT, 0, 26 patch 8CBARBIT, 0, 28
+    patch 8CBARBIT, 0, 30 patch 8CBARBIT, 0, 32 patch 8CBARBIT, 0, 34 patch 8CBARBIT, 0, 36 patch 8CBARBIT, 0, 38
+    patch 8CBARBIT, 0, 40 patch 8CBARBIT, 0, 42 patch 8CBARBIT, 0, 44 patch 8CBARBIT, 0, 46 patch 8CBARBIT, 0, 48
+    patch 8CBARBIT, 0, 50 patch 8CBARBIT, 0, 52 patch 8CBARBIT, 0, 54
+}
+
+texture 8CBAR, 8, 56 { patch 8CBAR, 0, 0 { rotate 90 }}
+
+texture 8CTITLM7, 1, 1 {}
+texture 8CTITLM8, 64, 64 { patch 8CTITLM6, 0, 0 {
+    translation "195:195=244:244", "198:198=244:244", "192:192=244:244" , "202:202=244:244"  }}
+texture 8CTITLM9, 64, 64 { patch 8CTITLM6, 0, 0 {
+    translation "195:195=244:244", "198:198=244:244", "192:192=208:208" , "202:202=244:244"  }}
+texture 8CTITLMA, 64, 64 { patch 8CTITLM6, 0, 0 {
+    translation "195:195=244:244", "198:198=244:244", "192:192=208:208" , "202:202=58:58"  }}
+texture 8CTITLMB, 64, 64 { patch 8CTITLM6, 0, 0 {
+    translation "195:195=244:244", "198:198=76:76", "192:192=208:208" , "202:202=58:58"  }}
+texture 8CTITLMC, 64, 64 { patch 8CTITLM6, 0, 0 {
+    translation "195:195=245:245", "198:198=76:76", "192:192=208:208" , "202:202=58:58"  }}
+texture 8CTITLMD, 64, 64 { patch 8CTITLM6, 0, 0 {
+    translation "195:195=245:245", "198:198=76:76", "192:192=160:160" , "202:202=58:58"  }}
+
+texture 8CTITLME, 1, 1 {}
+texture 8CTITLMG, 220, 66 { patch 8CTITLMF, 0, 0 patch 8CTITLMH, 0, 0 }
 

@@ -69,12 +69,6 @@
 #DEFINE INCARNATION_INTRO_CAMDIST 256.0
 #DEFINE INCARNATION_INTRO_ZOOM 20
 
-#DEFINE MENHUD_UP (BT_FORWARD)
-#DEFINE MENHUD_DOWN (BT_BACK)
-#DEFINE MENHUD_LEFT (BT_LEFT|BT_MOVELEFT)
-#DEFINE MENHUD_RIGHT (BT_RIGHT|BT_MOVERIGHT)
-#DEFINE MENHUD_YES (BT_ATTACK)
-#DEFINE MENHUD_NO (BT_ALTATTACK)
 
 
 
@@ -111,23 +105,7 @@
 //////////////////////
 
 
-int heroCount = 0, enemyCount = 0;
 
-
-function bool hasHero(int player, bool isQuickPlay) {
-	if (isQuickPlay) 
-		return getPlayerHeroId(player,-1) != -1;
-	else {
-		for (int i = 0; i < MAX_SLOTS; i++)
-			if (getPlayerHeroId(player,i) != -1) { return true; }
-	}
-	return false;
-}
-
-
-
-
-bool inMenu = 0;
 
 
 

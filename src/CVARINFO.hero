@@ -1,24 +1,41 @@
 
-server noarchive string C8_hero_name_0 = 		"8C Megaman";
-server noarchive int	C8_hero_hp_0 = 			60;
-server noarchive int	C8_hero_puissance_0 = 	20;
-server noarchive string C8_nice_name_0 = 		"\cvMega Man\c-";
-server noarchive string C8_select_0 = 			"8CCHRAN0 8CCHRAN0";
 
-server noarchive string C8_hero_name_1 = 		"8C Protoman";
-server noarchive int	C8_hero_hp_1 = 			60;
-server noarchive int	C8_hero_puissance_1 = 	20;
-server noarchive string C8_nice_name_1 = 		"\cgProto Man\c-";
-server noarchive string C8_select_1 = 			"8CCHRAN1 8CCHRAN1";
 
-server noarchive string C8_hero_name_2 = 		"8C Bass";
-server noarchive int	C8_hero_hp_2 = 			60;
-server noarchive int	C8_hero_puissance_2 = 	20;
-server noarchive string C8_nice_name_2 = 		"\cuBass\c-";
-server noarchive string C8_select_2 = 			"8CCHRAN2 8CCHRAN2";
+server noarchive string C8_hero_actor_0 = 		    "8C Megaman";
+server noarchive string C8_hero_name_0 = 		    "Mega Man";
+server noarchive int	C8_hero_hp_0 = 			    60;
+server noarchive int	C8_hero_puissance_0 = 	    20;
+server noarchive int    C8_hero_weapons_0 =         8;
+server noarchive string C8_sp_skill_0 = 		    "Power gear / Mega Slide";
+server noarchive string C8_hero_text_0 =            "hi.";
+server noarchive string C8_hero_graphic_0 =         "8CMUGSME 8CCHRAN0 8CCHRAN0";
 
-server noarchive string C8_hero_name_3 = 		"8C Roll";
-server noarchive int	C8_hero_hp_3 = 			60;
-server noarchive int	C8_hero_puissance_3 = 	20;
-server noarchive string C8_nice_name_3 = 		"\caRoll\c-";
-server noarchive string C8_select_3 = 			"8CCHRAN3 8CCHRAN3";
+
+server noarchive string C8_hero_actor_1 = 		    "8C Protoman";
+server noarchive string C8_hero_name_1 = 		    "Proto Man";
+server noarchive int	C8_hero_hp_1 = 			    60;
+server noarchive int	C8_hero_puissance_1 =   	20;
+server noarchive int    C8_hero_weapons_1 =         4;
+server noarchive string C8_sp_skill_1 = 		    "Proto Strike / Proto Shield";
+server noarchive string C8_hero_text_1 =            "";
+server noarchive string C8_hero_graphic_1 =         "8CMUGSPR 8CCHRAN1 8CCHRAN1";
+
+server noarchive string C8_hero_actor_2 = 		    "8C Bass";
+server noarchive string C8_hero_name_2 = 		    "Bass";
+server noarchive int	C8_hero_hp_2 = 			    60;
+server noarchive int	C8_hero_puissance_2 = 	    20;
+server noarchive int    C8_hero_weapons_2 =         4;
+server noarchive string C8_sp_skill_2 = 		    "Apathy / Powerstorm";
+server noarchive string C8_hero_text_2 =            "";
+server noarchive string C8_hero_graphic_2 =         "8CMUGSBA 8CCHRAN2 8CCHRAN2";
+
+server noarchive string C8_hero_actor_4 = 		    "8C Roll";
+server noarchive string C8_hero_name_4 = 		    "Roll";
+server noarchive int	C8_hero_hp_4 = 			    60;
+server noarchive int	C8_hero_puissance_4 = 	    20;
+server noarchive int    C8_hero_weapons_4 =         1;
+server noarchive int    C8_hero_weapon_groups_4 =   2;
+server noarchive string C8_sp_skill_4 = 		    "Roll Call";
+server noarchive string C8_hero_text_4 =            "";
+server noarchive string C8_hero_graphic_4 =         "8CMUGSRO 8CCHRAN3 8CCHRAN3";
+

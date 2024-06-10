@@ -9,13 +9,30 @@ user bool C8_autologin = false;
 		<p> = value based on player number
 		(x) = data stored per CVAR is x
 
+	// --------------- Runtime values --------------- //
 	- int: C8_hero_size (1)				How much heroes are loaded in the server
-	- int: C8_hero_<i> (4)				array index <-> Universal (compile time) hero ID mapping
+	- int: C8_hero_<i> (4)				(runtime) Index to (compile time) hero ID mapping
 	- string: C8_login_<p> (1)			Player Zandronum account name
 	- int: C8_slot (16)					Slot currently used/allowed by the server
-	- int: C8_player_hero_<s><p> (4)	Player's saved universal hero ID
+	- int: C8_player_hero_<s><p> (4)	Player's hero index
 	- int: C8_exp_<s><p> (1)			Experience owned
-	- int: C8_weapon_<s><p> (32)		Weapon unlocked status
+	- int: C8_wep_unlocked_<s><p> (32)	Weapon unlocked status
+
+	// --------------- Static values (hero)	--------------- //
+	- string: C8_hero_actor_<id>		Hero actor name
+	- string: C8_hero_name_<id>			Hero display name
+	- int: C8_hero_hp_<id>				Base HP stat
+	- int: C8_hero_puissance_<id>		Base Puissance stat
+	- int: C8_hero_weapons_<id>			Weapons per group
+	- int: C8_hero_weapon_groups_<id>	Weapon group count (can be ommited if only 1)
+	- string: C8_sp_skill_<id>			Hero special skill label
+	- string: C8_hero_text_<id>			Hero description
+	- string: C8_hero_graphic_<id>		A bunch of graphics lump names separated by space. Each must be 8 chars
+		- 1: Mugshot
+		- 2: Hero "idle" graphic (in hero selection/data screen)
+		- 3: Hero graphic when selected in hero selection
+
+
 */
 
 
@@ -119,32 +136,32 @@ server noarchive int C8_exp_214 = 0; server noarchive int C8_exp_215 = 0;
 
 
 // players special weapon obtained bitflag on each of their slots
-server noarchive int C8_weapon_00 = 0;	server noarchive int C8_weapon_01 = 0;
-server noarchive int C8_weapon_02 = 0;	server noarchive int C8_weapon_03 = 0;
-server noarchive int C8_weapon_04 = 0;	server noarchive int C8_weapon_05 = 0;
-server noarchive int C8_weapon_06 = 0;	server noarchive int C8_weapon_07 = 0;
-server noarchive int C8_weapon_08 = 0;	server noarchive int C8_weapon_09 = 0;
-server noarchive int C8_weapon_010 = 0;	server noarchive int C8_weapon_011 = 0;
-server noarchive int C8_weapon_012 = 0;	server noarchive int C8_weapon_013 = 0;
-server noarchive int C8_weapon_014 = 0;	server noarchive int C8_weapon_015 = 0;
+server noarchive int C8_wep_unlocked_00 = 0;	server noarchive int C8_wep_unlocked_01 = 0;
+server noarchive int C8_wep_unlocked_02 = 0;	server noarchive int C8_wep_unlocked_03 = 0;
+server noarchive int C8_wep_unlocked_04 = 0;	server noarchive int C8_wep_unlocked_05 = 0;
+server noarchive int C8_wep_unlocked_06 = 0;	server noarchive int C8_wep_unlocked_07 = 0;
+server noarchive int C8_wep_unlocked_08 = 0;	server noarchive int C8_wep_unlocked_09 = 0;
+server noarchive int C8_wep_unlocked_010 = 0;	server noarchive int C8_wep_unlocked_011 = 0;
+server noarchive int C8_wep_unlocked_012 = 0;	server noarchive int C8_wep_unlocked_013 = 0;
+server noarchive int C8_wep_unlocked_014 = 0;	server noarchive int C8_wep_unlocked_015 = 0;
 
-server noarchive int C8_weapon_10 = 0;	server noarchive int C8_weapon_11 = 0;
-server noarchive int C8_weapon_12 = 0;	server noarchive int C8_weapon_13 = 0;
-server noarchive int C8_weapon_14 = 0;	server noarchive int C8_weapon_15 = 0;
-server noarchive int C8_weapon_16 = 0;	server noarchive int C8_weapon_17 = 0;
-server noarchive int C8_weapon_18 = 0;	server noarchive int C8_weapon_19 = 0;
-server noarchive int C8_weapon_110 = 0;	server noarchive int C8_weapon_111 = 0;
-server noarchive int C8_weapon_112 = 0;	server noarchive int C8_weapon_113 = 0;
-server noarchive int C8_weapon_114 = 0;	server noarchive int C8_weapon_115 = 0;
+server noarchive int C8_wep_unlocked_10 = 0;	server noarchive int C8_wep_unlocked_11 = 0;
+server noarchive int C8_wep_unlocked_12 = 0;	server noarchive int C8_wep_unlocked_13 = 0;
+server noarchive int C8_wep_unlocked_14 = 0;	server noarchive int C8_wep_unlocked_15 = 0;
+server noarchive int C8_wep_unlocked_16 = 0;	server noarchive int C8_wep_unlocked_17 = 0;
+server noarchive int C8_wep_unlocked_18 = 0;	server noarchive int C8_wep_unlocked_19 = 0;
+server noarchive int C8_wep_unlocked_110 = 0;	server noarchive int C8_wep_unlocked_111 = 0;
+server noarchive int C8_wep_unlocked_112 = 0;	server noarchive int C8_wep_unlocked_113 = 0;
+server noarchive int C8_wep_unlocked_114 = 0;	server noarchive int C8_wep_unlocked_115 = 0;
 
-server noarchive int C8_weapon_20 = 0;	server noarchive int C8_weapon_21 = 0;
-server noarchive int C8_weapon_22 = 0;	server noarchive int C8_weapon_23 = 0;
-server noarchive int C8_weapon_24 = 0;	server noarchive int C8_weapon_25 = 0;
-server noarchive int C8_weapon_26 = 0;	server noarchive int C8_weapon_27 = 0;
-server noarchive int C8_weapon_28 = 0;	server noarchive int C8_weapon_29 = 0;
-server noarchive int C8_weapon_210 = 0;	server noarchive int C8_weapon_211 = 0;
-server noarchive int C8_weapon_212 = 0;	server noarchive int C8_weapon_213 = 0;
-server noarchive int C8_weapon_214 = 0;	server noarchive int C8_weapon_215 = 0;
+server noarchive int C8_wep_unlocked_20 = 0;	server noarchive int C8_wep_unlocked_21 = 0;
+server noarchive int C8_wep_unlocked_22 = 0;	server noarchive int C8_wep_unlocked_23 = 0;
+server noarchive int C8_wep_unlocked_24 = 0;	server noarchive int C8_wep_unlocked_25 = 0;
+server noarchive int C8_wep_unlocked_26 = 0;	server noarchive int C8_wep_unlocked_27 = 0;
+server noarchive int C8_wep_unlocked_28 = 0;	server noarchive int C8_wep_unlocked_29 = 0;
+server noarchive int C8_wep_unlocked_210 = 0;	server noarchive int C8_wep_unlocked_211 = 0;
+server noarchive int C8_wep_unlocked_212 = 0;	server noarchive int C8_wep_unlocked_213 = 0;
+server noarchive int C8_wep_unlocked_214 = 0;	server noarchive int C8_wep_unlocked_215 = 0;
 
 
 

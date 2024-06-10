@@ -607,11 +607,6 @@ function void accountSave(int player) {
 }
 
 
-#DEFINE TITLE_SPACING 42.0
-function void drawTitleElement(str text, int offset, bool isSelected) {	
-	drawBT(strParam(s:"\cc", s:text), 200.0, 40.0+offset*TITLE_SPACING, 400, 250);
-	drawBI(strParam(s:"8CTITLM", d:isSelected), 140.0, 24.0+offset*TITLE_SPACING, 400, 250);
-}
 
 int menuStatus = -1;
 
@@ -813,22 +808,7 @@ function void draw8cNumber(int number, int font, int x, int y) {
 
 
 
-function str svar(str radical, int id) {
-	return strParam(s:radical, d:id);
-}
 
-
-
-
-function int getBit(int x, int b) { return (x & (1 << b))>>b; }
-function int setBit(int x, int b) { return x | (1 << b); }
-function int resetBit(int x, int b) { return x & ~(1 << b); }
-
-function bool isPressed(int key) {
-	return 
-		!(GetPlayerInput(-1, INPUT_OLDBUTTONS) & key) &&
-		(GetPlayerInput(-1, INPUT_BUTTONS) & key);
-}
 
 
 

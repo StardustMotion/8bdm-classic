@@ -3,27 +3,10 @@ OptionMenu ZA_JoinMenu
 {
 	Title		""
 
-	//StaticText	"You are spectating bitch."
-	StaticText	" "
-	StaticText	" "
-	StaticText	" "
-	StaticText	" "
 	StaticText	" "
 	StaticText	" "
 	StaticText	" "
 	StaticText	" "
 
     Command "START GAME", "8c_title"
-    //  class ?
-    //
-
-
-	/* StaticText	"-------------------------- "
-	StaticText	"Regular menu "
-	Command		"Join game",			"menu_joingame"
-
-	Command		"How to play",			"menu_help" */
-
-    //Control "mydick" , "+attack" /// keybind 
-    // Submenu 
 }

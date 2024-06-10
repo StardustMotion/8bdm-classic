@@ -1,11 +1,22 @@
 
+////////////////////////////////////
+//  	General settings		   //
+////////////////////////////////////
+
+#DEFINE CVAR_AUTOLOGIN "C8_autologin"
+
+
+
+////////////////////////////////////
+//  	Runtime settings		   //
+////////////////////////////////////
 
 #DEFINE CVAR_HERO_SIZE "C8_hero_size"
 function int getHeroSize(void) { 				        	    	return GetCvar(CVAR_HERO_SIZE); }
 
 #DEFINE CVAR_HERO "C8_hero_"
-function int getHero(int heroId) { 				        	    	return get8bFlagVal(CVAR_HERO, true, heroId); }
-function void setHero(int heroId, int val) { 		            	set8bFlagVal(CVAR_HERO, true, heroId, val); }
+function int getHeroFromIndex(int index) { 				        	return get8bFlagVal(CVAR_HERO, true, index); }
+function void setHeroFromIndex(int index, int heroId) {				set8bFlagVal(CVAR_HERO, true, index, heroId); }
 
 #DEFINE CVAR_LOGIN "C8_login_"
 function str getLogin(int player) { 								return strSanitize(GetCvarString(__login(player))); }
@@ -21,6 +32,7 @@ function void setSlot(int player, int val) { 						set2bFlagVal(CVAR_SLOT, false
 #DEFINE CVAR_PLAYER_HERO "C8_player_hero_"
 function int getPlayerHero(int player, int slot) { 					return get8bFlagVal(__playerHero(player,slot), true, player)-1; }
 function void setPlayerHero(int player, int slot, int val) { 		set8bFlagVal(__playerHero(player,slot), true, player, val+1); }
+function bool isSlotEmpty(int player, int slot) {                   return getPlayerHero(player,slot) == -1; }
 function str __playerHero(int player, int slot) { 					return strParam(s:CVAR_PLAYER_HERO, d:slot+1); }
 
 #DEFINE CVAR_EXP "C8_exp_"
@@ -28,39 +40,51 @@ function int getExp(int player, int slot) {							return GetCvar(__exp(player,sl
 function void setExp(int player, int slot, int exp) {				SetCVar(__exp(player,slot), exp); }
 function str __exp(int player, int slot) {							return strParam(s:CVAR_EXP, d:slot+1, d:player); }
 
-#DEFINE CVAR_WEAPON "C8_weapon_"
-function bool getPlayerWeapons(int player, int slot) {				return GetCvar(__playerWeapons(player,slot)); }
+#DEFINE CVAR_WEP_UNLOCKED "C8_wep_unlocked_"
+function bool getWepUnlocked(int player, int slot) {				return GetCvar(__wepUnlocked(player,slot)); }
 function void unlockWeapon(int player, int slot, int wepId) {
-	str cvar = __playerWeapons(player,slot); 
+	str cvar = __wepUnlocked(player,slot); 
 	SetCVar(cvar, GetCvar(cvar) | (1 << wepId));
 }
-function void setPlayerWeapons(int player, int slot, int weps) {	SetCVar(__playerWeapons(player,slot), weps); }
-function str __playerWeapons(int player, int slot) {				return strParam(s:CVAR_WEAPON, d:slot+1, d:player); }
+function void setWepUnlocked(int player, int slot, int weps) {		SetCVar(__wepUnlocked(player,slot), weps); }
+function str __wepUnlocked(int player, int slot) {					return strParam(s:CVAR_WEP_UNLOCKED, d:slot+1, d:player); }
 
-#DEFINE CVAR_AUTOLOGIN "C8_autologin"
 
 
 ////////////////////////////////////
 //  Hero/enemy specific fields    //
 ////////////////////////////////////
 
-// Hero
+// Those need getHeroFromIndex to transform the runtime id (array of heroes loaded) into the cvar-defined hero ID
 
-// server noarchive string C8_hero_name_0 = 		"8C Megaman";
-// server noarchive int	C8_hero_hp_0 = 			60;
-// server noarchive int	C8_hero_puissance_0 = 	20;
-// server noarchive string C8_nice_name_0 = 		"\cvMega Man\c-";
-// server noarchive string C8_select_0 = 			"8CCHRAN0 8CCHRAN0";
+function str getHeroActor(int index) {								return GetCvarString(strParam(s:"C8_hero_actor_", d:getHeroFromIndex(index))); }
 
-function str getNiceName(int index) {                                return __getNiceName(getHero(index)); }
-function str __getNiceName(int heroId) {                             return GetCvarString(strParam(s:"C8_nice_name_", d:heroId)); }
+function str getHeroName(int index) {								return GetCvarString(__heroName(getHeroFromIndex(index))); }
+	function str __getHeroName(int heroId) {						return GetCvarString(__heroName(heroId)); }
+	function str __heroName(int heroId) {							return strParam(s:"C8_hero_name_", d:heroId); }
+function int getHeroHP(int index) {									return GetCvar(strParam(s:"C8_hero_hp_", d:getHeroFromIndex(index))); }
+function int getHeroPuissance(int index) {							return GetCvar(strParam(s:"C8_hero_puissance_", d:getHeroFromIndex(index))); }
+function int getHeroWeapons(int index) {							return GetCvar(strParam(s:"C8_hero_weapons_", d:getHeroFromIndex(index))); }
+function int getHeroWeaponGroups(int index) {						return valueOr(GetCvar(strParam(s:"C8_hero_weapon_groups_", d:getHeroFromIndex(index))),1); }
+function str getSpSkill(int index) {								return GetCvarString(strParam(s:"C8_sp_skill_", d:getHeroFromIndex(index))); }
+function str getHeroText(int index) {								return GetCvarString(strParam(s:"C8_hero_text_", d:getHeroFromIndex(index))); }
 
-    
+function str getHeroMugshot(int index) {							return __getHeroGraphic(index,0); }
+function str getHeroIdle(int index) {								return __getHeroGraphic(index,1); }
+function str getHeroSelected(int index) {							return __getHeroGraphic(index,2); }
+function str __getHeroGraphic(int index, int shift) {
+	str base = __heroGraphic(index);
+	if (shift)
+		base = strRight(base, strLen(base)-(shift*9));
+	return strLeft(base, 8);
+}
+function str __heroGraphic(int index) { 							return GetCvarString(strParam(s:"C8_hero_graphic_", d:getHeroFromIndex(index))); }
+
+
 
 // testers
 script "seto" (int i, int j) { setSlot(i,j); delay(1); log(d:getSlot(i)); }
-script "geto" (int i) { log(s:getNiceName(i)); }
-
+script "geto" (int i) { log(s:getHeroName(i)); }
 
 
 
@@ -93,6 +117,12 @@ script "geto" (int i) { log(s:getNiceName(i)); }
 #DEFINE MAX_SLOTS 2
 
 
+#DEFINE MENU_UP (BT_FORWARD)
+#DEFINE MENU_DOWN (BT_BACK)
+#DEFINE MENU_LEFT (BT_LEFT|BT_MOVELEFT)
+#DEFINE MENU_RIGHT (BT_RIGHT|BT_MOVERIGHT)
+#DEFINE MENU_YES (BT_ATTACK)
+#DEFINE MENU_NO (BT_ALTATTACK)
 
 
 

@@ -37,8 +37,19 @@ texture 8CCHRAN2
 	pic 8CCHAR05 tics 6
 	
 texture 8CCHRAN3
-	pic 8CCHAR06 tics 10
-	pic 8CCHAR07 tics 10
-	pic 8CCHAR08 tics 10
-	pic 8CCHAR07 tics 10
+	pic 8CCHAR06 tics 15
+	pic 8CCHAR07 tics 15
+	pic 8CCHAR08 tics 15
+	pic 8CCHAR07 tics 15
 	
+texture 8CTITLM7
+	pic 8CTITLM8 tics 4
+	pic 8CTITLM9 tics 4
+	pic 8CTITLMA tics 4
+	pic 8CTITLMB tics 4
+	pic 8CTITLMC tics 4
+	pic 8CTITLMD tics 4
+
+texture 8CTITLME
+	pic 8CTITLMF tics 4
+	pic 8CTITLMG tics 4
