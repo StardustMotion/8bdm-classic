@@ -6,9 +6,9 @@ server noarchive string C8_hero_name_0 = 		    "Mega Man";
 server noarchive int	C8_hero_hp_0 = 			    60;
 server noarchive int	C8_hero_puissance_0 = 	    20;
 server noarchive int    C8_hero_weapons_0 =         8;
-server noarchive string C8_sp_skill_0 = 		    "Power gear / Mega Slide";
-server noarchive string C8_hero_text_0 =            "hi.";
-server noarchive string C8_hero_graphic_0 =         "8CMUGSME 8CCHRAN0 8CCHRAN0";
+server noarchive string C8_sp_skill_0 = 		    "Power gear      Mega Slide";
+server noarchive string C8_hero_text_0 =            "megamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamega";
+server noarchive string C8_hero_graphic_0 =         "8CMUGSME 8CCHRAN0 8CCHAR0A";
 
 
 server noarchive string C8_hero_actor_1 = 		    "8C Protoman";
@@ -17,8 +17,8 @@ server noarchive int	C8_hero_hp_1 = 			    60;
 server noarchive int	C8_hero_puissance_1 =   	20;
 server noarchive int    C8_hero_weapons_1 =         4;
 server noarchive string C8_sp_skill_1 = 		    "Proto Strike / Proto Shield";
-server noarchive string C8_hero_text_1 =            "";
-server noarchive string C8_hero_graphic_1 =         "8CMUGSPR 8CCHRAN1 8CCHRAN1";
+server noarchive string C8_hero_text_1 =            "clignan court classes v2clignan court classes v2clignan court classes v2clignan court classes v2clignan court classes v2clignan court classes v2";
+server noarchive string C8_hero_graphic_1 =         "8CMUGSPR 8CCHRAN1 8CCHAR09";
 
 server noarchive string C8_hero_actor_2 = 		    "8C Bass";
 server noarchive string C8_hero_name_2 = 		    "Bass";
@@ -26,8 +26,8 @@ server noarchive int	C8_hero_hp_2 = 			    60;
 server noarchive int	C8_hero_puissance_2 = 	    20;
 server noarchive int    C8_hero_weapons_2 =         4;
 server noarchive string C8_sp_skill_2 = 		    "Apathy / Powerstorm";
-server noarchive string C8_hero_text_2 =            "";
-server noarchive string C8_hero_graphic_2 =         "8CMUGSBA 8CCHRAN2 8CCHRAN2";
+server noarchive string C8_hero_text_2 =            "oueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoueoue";
+server noarchive string C8_hero_graphic_2 =         "8CMUGSBA 8CCHRAN2 8CCHAR0B";
 
 server noarchive string C8_hero_actor_4 = 		    "8C Roll";
 server noarchive string C8_hero_name_4 = 		    "Roll";
@@ -36,6 +36,6 @@ server noarchive int	C8_hero_puissance_4 = 	    20;
 server noarchive int    C8_hero_weapons_4 =         1;
 server noarchive int    C8_hero_weapon_groups_4 =   2;
 server noarchive string C8_sp_skill_4 = 		    "Roll Call";
-server noarchive string C8_hero_text_4 =            "";
-server noarchive string C8_hero_graphic_4 =         "8CMUGSRO 8CCHRAN3 8CCHRAN3";
+server noarchive string C8_hero_text_4 =            "roulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroule";
+server noarchive string C8_hero_graphic_4 =         "8CMUGSRO 8CCHRAN3 8CCHAR0C";
 

@@ -53,3 +53,5 @@ texture 8CTITLM7
 texture 8CTITLME
 	pic 8CTITLMF tics 4
 	pic 8CTITLMG tics 4
+	
+texture XWMETCU1 range XWMETCU8 tics 3

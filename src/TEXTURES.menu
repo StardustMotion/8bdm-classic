@@ -1,17 +1,6 @@
+// Textures for menus
 
 // sprite <sprite>, 1, 1 {}     are ANIMDEFS definition for <sprite>
-
-sprite 8CABG0, 16, 16 { offset 8,14 patch 8CABC0, 0, 0 { flipy }}
-sprite 8CABH0, 15, 16{ offset 7,16 patch 8CABD0, 0, 0{ flipy }}
-sprite 8CABI0, 16, 16{ offset 8,16 patch 8CABE0, 0, 0{ flipy }}
-sprite 8CABJ0, 15, 16{ offset 8,16 patch 8CABF0, 0, 0{ flipy }}
-
-sprite 8CAAX3X7, 12, 16 { offset 6, 16 patch 8CAAW7W3, 0, 0}
-sprite 8CAAY3Y7, 12, 16 { offset 6, 16 patch 8CAAW7W3, 0, 0}
-sprite 8CAAW6W4, 18, 16 { offset 9, 16 patch 8CAAW8W2, 0, 0 { flipx }}
-sprite 8CAAX6X4, 18, 16 { offset 9, 16 patch 8CAAX8X2, 0, 0 { flipx }}
-sprite 8CAAY6Y4, 18, 16 { offset 9, 16 patch 8CAAY8Y2, 0, 0 { flipx }}
-
 
 // Intro effect
 sprite 8CINTRO4, 256, 112 { patch 8CINTRO0, 0, 0 patch 8CINTRO1, 0, 0 }
@@ -47,18 +36,16 @@ sprite 8CCHRAN3, 1, 1 {}
 // megaman sprite recycle
 sprite 8CCHAR00, 21, 24 { offset 10, 24 patch MEGMA8A2, 0, 0 }
 sprite 8CCHAR01, 21, 24 { offset 10, 24 patch 0MEGA8A2, 0, 0 }
+texture 8CCHAR0C, 29, 24 { offset 14, 24 patch 8CACM0, 0, 0 { translation "192:192=4:4", "198:198=41:41" } }
 
-// standard 28 piece megaman bar (wily wars shading)
-texture 8CVAR, 56, 8 { 
-    patch 8CBARBIT, 0, 0 patch 8CBARBIT, 0, 2 patch 8CBARBIT, 0, 4 patch 8CBARBIT, 0, 6 patch 8CBARBIT, 0, 8
-    patch 8CBARBIT, 0, 10 patch 8CBARBIT, 0, 12 patch 8CBARBIT, 0, 14 patch 8CBARBIT, 0, 16 patch 8CBARBIT, 0, 18
-    patch 8CBARBIT, 0, 20 patch 8CBARBIT, 0, 22 patch 8CBARBIT, 0, 24 patch 8CBARBIT, 0, 26 patch 8CBARBIT, 0, 28
-    patch 8CBARBIT, 0, 30 patch 8CBARBIT, 0, 32 patch 8CBARBIT, 0, 34 patch 8CBARBIT, 0, 36 patch 8CBARBIT, 0, 38
-    patch 8CBARBIT, 0, 40 patch 8CBARBIT, 0, 42 patch 8CBARBIT, 0, 44 patch 8CBARBIT, 0, 46 patch 8CBARBIT, 0, 48
-    patch 8CBARBIT, 0, 50 patch 8CBARBIT, 0, 52 patch 8CBARBIT, 0, 54
-}
+// wily war shading
+texture 8CBARBT0, 2, 8 { patch 8CVARBT0, 0, 0 { rotate 90 } }
+texture 8CVARBT1, 8, 8 { patch 8CVARBT0, 0, 0 patch 8CVARBT0, 0, 2 patch 8CVARBT0, 0, 4 patch 8CVARBT0, 0, 6 }
+texture 8CBARBT1, 8, 8 { patch 8CVARBT1, 0, 0 { rotate 90 }};
 
-texture 8CBAR, 8, 56 { patch 8CBAR, 0, 0 { rotate 90 }}
+// recycled from Xover Weapons  ow o
+texture XWMETCU0, 1, 1 { } // ANIMDEFS
+
 
 texture 8CTITLM7, 1, 1 {}
 texture 8CTITLM8, 64, 64 { patch 8CTITLM6, 0, 0 {

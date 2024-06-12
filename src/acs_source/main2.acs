@@ -615,33 +615,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 	int localPlayer = ConsolePlayerNumber();
 	switch(type) {
 
-		// arg1 = the server NET script to puke
-		// arg2/3 = 2 usable arguments
-		case CS_PUKE:
-			str pukeDebug = strParam(
-				s:"\cdPUKE [net ", d:arg1, 
-				s:" - arg1 ", d:arg2, 
-				s:" - arg2 ", d:arg3, s:"]"
-			);
-			//log(s:pukeDebug);
-			type = 0;
-			do {
-				NamedRequestScriptPuke("8C NET", arg1, arg2, arg3);
-				delay(1);
-				if (type<PUKE_TIMEOUT) 
-					int status = CheckInventory("8C Puke Response");
-				else {
-					status = PUKE_TIMED_OUT;
-					break;
-				}
-				type++;
-			} while(!status);
-			log(s:pukeDebug, s:" --> ", 
-				s:( status == PUKE_OK ? "\cvOK" : 
-					status == PUKE_ERROR ? "\caERROR" : 
-					status == PUKE_SKIPPED ? "\ccSKIPPED" : 
-					"\cqTIMED OUT"));
-		break;
+
 
 		case CS_CAMERA:
 			type = activatorTID();
@@ -789,25 +763,9 @@ function bool isGone(int ptr) {
 }
 
 
-// drawn right to left!
-function void draw8cNumber(int number, int font, int x, int y) {
-	switch(font) {
-		case SMALL_FONT: int space = 11.0; break;
-		case BIG_FONT: space = 14.0; break;
-	}
-	font = strParam(s:"8CNUMB",d:font);
-	int dx = 0;
-	while (true) {
-		int digit = number%10;
-		drawSBI(strParam(s:font, d:digit), x+ (space*dx), y);
-		if (number) number /= 10;
-		else break;
-		dx--;
-	}
-}
 
 
-
+aligner
 
 
 

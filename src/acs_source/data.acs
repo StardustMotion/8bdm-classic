@@ -115,6 +115,7 @@ script "geto" (int i) { log(s:getHeroName(i)); }
 #DEFINE MAX_CLIENTS 16
 // -1 value is used to refer to quick play slot
 #DEFINE MAX_SLOTS 2
+#DEFINE MAX_WEAPON_GROUPS 4
 
 
 #DEFINE MENU_UP (BT_FORWARD)
@@ -123,6 +124,14 @@ script "geto" (int i) { log(s:getHeroName(i)); }
 #DEFINE MENU_RIGHT (BT_RIGHT|BT_MOVERIGHT)
 #DEFINE MENU_YES (BT_ATTACK)
 #DEFINE MENU_NO (BT_ALTATTACK)
+
+#DEFINE SMALL_FONT 0
+#DEFINE BIG_FONT 1
+
+#DEFINE HUD_ID 1
+
+#DEFINE DEFAULT_HUD_X 320
+#DEFINE DEFAULT_HUD_Y 200
 
 
 
@@ -133,7 +142,47 @@ script "geto" (int i) { log(s:getHeroName(i)); }
 /////////////////
 
 // Used for title screen and weapon selection
-int client_menuStatus = -1;
-function int getMenu(void) { return client_menuStatus; }
-function void setMenu(int id) { client_menuStatus = id; }
-function bool inMenu(void) { return getMenu() != -1; }
+#DEFINE MENU_COMMON 0
+#DEFINE MENU_INDEX 1
+#DEFINE MENU_STATE 2 // 1+2
+
+int client_menuStatus[5] = { 0, 0, 0, 0, 0 };
+function int getMenu(void) { 					return client_menuStatus[MENU_COMMON]&0xFF; }
+function void setMenu(int val) { 				client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFFFFFF00)|val; }
+function int getMenuTransition(void) { 			return ((client_menuStatus[MENU_COMMON])>>8)&0xFF; }
+function void setMenuTransition(int val) { 		client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFFFF00FF)|(val<<8); }
+function int getMenuRefresh(void) {				return ((client_menuStatus[MENU_COMMON])>>16)&0xFF; }
+function void setMenuRefresh(int val) {			client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFF00FFFF)|(val<<16); }
+function bool getMenuQuery(void) {				return ((client_menuStatus[MENU_COMMON])>>24)&0xFF; }
+function void setMenuQuery(int val) {			client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0x00FFFFFF)|(val<<24); }
+function int getMenuIndex(void) {				return client_menuStatus[MENU_INDEX]; }
+function void setMenuIndex(int val) {			client_menuStatus[MENU_INDEX] = val; }
+// arg [0,2]
+function int getMenuArg(int arg) {				return client_menuStatus[MENU_STATE+arg]; }
+function void setMenuArg(int arg, int val) {	client_menuStatus[MENU_STATE+arg] = val; }
+
+function bool inMenu(void) {					return !!getMenu(); }
+function void resetMenu(void) {					for (int i=0; i < 5; i++) client_menuStatus[i] = 0; }
+
+// function void menuStatusReset(void) { for (int i = 0; i < 8; i++) setMenu(i,0); }
+// function bool inMenu(void) { return !!getMenu(MENU_NOW); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// tmp
+
+int tmpHudX = 0;
+int tmpHudY = 0;
