@@ -17,12 +17,80 @@ sprite 8CINTROB, 1, 1 {}
 sprite 8CTITLM0, 1, 1 {}
 sprite 8CTITLM1, 1, 1 {}
 
-sprite 8CTITBG1, 560, 384 {
-    patch 8CTITBG0, 0, 0 patch 8CTITBG0, 80, 0 patch 8CTITBG0, 160, 0 patch 8CTITBG0, 240, 0 patch 8CTITBG0, 320, 0 patch 8CTITBG0, 400, 0 patch 8CTITBG0, 480, 0
-    patch 8CTITBG0, 0, 96 patch 8CTITBG0, 80, 96 patch 8CTITBG0, 160, 96 patch 8CTITBG0, 240, 96 patch 8CTITBG0, 320, 96 patch 8CTITBG0, 400, 96 patch 8CTITBG0, 480, 96
-    patch 8CTITBG0, 0, 192 patch 8CTITBG0, 80, 192 patch 8CTITBG0, 160, 192 patch 8CTITBG0, 240, 192 patch 8CTITBG0, 320, 192 patch 8CTITBG0, 400, 192 patch 8CTITBG0, 480, 192
-    patch 8CTITBG0, 0, 288 patch 8CTITBG0, 80, 288 patch 8CTITBG0, 160, 288 patch 8CTITBG0, 240, 288 patch 8CTITBG0, 320, 288 patch 8CTITBG0, 400, 288 patch 8CTITBG0, 480, 288
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// -------------------------- MENU
+
+sprite 8CMENU0Q, 560, 384 {
+    patch 8CMENU0P, 0, 0 patch 8CMENU0P, 80, 0 patch 8CMENU0P, 160, 0 patch 8CMENU0P, 240, 0 patch 8CMENU0P, 320, 0 patch 8CMENU0P, 400, 0 patch 8CMENU0P, 480, 0
+    patch 8CMENU0P, 0, 96 patch 8CMENU0P, 80, 96 patch 8CMENU0P, 160, 96 patch 8CMENU0P, 240, 96 patch 8CMENU0P, 320, 96 patch 8CMENU0P, 400, 96 patch 8CMENU0P, 480, 96
+    patch 8CMENU0P, 0, 192 patch 8CMENU0P, 80, 192 patch 8CMENU0P, 160, 192 patch 8CMENU0P, 240, 192 patch 8CMENU0P, 320, 192 patch 8CMENU0P, 400, 192 patch 8CMENU0P, 480, 192
+    patch 8CMENU0P, 0, 288 patch 8CMENU0P, 80, 288 patch 8CMENU0P, 160, 288 patch 8CMENU0P, 240, 288 patch 8CMENU0P, 320, 288 patch 8CMENU0P, 400, 288 patch 8CMENU0P, 480, 288
 }
+
+texture 8CMENU02, 128, 48 { patch 8CMENU04, 0, 0 { flipy }}
+texture 8CMENU08, 128, 48 { patch 8CMENU03, 0, 0  patch 8CMENU03, 120, 0 }
+
+// purple index
+texture 8CMENU06, 1, 1 {}
+texture 8CMENU09, 128, 48 { patch 8CMENU01, 0, 2 patch 8CMENU01, 0, -46 patch 8CMENU00, 0, 0 }
+texture 8CMENU0A, 128, 48 { patch 8CMENU01, 0, 4 patch 8CMENU01, 0, -44 patch 8CMENU00, 0, 0 }
+texture 8CMENU0B, 128, 48 { patch 8CMENU01, 0, 6 patch 8CMENU01, 0, -42 patch 8CMENU00, 0, 0 }
+texture 8CMENU0C, 128, 48 { patch 8CMENU01, 0, 8 patch 8CMENU01, 0, -40 patch 8CMENU00, 0, 0 }
+texture 8CMENU0D, 128, 48 { patch 8CMENU01, 0, 10 patch 8CMENU01, 0, -38 patch 8CMENU00, 0, 0 }
+texture 8CMENU0E, 128, 48 { patch 8CMENU01, 0, 12 patch 8CMENU01, 0, -36 patch 8CMENU00, 0, 0 }
+texture 8CMENU0F, 128, 48 { patch 8CMENU01, 0, 14 patch 8CMENU01, 0, -34 patch 8CMENU00, 0, 0 }
+texture 8CMENU0G, 128, 48 { patch 8CMENU01, 0, 16 patch 8CMENU01, 0, -32 patch 8CMENU00, 0, 0 }
+
+// cyan index
+texture 8CMENU05, 112, 48 { patch 8CMENU01, 0, 0 { translation "251:251=204:204", "252:252=205:205" } }
+texture 8CMENU07, 1, 1 {}
+texture 8CMENU0H, 128, 48 { patch 8CMENU05, 0, 2 patch 8CMENU05, 0, -46 patch 8CMENU00, 0, 0 }
+texture 8CMENU0I, 128, 48 { patch 8CMENU05, 0, 4 patch 8CMENU05, 0, -44 patch 8CMENU00, 0, 0 }
+texture 8CMENU0J, 128, 48 { patch 8CMENU05, 0, 6 patch 8CMENU05, 0, -42 patch 8CMENU00, 0, 0 }
+texture 8CMENU0K, 128, 48 { patch 8CMENU05, 0, 8 patch 8CMENU05, 0, -40 patch 8CMENU00, 0, 0 }
+texture 8CMENU0L, 128, 48 { patch 8CMENU05, 0, 10 patch 8CMENU05, 0, -38 patch 8CMENU00, 0, 0 }
+texture 8CMENU0M, 128, 48 { patch 8CMENU05, 0, 12 patch 8CMENU05, 0, -36 patch 8CMENU00, 0, 0 }
+texture 8CMENU0N, 128, 48 { patch 8CMENU05, 0, 14 patch 8CMENU05, 0, -34 patch 8CMENU00, 0, 0 }
+texture 8CMENU0O, 128, 48 { patch 8CMENU05, 0, 16 patch 8CMENU05, 0, -32 patch 8CMENU00, 0, 0 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 ////////////////////

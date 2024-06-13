@@ -55,3 +55,26 @@ texture 8CTITLME
 	pic 8CTITLMG tics 4
 	
 texture XWMETCU1 range XWMETCU8 tics 3
+
+
+// purple
+texture 8CMENU06
+	pic 8CMENU09 tics 2
+	pic 8CMENU0A tics 2
+	pic 8CMENU0B tics 2
+	pic 8CMENU0C tics 2
+	pic 8CMENU0D tics 2
+	pic 8CMENU0E tics 2
+	pic 8CMENU0F tics 2
+	pic 8CMENU0G tics 2
+	
+// cyan
+texture 8CMENU07
+	pic 8CMENU0H tics 2
+	pic 8CMENU0I tics 2
+	pic 8CMENU0J tics 2
+	pic 8CMENU0K tics 2
+	pic 8CMENU0L tics 2
+	pic 8CMENU0M tics 2
+	pic 8CMENU0N tics 2
+	pic 8CMENU0O tics 2

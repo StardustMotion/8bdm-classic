@@ -284,8 +284,8 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
                     }
                 }
                 startScreen(HUD_ID+3);
-                drawSBI("8CTITBG1",-160.1+((i*80)&0xFFFF0000), -96.1+((i*96)&0xFFFF0000)); // background
-				i = (i+512)&0xFFFF;
+                drawSBI("8CMENU0Q",-160.1+((i*80)&0xFFFF0000), -96.1+((i*96)&0xFFFF0000)); // background
+				i = (i-512)&0xFFFF;
                 if (getMenuQuery()) {
                     draw("XWMETCU1", HUD_ID, false, 12.1, 139.2, 240, 150, 0.05, 1.0);
                     draw("Waiting for\n\n server...", HUD_ID+1, true, 108.0, 212.2, 368, 230, 0.05, 1.0);
@@ -347,34 +347,37 @@ function void printHeroText(int hero, int hudId) {
 }
 
 // wtf is this design pattern ? o wo ' -' ' -'XD? ?
+#DEFINE TITLE_OFFSET 48.0
 function void startScreen(int hudId) {
     int inputStatus = pressedStatus();
     switch(getMenu()) {
         case START_SCREEN_TITLE:
             int player = ConsolePlayerNumber();
             bool isOnline = isNetworkGame();//, logged = isLoggedIn(player);
-            int isOnlineOffset = 40.0*isOnline;
+            int isOnlineOffset = TITLE_OFFSET*isOnline;
             bool logged = isLoggedIn(player);            
             bool isFirstHero = isSlotEmpty(player,0) && isSlotEmpty(player,1);
 
             if (getMenuRefresh()) {
-                if (isOnline) {
-                    if (logged) {
-                        //  drawTitle(strParam(s:"logged in as ", s:getLogin(player)), -1, false);
-                        drawStartLabel(isFirstHero ? "START" : "CONTINUE", hudId+6, 20.0+isOnlineOffset, !getMenuIndex());
-                    }
-                    else {
-                        drawStartLabel("LOGIN", hudId+6, 20.0+isOnlineOffset, !getMenuIndex());
-                            // 	if (!(Timer()&0x1F)) loginPoll(player);
-                    }
-                }
-                else if (!getMenuIndex())
-                    setMenuIndex(1);
-                drawStartLabel("QUICK PLAY", hudId, 60.0+isOnlineOffset, getMenuIndex()==1);
-                drawStartLabel("OPTIONS", hudId+2, 120.0+isOnlineOffset, getMenuIndex()==2);
-                drawStartLabel("BACK TO GAME", hudId+4, 160.0+isOnlineOffset, getMenuIndex()==3);
+                drawBI("8CMENU04", hudId, 160.0, 152.0, 320, 350);
+                drawBI("8CMENU02", hudId+1, 160.0, 336.0-(TITLE_OFFSET*(!isOnline)), 320, 350);
+                // if (isOnline) {
+                //     if (logged) {
+                //         //  drawTitle(strParam(s:"logged in as ", s:getLogin(player)), -1, false);
+                //         drawStartLabel(isFirstHero ? "START" : "CONTINUE", hudId+6, 20.0+isOnlineOffset, !getMenuIndex());
+                //     }
+                //     else {
+                //         drawStartLabel("LOGIN", hudId+6, 20.0+isOnlineOffset, !getMenuIndex());
+                //             // 	if (!(Timer()&0x1F)) loginPoll(player);
+                //     }
+                // }
+                // else if (!getMenuIndex())
+                //     setMenuIndex(1);
+                drawStartLabel("QUICK PLAY", hudId+2, 144.0+isOnlineOffset, getMenuIndex()==1);
+                drawStartLabel("OPTIONS",   hudId+5, 144.0+TITLE_OFFSET+isOnlineOffset, getMenuIndex()==2);
+                drawStartLabel("BACK TO GAME", hudId+8, 144.0+(TITLE_OFFSET*2)+isOnlineOffset, getMenuIndex()==3);
 
-                setMenuRefresh(false);
+                // setMenuRefresh(false);
             }
 
             if(getMenuTransition())
@@ -475,7 +478,7 @@ function void startScreen(int hudId) {
             }
         break;
 
-        // arg0 slot, arg1 spin status/confirm status, arg2 ?
+        // arg0 slot, arg1 spin status/confirm status, arg2 created confirm animation
         case START_SCREEN_CREATE_HERO:
             int hero = getMenuIndex()&0xFF;
             int index = (getMenuIndex()>>8)&0x1;
@@ -490,9 +493,16 @@ function void startScreen(int hudId) {
 
                     drawTypedT(getHeroName(hero), hudId+1, 40.1, 34.1, 240, 150, 0.18);
                     drawBT(lineBreak(getSpSkill(hero),16), hudId+2, 346.6, 102.1, 400, 250);
+                    int i = 0;
+                    while (true) {
+                        draw8cNumber(getHeroWeapons(hero), hudId+8+i, -24.0*i+266.2, 64.2, SMALL_FONT);
+                        if ((i+1) >= getHeroWeaponGroups(hero)) break;
+                        drawBT("\ck+", hudId+8+i+MAX_WEAPON_GROUPS, -24.0*i+252.2, 62.2, DEFAULT_HUD_X, DEFAULT_HUD_Y);
+                        i++;
+                    }
                 }
                 drawStartLabel("Back", hudId+4, 214.1, (index || (confirm==2)));
-                drawBI(created ? getHeroSelected(hero) : getHeroIdle(hero), hudId+3, 49.0, 104.0, 200, 125);
+                drawBI(created ? getHeroSelected(hero) : getHeroIdle(hero), hudId+3, 50.1, 102.1, 200, 125);
                 if (confirm)
 			        drawStartLabel("Confirm", hudId+6, 183.1, confirm==1);
                 else {                    
@@ -503,7 +513,7 @@ function void startScreen(int hudId) {
 
             if (spinning) {
                 drawSBI("8CTITLW1", 160.0, 0.1);                
-                if (spinning&0x10)      int i = hero+n-1;      // left spin
+                if (spinning&0x10)      i = hero+n-1;      // left spin
                 else                    i = hero+n;                           // right spin
 
                 int list[4] = { (i-1)%n, i%n, (i+1)%n, (i+2)%n }; // o wo? ?
@@ -528,13 +538,13 @@ function void startScreen(int hudId) {
             drawBI("8CTITLM7", 0, 50.0, 106.0, DEFAULT_HUD_X, DEFAULT_HUD_Y); // avatar bg
             drawBI("8CTITLME", 0, 37.0, 32.0, 288, 180); // top background
 
-            // drawTypedT(lineBreak("   o/       / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /   ",22), HUD_ID+1, 158.1, 140.1, 400, 250, 0.01);
             
             if (getMenuQuery()) {   
                 switch(pukeStatus()) {
                     case PUKE_OK:
                         //log(s:"return ok");
-                        LocalAmbientSound("misc/secret", 127);
+                        LocalAmbientSound("misc/secret", 127);                              //      o    w o?
+                        drawTypedT(lineBreak("       / / / / / / / / / / / / / 0101001001000101010000010100010001011001  / / / / / /               o/   ",22), hudId, 158.1, 140.1, 400, 250, 0.006);
                         setMenuQuery(false);
                         setMenuRefresh(0x3);
                         setMenuArg(2, 1);
@@ -562,12 +572,12 @@ function void startScreen(int hudId) {
             }            
             else if (created && !getMenuTransition()) {
                 setMenuArg(2,getMenuArg(2)+1);
-                if ((timer()&0x1) && (created<30))
-                    draw("8CWHITE", hudId-1, false, 0, 0,  1, 1, 0.05, 0.25);
+                if ((timer()&0x1) && (created<22))
+                    draw("8CWHITE", hudId-1, false, 0, 0,  1, 1, 0.05, 0.35);
                 
                 if (created>35) {
                     setMenuTransition(0xC0 | START_SCREEN_DATA);
-                    setMenuArg(1,0); setMenuArg(2,0);
+                    setMenuArg(0,0); setMenuArg(1,0); setMenuArg(2,0);
                 }
             }         
             else if (getMenuTransition() | getMenuQuery() | created) 
@@ -614,8 +624,6 @@ function void startScreen(int hudId) {
                     if (confirm==1) {
                         ACS_NamedExecuteWithResult("8C CS", CLIENT_PUKE, PUKE_HERO_CREATE, getMenuArg(0), hero);
                         setMenuQuery(true);
-                        //LocalAmbientSound("misc/secret", 127);
-                       // setMenuIndex(getMenuIndex()&0xFFFF);
                     }
                     else {
                         setMenuArg(1, getMenuArg(1)&0xFFFF00FF);
@@ -626,7 +634,7 @@ function void startScreen(int hudId) {
                 else {
                     if (!index) {
                         setMenuArg(1, getMenuArg(1) | (1<<8));
-                        drawTypedT(lineBreak("Start game with\nthis hero?",30), hudId, 158.1, 140.1, 400, 250, 0.015);    
+                        drawTypedT(lineBreak(strParam(s:"Start game with\n\n    ", s:getHeroName(hero), s:"?") ,50), hudId, 158.1, 140.1, 400, 250, 0.015);    
                         setMenuRefresh(0x3);                
 
                     }
@@ -637,148 +645,57 @@ function void startScreen(int hudId) {
                 }
             }
         break;
+
+        case START_SCREEN_DATA:
+            n = getMenuArg(0) ? MAX_SLOTS : 1;
+            //index = (getMenuIndex()>>8)&0x1;
+            player = ConsolePlayerNumber();
+            if (getMenuRefresh()) {
+                drawStartLabel("Back", hudId, 214.1, getMenuIndex()==n);
+                for (i = 0; i < n; i++) { // i = slot
+                    int slot = getMenuArg(0) ? i : -1;
+                    hero = getPlayerHero(player, slot);
+                    drawBI(getHeroIdle(hero),                       (hudId+2), 50.1, 50.1, 200, 125);
+                    drawTypedT(getHeroName(hero),                   (hudId+3), 80.1, 30.1, 200, 125, 0.05);
+
+                    drawBT("Rank",                                  (hudId+4), 120.1, 56.1, 320, 200);                    
+                    draw8cNumber(expToRank(getExp(hero, slot)),     (hudId+5), 160.1, 56.1, SMALL_FONT);
+                }
+                setMenuRefresh(false);
+            }
+            
+            if (isPressed(inputStatus, MENU_NO)) {
+                setMenuTransition(START_SCREEN_TITLE);    
+            }
+            else if (isPressed(inputStatus, MENU_DOWN)) {
+                if (getMenuIndex()<n) {                    
+                    setMenuIndex(getMenuIndex()+1);
+                    setMenuRefresh(true);
+                }
+            }
+            else if (isPressed(inputStatus, MENU_UP)) {
+                if (getMenuIndex()>0) {                    
+                    setMenuIndex(getMenuIndex()-1);
+                    setMenuRefresh(true);
+                }
+            }
+            else if (isPressed(inputStatus,MENU_YES)) {
+                if (getMenuIndex() == n) {
+                    setMenuTransition(START_SCREEN_TITLE);
+                }
+            }
+        break;
     }
 }
-// 		// 	if (isQuickPlay) {
-// 		// 		slots[0] = getPlayerHeroId(player,-1);
-// 		// 		drawSBT("QUICK PLAY", 160.0, base);
-// 		// 		drawSBT(strParam(s:"DEFAULT : ", s:getHeroName(slots[0])), 160.0, base);
-// 		// 	}
-// 		// 	else {
-// 		// 		drawSBT("DATA SAVES", 160.0, base);
-// 		// 		for (int i = 0; i < MAX_SLOTS; i++) {
-// 		// 			slots[i] = getPlayerHeroId(player,i);
-// 		// 			drawSBT(strParam(s:"SLOT ", d:i, s:" : ",
-// 		// 				s:(slots[i] != -1 ? getHeroName(slots[i]) : "---")),
-// 		// 				160.0, base);
-// 		// 		}
-// 		// 	}
-// 		// 	drawTitleElement("BACK", 4, !(index < (isQuickPlay ? 1 : MAX_SLOTS)));
-			
-// 		// 	// --------- logic ---------- //
-
-// 		// 	if (!isQuickPlay) {
-// 		// 		isFreeSlot = (getPlayerHeroId(player,index) == -1) && (index < MAX_SLOTS);
-// 		// 	}
-			
-// 		// 	if (erase) {
-// 		// 		drawSBT("Do you really want to reset data?", 160.0, 130.0);
-				
-// 		// 		drawTitleElement("NO", 4, !(erase>>1));
-// 		// 		drawTitleElement("YES", 5, erase>>1);
-// 		// 	}
-// 		// 	else if (confirm) {
-// 		// 		drawSBT(strParam(s:">> picked slot ", d:index, s:" <<"), 160.0, 110.0);
-				
-// 		// 		if (isFreeSlot) {
-// 		// 			drawSBT("Create hero", 160.0, 110.0);
-// 		// 			drawSBT("Back-slot", 160.0, 110.0);
-// 		// 		}
-// 		// 		else {
-// 		// 			drawTitleElement("Start game", 2, !(confirm>>1));
-// 		// 			drawTitleElement("Back", 3, !(confirm&0x1));
-// 		// 			drawTitleElement("Erase data", 4, confirm&0x1);
-// 		// 		}
-// 		// 	}
-// 		// 	// --------- logic ---------- //
-			
-// 		// 	if (isPressed(MENHUD_NO)) {
-// 		// 		if (erase) 
-// 		// 			state &= 0xFFFF;
-// 		// 		else if (confirm)
-// 		// 			state &= 0xFF;
-// 		// 		else 
-// 		// 			menuStatus = START_SCREEN_TITLE;
-// 		// 	}
-//  		// 	else if (isPressed(MENHUD_YES)) {
-// 		// 		if (erase) {
-// 		// 			if (!(erase>>1)) state &= 0xFFFF;
-// 		// 			else {
-// 		// 				LocalAmbientSound("misc/brgstaff", 127);
-// 		// 				ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_HERO_DELETE, (isQuickPlay ? -1 : index));
-// 		// 				// migrate slot B to A !!
-// 		// 				menuStatus = START_SCREEN_TITLE;	
-// 		// 			}
-// 		// 		}
-				
-// 		// 		else if (confirm) {
-// 		// 			if (!(confirm>>1)) {
-// 		// 				// character creation screen
-// 		// 				if (isFreeSlot) {
-// 		// 					menuStatus = ((index+1)<<8) | START_SCREEN_CREATE_HERO;
-// 		// 				}
-// 		// 				// start /join game
-// 		// 				else {
-// 		// 					LocalAmbientSound("misc/kingblast", 127);
-// 		// 					log(s:"start!!");
-// 		// 					menuStatus = START_SCREEN_ENTER_GAME;
-// 		// 					ACS_NamedExecuteWithResult("8C CS", CS_PUKE, PUKE_SLOT_SELECT, (isQuickPlay ? -1 : index));
-// 		// 				}
-// 		// 			}
-// 		// 			// back
-// 		// 			else if (!(confirm&0x1)) 
-// 		// 				state &= 0xFF;
-
-// 		// 			// erase data
-// 		// 			else
-// 		// 				state |= 0x10000;
-// 		// 		}
-// 		// 		else {
-// 		// 			if (index < (isQuickPlay ? 1 : MAX_SLOTS))
-// 		// 				state |= (1<<8);
-// 		// 			else
-// 		// 				menuStatus = START_SCREEN_TITLE;
-// 		// 		}
-
-// 		// 	}
-// 		// 	else if (isPressed(MENHUD_UP)) {
-// 		// 		if (erase) {
-// 		// 			if (erase>>1)
-// 		// 				state -= 0x10000;
-// 		// 		}
-// 		// 		else if (confirm) {
-// 		// 			if (confirm>1)
-// 		// 				state -= 0x100;
-// 		// 		}
-// 		// 		else if (index) 
-// 		// 			state--;
-// 		// 	}
-// 		// 	else if (isPressed(MENHUD_DOWN)) {
-// 		// 		if (erase) {
-// 		// 			if (!(erase>>1))
-// 		// 				state += 0x10000;
-// 		// 		}
-// 		// 		else if (confirm) {
-// 		// 			if (confirm<(3-isFreeSlot))
-// 		// 				state += 0x100;
-// 		// 		}
-// 		// 		else if (index < (HERO_SLOTS-isQuickPlay))
-// 		// 			state++;
-// 		// 	}
-// 		// break;
-
-// 	}
-// 	//if (!(timer()%2)) log(s:"menu status/slot ", d:(menu>>8)-1, s: " --- " , s:"erase? ", d:erase, s:" confirming?  ", d:confirm, s:" menu index ", d:(state&0xFF));
-// 	return state;
-// }
 
 
-#DEFINE TITLE_SPACING 42.0
-function void drawStartLabel(str label, int id, int offset, bool isSelected) {
-    drawBT(strParam(s:"\cc", s:label), id, 200.0, ((offset+12.0)&0xFFFF0000)|0.1, 400, 250);
-	drawBI(strParam(s:"8CTITLM", d:isSelected), id+1, 140.0, (offset&0xFFFF0000)|0.1, 400, 250);
+function void drawStartLabel(str label, int id, int y, bool isSelected) {
+	drawBI("8CMENU08", id, 160.0, y+24.0, 320, 350);
+    drawBT(strParam(s:"\cc", s:label), id+1, 160.0, (FixedMul(y,0.763)&0xFFFF0000) + 22.0, 320, 270);
+	drawBI(strParam(s: !isSelected ? "8CMENU06" : "8CMENU07"), id+2, 104.0, y, 320, 350);
 }
 
-
-//        
-
-
-			
-//     }
-//     if (!(timer()&0x1F) ) log(s:"confirm ", d:confirmStatus,  s:" player ", d:player);
-//     return state;
-// }
-
+function int expToRank(int exp) { return 1 + (exp/50); }
     
     
     
@@ -925,7 +842,7 @@ function void draw8cBar(str graphic, bool isHorizontal, int unit, int barSize, i
 }
 
 // drawn right to left
-function void draw8cNumberStatic(int number, int id, int font, int x, int y) {
+function void draw8cNumber(int number, int id, int x, int y, int font) {
 	switch(font) {
 		case SMALL_FONT: int space = 11.0; break;
 		case BIG_FONT: space = 14.0; break;
@@ -946,7 +863,6 @@ function void draw8cNumberStatic(int number, int id, int font, int x, int y) {
 	}
 }
 
-function void draw8cNumber(int number, int font, int x, int y) { draw8cNumberStatic(number,0,font,x,y); }
 
 function int pressedStatus(void) {
     int prev = GetPlayerInput(-1, INPUT_OLDBUTTONS);
@@ -975,15 +891,17 @@ function str lineBreak(str string, int every) {
 //                           debug/playground/temporary code   //
 	//////////////////////////////////////////////////////////
 
-script "hude" (void) {
-    int inp;
-    do {
-        log(s:"offset X = ", f:tmpHudX, s:" Y = ", f:tmpHudY);
-        inp = GetPlayerInput(-1, INPUT_BUTTONS);
-        if  (inp&BT_MOVELEFT)   tmpHudX-=(1.0)*(inp&BT_ATTACK ? 4 : 1);
-        if  (inp&BT_MOVERIGHT)  tmpHudX+=(1.0)*(inp&BT_ATTACK ? 4 : 1);
-        if  (inp&BT_FORWARD)    tmpHudY-=(1.0)*(inp&BT_ATTACK ? 4 : 1);
-        if  (inp&BT_BACK)        tmpHudY+=(1.0)*(inp&BT_ATTACK ? 4 : 1);
-        delay(1);
-    } while (!(inp&BT_JUMP));
-}
+
+// /* ALIGNER
+// x
+// .0 = positions center of box
+// .1 = positions left edge of box
+// .2 = positions right edge of box
+// .4 = centers text inside box and aligns center
+// .5 = centers text and aligns left edge
+// .6 = centers text and aligns right edge
+// For y:
+
+// .0 = positions center of box
+// .1 = positions top edge of box
+// .2 = positions bottom edge of box*/

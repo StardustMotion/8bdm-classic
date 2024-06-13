@@ -765,11 +765,6 @@ function bool isGone(int ptr) {
 
 
 
-aligner
-
-
-
-
 
 	//////////////////////////////////////////////////////////
 //                           debug/tmp             				//
@@ -777,30 +772,6 @@ aligner
 
 	
 
-// /* ALIGNER
-// x
-// .0 = positions center of box
-// .1 = positions left edge of box
-// .2 = positions right edge of box
-// .4 = centers text inside box and aligns center
-// .5 = centers text and aligns left edge
-// .6 = centers text and aligns right edge
-// For y:
-
-// .0 = positions center of box
-// .1 = positions top edge of box
-// .2 = positions bottom edge of box*/
-
-// pukename draw 20 20 320 200
-script "draw" (int x, int y, int scx, int scy) {
-	// draw("8CCHRAN0", false, x<<16, y<<16, scx, scy, 2.0,1.0); 
-	// draw("8CCHRAN1", false, x<<16, (20+y)<<16, scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
-	// draw("8CCHRAN2", false, x<<16, (40+y)<<16, scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
-	 draw("8CCHRAN3", false, x<<16, (y<<16), scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
-	draw("8CCHRAN4", false, x<<16, (y<<16), scx, scy, 2.0,1.0); // pukename draw 100 100 320 200
-}
-
-script "print" (void) { printActorTable(); }
 
 
 script "sum" (int id, int minplayer) {

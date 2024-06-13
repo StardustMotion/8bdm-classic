@@ -171,18 +171,114 @@ function void resetMenu(void) {					for (int i=0; i < 5; i++) client_menuStatus[
 
 
 
+/*
+    type in console
+	pukename hude
+	to test this tool. To change the graphic being displayed, type the graphics' name in chat
 
+- Movement key						change position/scale (hold fire to speed up)
+- Reload							toggle position/scale mode
+- Show scoreboard 					toggle "keep graphic proportions"
+- Altfire							stamp the image (can stamp up to 64 images on screen)
+- Altfire (while holding Fire)		delete the last stamped image
+- Reload (while holding Fire)		show all current's stamps' coordinates			
+*/
 
+str hude_graphic = "CHINTR2";
+script "hude" (void) CLIENTSIDE {
+	int x = 0, y = 0, sizeX = 320, sizeY = 200;
+	str stamps[64]; int maxStamp = 64;
+    int inp, oldB, incr, id = 0;
+    bool mode, delta, speedUp, proportional = 1;
+    int decimals;
+    int ratio = 1.6;
+	SetPlayerProperty(0,1,PROP_TOTALLYFROZEN );
+    do {
+        inp = GetPlayerInput(-1, INPUT_BUTTONS);
+		oldB = GetPlayerInput(-1, INPUT_OLDBUTTONS);
+		str coords = strParam(s:"\c->>> [ \cc", s:hude_graphic, s:"\c- ] \cax = ", f:X, s:" \ciy = ", f:Y, s:"   \ckSizeX = ", d:sizeX, s:" \cdSizeY = ", d:sizeY);
 
+		if (!(oldB&(BT_ATTACK) && oldB&(BT_RELOAD)) && (inp&(BT_ATTACK) && inp&(BT_RELOAD))) {
+			for (int i = 0; i < id; i++)
+				log(s:stamps[i]);
+			LocalAmbientSound("misc/trainwhistle", 127);
+		}
+        else if ((!(oldb&BT_RELOAD) && (inp&BT_RELOAD)) && !(inp&BT_ATTACK)) {
+            mode = !mode;
+            LocalAmbientSound("misc/10w3elvs",127); 
+            log(s:"Mode : ", s:mode ? "\cnscale" : "\caposition");
+        }
 
+		else if (!(oldB&(BT_ATTACK) && oldB&(BT_ALTATTACK)) && (inp&(BT_ATTACK) && inp&(BT_ALTATTACK))) {
+			if (id) {
+				stamps[id] = "";
+        		HudMessageBold(s:""; HUDMSG_PLAIN , maxStamp-id,CR_UNTRANSLATED, x, y, 0, 1.0);
+				id--;
+				LocalAmbientSound("item/rushdetect", 127); 				
+			}
+		}
+		else if (!(oldB&(BT_ALTATTACK)) && (inp&(BT_ALTATTACK))) {
+			if (id == maxStamp-1) {
+				Log(s:"\cgCan't stamp!! ", d:maxStamp, s:" limit reached");
+				LocalAmbientSound("misc/boing", 127);
+			}
+			else {
+				stamps[id] = strParam(s:"--- \ccStamped ", s:coords);
+				id++;
+				LocalAmbientSound("misc/mercuryconveyorswitch", 127);
+			}
+		}
+        if (!(oldb&BT_SHOWSCORES) && (inp&BT_SHOWSCORES)) {
+            proportional = !proportional;
+            if (proportional)
+                ratio = FixedDiv(sizeX<<16, sizeY<<16);
+			LocalAmbientSound("misc/sheepblockreturn", 127);
+            log(s:"Keep proportions : ", s:proportional ? "\cdyes" : "\cqNO");
+        }
+        speedUp = inp&BT_ATTACK;
+        if (!mode) incr = 1.0 * (speedUp ? 6 : 1);
+        else       incr = 1 * (speedUp ? 8 : 1);
+        delta = 0;
+        if(!mode) {
+            if  (inp&BT_MOVELEFT)   { x-=incr; delta = true; }
+            if  (inp&BT_MOVERIGHT)  { x+=incr; delta = true; }
+            if  (inp&BT_FORWARD)    { y-=incr; delta = true; }
+            if  (inp&BT_BACK)       { y+=incr; delta = true; }
+        }
+        else {
+            if (!proportional) {
+                if  (inp&BT_MOVELEFT)   { sizeX+=incr; delta = true; }
+                if  (inp&BT_MOVERIGHT)  { sizeX-=incr; delta = true; }
+                if  (inp&BT_FORWARD)    { sizeY+=incr; delta = true; }
+                if  (inp&BT_BACK)       { sizeY-=incr; delta = true; }
+            }
+            else {
+                if (inp&(BT_MOVERIGHT|BT_BACK)) incr *= -1;
+                else if (!(inp&(BT_MOVELEFT|BT_FORWARD))) incr = 0;
+                if (incr) {
+                    int plusX = ratio*incr;
+                    decimals += plusX&0xFFFF;
+                    if(decimals>>16) {
+                        plusX += (decimals&0xFFFF0000); decimals &= 0xFFFF;
+                    }
+                    plusX>>=16;
+                    sizeX += plusX; 
+					sizeY += incr; 
+					delta = true;
+                }
+            }
+        }
+        if (delta)
+            log(s:coords);
+        delay(1);
+		SetHudSize(sizeX,sizeY,true);
+		SetFont(hude_graphic);
+        HudMessageBold(s:"A"; HUDMSG_PLAIN , maxStamp-id,CR_UNTRANSLATED, x, y, 0, 1.0);
+			
+    } while (true);
+}
 
-
-
-
-
-
-
-// tmp
-
-int tmpHudX = 0;
-int tmpHudY = 0;
+script "hude_chat" (int type, int arg1, int arg2) EVENT {
+	if (type==GAMEEVENT_CHAT)
+		hude_graphic = GetChatMessage(arg1,0);
+}
