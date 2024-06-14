@@ -11,53 +11,32 @@ texture 8CINTROB
 	pic 8CINTROA tics 2
 	pic 8CINTRO9 tics 2
 
-texture 8CTITLM0
-	pic 8CTITLM2 tics 35
-	pic 8CTITLM2 tics 35
 
-texture 8CTITLM1
-	pic 8CTITLM2 tics 6
-	pic 8CTITLM3 tics 6
-	pic 8CTITLM4 tics 6
-	pic 8CTITLM3 tics 6
-
-
-
-// Character selection
-texture 8CCHRAN0
-	pic 8CCHAR00 tics 70
-	pic 8CCHAR01 tics 6
 	
-texture 8CCHRAN1
-	pic 8CCHAR02 tics 6
-	pic 8CCHAR03 tics 6
-	
-texture 8CCHRAN2
-	pic 8CCHAR04 tics 70
-	pic 8CCHAR05 tics 6
-	
-texture 8CCHRAN3
-	pic 8CCHAR06 tics 15
-	pic 8CCHAR07 tics 15
-	pic 8CCHAR08 tics 15
-	pic 8CCHAR07 tics 15
-	
-texture 8CTITLM7
-	pic 8CTITLM8 tics 4
-	pic 8CTITLM9 tics 4
-	pic 8CTITLMA tics 4
-	pic 8CTITLMB tics 4
-	pic 8CTITLMC tics 4
-	pic 8CTITLMD tics 4
-
-texture 8CTITLME
-	pic 8CTITLMF tics 4
-	pic 8CTITLMG tics 4
-	
-texture XWMETCU1 range XWMETCU8 tics 3
 
 
-// purple
+
+
+
+
+
+/* -----------------------------------------------------------------------------
+						Title screen menu stuff
+ ----------------------------------------------------------------------------- */
+
+// dat boi
+texture 8CMET
+	pic XWMETCU1 tics 3
+	pic XWMETCU2 tics 3
+	pic XWMETCU3 tics 3
+	pic XWMETCU4 tics 3
+	pic XWMETCU5 tics 3
+	pic XWMETCU6 tics 3
+	pic XWMETCU7 tics 3
+	pic XWMETCU8 tics 3
+
+
+// purple/cyan menu option
 texture 8CMENU06
 	pic 8CMENU09 tics 2
 	pic 8CMENU0A tics 2
@@ -67,8 +46,6 @@ texture 8CMENU06
 	pic 8CMENU0E tics 2
 	pic 8CMENU0F tics 2
 	pic 8CMENU0G tics 2
-	
-// cyan
 texture 8CMENU07
 	pic 8CMENU0H tics 2
 	pic 8CMENU0I tics 2
@@ -78,3 +55,80 @@ texture 8CMENU07
 	pic 8CMENU0M tics 2
 	pic 8CMENU0N tics 2
 	pic 8CMENU0O tics 2
+
+
+// slotSelect border
+texture 8CMENU1X
+	pic 8CMENU1P tics 8
+	pic 8CMENU1Y tics 4
+	pic 8CMENU1Z tics 4
+	pic 8CMENU20 tics 4
+	pic 8CMENU1Z tics 4
+
+texture 8CFLSWHI
+	pic 8CWHITE tics 1
+	pic TNT1A0 tics 1
+
+texture 8CFLSBLA
+	pic 8CBLACK tics 1
+	pic TNT1A0 tics 1
+
+
+
+
+
+// -------------------------- CHARACTER SELECT -------------------------- //
+// border
+texture 8CMENU19
+	pic 8CMENU15 tics 12
+	pic 8CMENU1A tics 4
+	pic 8CMENU1B tics 4
+	pic 8CMENU1C tics 4
+	pic 8CMENU1B tics 4
+
+// scan background
+texture 8CMENU1D
+	pic 8CMENU1E tics 4
+	pic 8CMENU1F tics 4
+	pic 8CMENU1G tics 4
+	pic 8CMENU1H tics 4
+	pic 8CMENU1I tics 4
+	pic 8CMENU1J tics 4
+
+// wheel core
+texture 8CMENU12
+	pic 8CMENU0R tics 20
+	pic 8CMENU0S tics 2
+	pic 8CMENU0T tics 2
+	pic 8CMENU0U tics 2
+	pic 8CMENU0V tics 2
+	pic 8CMENU0W tics 2
+	pic 8CMENU0X tics 2
+	pic 8CMENU0Y tics 2
+	pic 8CMENU0Z tics 2
+	pic 8CMENU10 tics 2
+	pic 8CMENU11 tics 2
+	
+// Character idle (mega/proto/bass/roll)
+texture 8CCHRAN0
+	pic 8CCHAR00 tics 70
+	pic 8CCHAR01 tics 6	
+texture 8CCHRAN1
+	pic 8CCHAR02 tics 6
+	pic 8CCHAR03 tics 6	
+texture 8CCHRAN2
+	pic 8CCHAR04 tics 70
+	pic 8CCHAR05 tics 6	
+texture 8CCHRAN3
+	pic 8CCHAR06 tics 15
+	pic 8CCHAR07 tics 15
+	pic 8CCHAR08 tics 15
+	pic 8CCHAR07 tics 15
+	
+
+// Top portion background
+texture 8CMENU1O
+	pic 8CMENU1L tics 6
+	pic 8CMENU1M tics 6
+
+

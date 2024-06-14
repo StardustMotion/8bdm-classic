@@ -1,3 +1,63 @@
+////////////////////
+// Script header  //
+////////////////////
+
+// ------------------------------------------ //
+//    				server			     	  //
+// ------------------------------------------ //
+
+// ------------------- core ------------------- //
+#DEFINE PHYSICS_8C 0
+#DEFINE XY_DIST 1
+#DEFINE Z_DIST 2
+#DEFINE IS_GONE 3
+#DEFINE COPY_VELOCITY 4
+#DEFINE GET_VELOCITY 5
+#DEFINE CHECK_COLLISION 6
+#DEFINE SOLID_TOGGLE 7
+#DEFINE GET_USERVAR 8
+#DEFINE INTRO_ANIMATION 9
+//#DEFINE NO_8C_FOG 72 // 8C.acs
+
+
+// ------------------- rpg ------------------- //
+#DEFINE RPG_INCARNATE 0
+
+
+
+
+
+// ------------------- puke ------------------- //
+#DEFINE PUKE_HERO_CREATE 0
+#DEFINE PUKE_HERO_DELETE 1
+#DEFINE PUKE_LOGIN_REFRESH 2
+#DEFINE PUKE_ENTER_GAME 3
+
+
+// ------------------------------------------ //
+//    				client			     	  //
+// ------------------------------------------ //
+
+#DEFINE NET_CS_START_SCREEN 256
+#DEFINE CS_START_SCREEN 257
+    #DEFINE START_SCREEN_TITLE 1
+    #DEFINE START_SCREEN_EXIT 2
+    #DEFINE START_SCREEN_OPTIONS 3
+    #DEFINE START_SCREEN_CREATE_HERO 4
+    #DEFINE START_SCREEN_DATA 5
+#DEFINE CS_CLIENT_PUKE 258
+#DEFINE CS_HUD_TRANSITION 259
+#DEFINE CS_CAMERA 260
+#DEFINE CS_INTRO_HUD_ANIMATION 261
+
+
+// ------------------------------------------------------------------------------------ //
+// ------------------------------------------------------------------------------------ //
+// ------------------------------------------------------------------------------------ //
+
+
+
+
 
 ////////////////////////////////////
 //  	General settings		   //
@@ -6,17 +66,110 @@
 #DEFINE CVAR_AUTOLOGIN "C8_autologin"
 
 
+/////////////////
+//  Constants  //
+/////////////////
+
+#DEFINE NULL 0
+#DEFINE INT_MAX 0x7fffffff
+#DEFINE INT_MIN 0x80000000
+
+#DEFINE MAX_RANK 50
+#DEFINE MAX_HERO 256
+#DEFINE MAX_STAGE 256
+#DEFINE MAX_ENEMY 1024
+
+#DEFINE MAX_CLIENTS 16
+#DEFINE MAX_SLOTS 2 // slot == -1 value is used to refer to quick play slot
+#DEFINE MAX_WEAPON_GROUPS 4
+
+#DEFINE MENU_UP (BT_FORWARD)
+#DEFINE MENU_DOWN (BT_BACK)
+#DEFINE MENU_LEFT (BT_LEFT|BT_MOVELEFT)
+#DEFINE MENU_RIGHT (BT_RIGHT|BT_MOVERIGHT)
+#DEFINE MENU_YES (BT_ATTACK)
+#DEFINE MENU_NO (BT_ALTATTACK)
+
+#DEFINE SMALL_FONT 0
+#DEFINE BIG_FONT 1
+
+#DEFINE HUD_ID 512
+#DEFINE SFX_MENU "8CMENUB"
+#DEFINE SFX_MENU_OK "8CMENUA"
+#DEFINE SFX_MENU_BACK "8CMENUC"
+
+#DEFINE DEFAULT_HUD_X 320
+#DEFINE DEFAULT_HUD_Y 200
+
+#DEFINE CAMERA_TID 7800
+
+
+
+
+
+/////////////////
+//  Runtime   //
+/////////////////
+
+// Some "globa variables" for title screen
+#DEFINE MENU_COMMON 0
+#DEFINE MENU_INDEX 1
+#DEFINE MENU_STATE 2 // 1+2
+
+int client_menuStatus[5] = { 0, 0, 0, 0, 0 };
+function int getMenu(void) { 					return client_menuStatus[MENU_COMMON]&0xFF; }
+function void setMenu(int val) { 				client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFFFFFF00)|val; }
+function int getMenuTransition(void) { 			return ((client_menuStatus[MENU_COMMON])>>8)&0xFF; }
+function void setMenuTransition(int val) { 		
+	if (val) resetMenuArgs();
+	client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFFFF00FF)|(val<<8); 
+}
+function int getMenuRefresh(void) {				return ((client_menuStatus[MENU_COMMON])>>16)&0xFF; }
+function void setMenuRefresh(int val) {			client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFF00FFFF)|(val<<16); }
+function bool getMenuQuery(void) {				return ((client_menuStatus[MENU_COMMON])>>24)&0xFF; }
+function void setMenuQuery(int val) {			client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0x00FFFFFF)|(val<<24); }
+function int getMenuIndex(void) {				return client_menuStatus[MENU_INDEX]; }
+function void setMenuIndex(int val) {			client_menuStatus[MENU_INDEX] = val; }
+// arg [0,2]
+function int getMenuArg(int arg) {				return client_menuStatus[MENU_STATE+arg]; }
+function void setMenuArg(int arg, int val) {	client_menuStatus[MENU_STATE+arg] = val; }
+
+function bool inMenu(void) {					return !!getMenu(); }
+function void resetMenu(void) {					for (int i=0; i < 5; i++) client_menuStatus[i] = 0; }
+function void resetMenuArgs(void) {              for (int i = 0; i < 3; i++) setMenuArg(i,0); }
+
+// function void menuStatusReset(void) { for (int i = 0; i < 8; i++) setMenu(i,0); }
+
+
+
+
+
+
+
+
+
+
+
 
 ////////////////////////////////////
 //  	Runtime settings		   //
 ////////////////////////////////////
 
-#DEFINE CVAR_HERO_SIZE "C8_hero_size"
-function int getHeroSize(void) { 				        	    	return GetCvar(CVAR_HERO_SIZE); }
+#DEFINE CVAR_IS_FIRST_START "C8_is_first_start"
 
 #DEFINE CVAR_HERO "C8_hero_"
+#DEFINE CVAR_HERO_SIZE "C8_hero_size"
+function int getHeroSize(void) { 				        	    	return GetCvar(CVAR_HERO_SIZE); }
 function int getHeroFromIndex(int index) { 				        	return get8bFlagVal(CVAR_HERO, true, index); }
 function void setHeroFromIndex(int index, int heroId) {				set8bFlagVal(CVAR_HERO, true, index, heroId); }
+
+#DEFINE CVAR_STAGE "C8_stage_"
+#DEFINE CVAR_STAGE_SIZE "C8_stage_size"
+function int getStageSize(void) { 				        	    	return GetCvar(CVAR_STAGE_SIZE); }
+function int getStageFromIndex(int index) { 			        	return get8bFlagVal(CVAR_STAGE, true, index); }
+function void setStageFromIndex(int index, int stageId) {			set8bFlagVal(CVAR_STAGE, true, index, stageId); }
+
+// ---------------------------------------------------------------------------------------------------------- //
 
 #DEFINE CVAR_LOGIN "C8_login_"
 function str getLogin(int player) { 								return strSanitize(GetCvarString(__login(player))); }
@@ -25,37 +178,34 @@ function str __login(int player) { 									return strParam(s:CVAR_LOGIN, d:play
 function bool isLoggedIn(int player) { 								return isNetworkGame() && strLen(getLogin(player)); }
 
 #DEFINE CVAR_SLOT "C8_slot"
-// return -1 for quick play, 0 and 1 for account slots
-function int getSlot(int player) { 									return get2bFlagVal(CVAR_SLOT, false, player)-1; }
-function void setSlot(int player, int val) { 						set2bFlagVal(CVAR_SLOT, false, player, val+1); }
+// 0 = quickplay, 1/2 = slots 1/2
+function int getAllowedSlot(int player) { 							return get2bFlagVal(CVAR_SLOT, false, player)-1; }
+function void setAllowedSlot(int player, int val) { 				set2bFlagVal(CVAR_SLOT, false, player, val+1); }
 
 #DEFINE CVAR_PLAYER_HERO "C8_player_hero_"
-function int getPlayerHero(int player, int slot) { 					return get8bFlagVal(__playerHero(player,slot), true, player)-1; }
-function void setPlayerHero(int player, int slot, int val) { 		set8bFlagVal(__playerHero(player,slot), true, player, val+1); }
+function int getPlayerHero(int player, int slot) { 					return get8bFlagVal(__playerHero(slot), true, player)-1; }
+function void setPlayerHero(int player, int slot, int val) { 		set8bFlagVal(__playerHero(slot), true, player, val+1); }
 function bool isSlotEmpty(int player, int slot) {                   return getPlayerHero(player,slot) == -1; }
-function str __playerHero(int player, int slot) { 					return strParam(s:CVAR_PLAYER_HERO, d:slot+1); }
+function str __playerHero(int slot) { 								return strParam(s:CVAR_PLAYER_HERO, d:slot+1); }
 
 #DEFINE CVAR_EXP "C8_exp_"
 function int getExp(int player, int slot) {							return GetCvar(__exp(player,slot)); }
 function void setExp(int player, int slot, int exp) {				SetCVar(__exp(player,slot), exp); }
 function str __exp(int player, int slot) {							return strParam(s:CVAR_EXP, d:slot+1, d:player); }
 
-#DEFINE CVAR_WEP_UNLOCKED "C8_wep_unlocked_"
-function bool getWepUnlocked(int player, int slot) {				return GetCvar(__wepUnlocked(player,slot)); }
-function void unlockWeapon(int player, int slot, int wepId) {
-	str cvar = __wepUnlocked(player,slot); 
-	SetCVar(cvar, GetCvar(cvar) | (1 << wepId));
-}
-function void setWepUnlocked(int player, int slot, int weps) {		SetCVar(__wepUnlocked(player,slot), weps); }
-function str __wepUnlocked(int player, int slot) {					return strParam(s:CVAR_WEP_UNLOCKED, d:slot+1, d:player); }
-
-
+#DEFINE CVAR_WEP "C8_wep_"
+function bool isWepUnlocked(int player, int slot, int index) {		return getBoolFlagVal(__wep(player,slot), index); }
+function void unlockWep(int player, int slot, int index) {			setBoolFlagVal(__wep(player,slot), index, true); }
+function str __wep(int player, int slot) {							return strParam(s:CVAR_WEP, d:slot+1, d:player); }
+function void clearWeps(int player, int slot) {						for (int i = 0; i < (MAX_STAGE>>5); i++) SetCVar(strParam(s:__wep(player,slot), d:i), 0); }
 
 ////////////////////////////////////
-//  Hero/enemy specific fields    //
+//  	Data-specific field	  //
 ////////////////////////////////////
 
 // Those need getHeroFromIndex to transform the runtime id (array of heroes loaded) into the cvar-defined hero ID
+
+// --------------------------------------------- Hero ------------------------------------------------- //
 
 function str getHeroActor(int index) {								return GetCvarString(strParam(s:"C8_hero_actor_", d:getHeroFromIndex(index))); }
 
@@ -82,21 +232,16 @@ function str __heroGraphic(int index) { 							return GetCvarString(strParam(s:"
 
 
 
-// testers
-script "seto" (int i, int j) { setSlot(i,j); delay(1); log(d:getSlot(i)); }
-script "geto" (int i) { log(s:getHeroName(i)); }
 
 
 
+// --------------------------------------------- Stage ------------------------------------------------- //
 
-//////////////////////
-// Database schema  //
-//////////////////////
+function str getStageIcon(int index) {								return GetCvarString(strParam(s:"C8_stage_icon_", d:getStageFromIndex(index))); }
 
-#DEFINE DB_FIELD_HERO_ID "player_hero_"
-#DEFINE DB_FIELD_WEAPON "weapon_"
-#DEFINE DB_FIELD_EXP "exp_"
-
+function str getStageCode(int index) {								return GetCvarString(__stageCode(getStageFromIndex(index))); }
+	function str __getStageCode(int stageId) {						return GetCvarString(__stageCode(stageId)); }
+	function str __stageCode(int stageId) {							return strParam(s:"C8_stage_code_", d:stageId); }
 
 
 
@@ -104,181 +249,131 @@ script "geto" (int i) { log(s:getHeroName(i)); }
 
 
 
-/////////////////
-//  Constants  //
-/////////////////
-
-#DEFINE INT_MAX 0x7fffffff
-#DEFINE INT_MIN 0x80000000
-
-#DEFINE MAX_HERO 256
-#DEFINE MAX_CLIENTS 16
-// -1 value is used to refer to quick play slot
-#DEFINE MAX_SLOTS 2
-#DEFINE MAX_WEAPON_GROUPS 4
 
 
-#DEFINE MENU_UP (BT_FORWARD)
-#DEFINE MENU_DOWN (BT_BACK)
-#DEFINE MENU_LEFT (BT_LEFT|BT_MOVELEFT)
-#DEFINE MENU_RIGHT (BT_RIGHT|BT_MOVERIGHT)
-#DEFINE MENU_YES (BT_ATTACK)
-#DEFINE MENU_NO (BT_ALTATTACK)
 
-#DEFINE SMALL_FONT 0
-#DEFINE BIG_FONT 1
 
-#DEFINE HUD_ID 1
 
-#DEFINE DEFAULT_HUD_X 320
-#DEFINE DEFAULT_HUD_Y 200
+
+
+
+
+
+
+
+// Misc
+
+
+
+function int getId(void) {											return CheckInventory("8C ID"); }
+function int getRank(void) {										return CheckInventory("8C Rank"); }
+function int toRank(int exp) {										return 1+(exp/50); }
 
 
 
 
 
 /////////////////
-//  Runtime   //
+// Clientside  //
 /////////////////
 
-// Used for title screen and weapon selection
-#DEFINE MENU_COMMON 0
-#DEFINE MENU_INDEX 1
-#DEFINE MENU_STATE 2 // 1+2
 
-int client_menuStatus[5] = { 0, 0, 0, 0, 0 };
-function int getMenu(void) { 					return client_menuStatus[MENU_COMMON]&0xFF; }
-function void setMenu(int val) { 				client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFFFFFF00)|val; }
-function int getMenuTransition(void) { 			return ((client_menuStatus[MENU_COMMON])>>8)&0xFF; }
-function void setMenuTransition(int val) { 		client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFFFF00FF)|(val<<8); }
-function int getMenuRefresh(void) {				return ((client_menuStatus[MENU_COMMON])>>16)&0xFF; }
-function void setMenuRefresh(int val) {			client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0xFF00FFFF)|(val<<16); }
-function bool getMenuQuery(void) {				return ((client_menuStatus[MENU_COMMON])>>24)&0xFF; }
-function void setMenuQuery(int val) {			client_menuStatus[MENU_COMMON] = (client_menuStatus[MENU_COMMON]&0x00FFFFFF)|(val<<24); }
-function int getMenuIndex(void) {				return client_menuStatus[MENU_INDEX]; }
-function void setMenuIndex(int val) {			client_menuStatus[MENU_INDEX] = val; }
-// arg [0,2]
-function int getMenuArg(int arg) {				return client_menuStatus[MENU_STATE+arg]; }
-function void setMenuArg(int arg, int val) {	client_menuStatus[MENU_STATE+arg] = val; }
 
-function bool inMenu(void) {					return !!getMenu(); }
-function void resetMenu(void) {					for (int i=0; i < 5; i++) client_menuStatus[i] = 0; }
 
-// function void menuStatusReset(void) { for (int i = 0; i < 8; i++) setMenu(i,0); }
-// function bool inMenu(void) { return !!getMenu(MENU_NOW); }
+
+
+
+
+
 
 
 
 
 
 /*
-    type in console
-	pukename hude
-	to test this tool. To change the graphic being displayed, type the graphics' name in chat
-
-- Movement key						change position/scale (hold fire to speed up)
-- Reload							toggle position/scale mode
-- Show scoreboard 					toggle "keep graphic proportions"
-- Altfire							stamp the image (can stamp up to 64 images on screen)
-- Altfire (while holding Fire)		delete the last stamped image
-- Reload (while holding Fire)		show all current's stamps' coordinates			
+#DEFINE MOB_COLOR 6900 
+#DEFINE MOB_COLOR_SIZE 6
+#DEFINE MOB_V1 0
+#DEFINE MOB_V2 MOB_V1+1
+#DEFINE MOB_V3 MOB_V2+1
 */
 
-str hude_graphic = "CHINTR2";
-script "hude" (void) CLIENTSIDE {
-	int x = 0, y = 0, sizeX = 320, sizeY = 200;
-	str stamps[64]; int maxStamp = 64;
-    int inp, oldB, incr, id = 0;
-    bool mode, delta, speedUp, proportional = 1;
-    int decimals;
-    int ratio = 1.6;
-	SetPlayerProperty(0,1,PROP_TOTALLYFROZEN );
-    do {
-        inp = GetPlayerInput(-1, INPUT_BUTTONS);
-		oldB = GetPlayerInput(-1, INPUT_OLDBUTTONS);
-		str coords = strParam(s:"\c->>> [ \cc", s:hude_graphic, s:"\c- ] \cax = ", f:X, s:" \ciy = ", f:Y, s:"   \ckSizeX = ", d:sizeX, s:" \cdSizeY = ", d:sizeY);
+// Script "8C OPEN Client" OPEN CLIENTSIDE
+// {
+// 	Delay(25); // Fixes P_PlayerThink spam ?
+//     int i = MOB_COLOR+(BLADER*MOB_COLOR_SIZE); // B G O
+// 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+1, 192:192=66:66, 198:198=251:251, 0:0=79:79);
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+3, 192:192=202:202, 198:198=205:205, 0:0=207:207);
+// 	CreateTranslation (i+4, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=41:41, 0:0=47:47);
 
-		if (!(oldB&(BT_ATTACK) && oldB&(BT_RELOAD)) && (inp&(BT_ATTACK) && inp&(BT_RELOAD))) {
-			for (int i = 0; i < id; i++)
-				log(s:stamps[i]);
-			LocalAmbientSound("misc/trainwhistle", 127);
-		}
-        else if ((!(oldb&BT_RELOAD) && (inp&BT_RELOAD)) && !(inp&BT_ATTACK)) {
-            mode = !mode;
-            LocalAmbientSound("misc/10w3elvs",127); 
-            log(s:"Mode : ", s:mode ? "\cnscale" : "\caposition");
-        }
+// 	// Big Eye
+//     i = MOB_COLOR+(BIG_EYE*MOB_COLOR_SIZE); // R B G
+// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74 );
+// 	CreateTranslation (i+3, 192:192=66:66,198:198=251:251,  247:247=79:79);		
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=158:158, 247:247=11:11);	
 
-		else if (!(oldB&(BT_ATTACK) && oldB&(BT_ALTATTACK)) && (inp&(BT_ATTACK) && inp&(BT_ALTATTACK))) {
-			if (id) {
-				stamps[id] = "";
-        		HudMessageBold(s:""; HUDMSG_PLAIN , maxStamp-id,CR_UNTRANSLATED, x, y, 0, 1.0);
-				id--;
-				LocalAmbientSound("item/rushdetect", 127); 				
-			}
-		}
-		else if (!(oldB&(BT_ALTATTACK)) && (inp&(BT_ALTATTACK))) {
-			if (id == maxStamp-1) {
-				Log(s:"\cgCan't stamp!! ", d:maxStamp, s:" limit reached");
-				LocalAmbientSound("misc/boing", 127);
-			}
-			else {
-				stamps[id] = strParam(s:"--- \ccStamped ", s:coords);
-				id++;
-				LocalAmbientSound("misc/mercuryconveyorswitch", 127);
-			}
-		}
-        if (!(oldb&BT_SHOWSCORES) && (inp&BT_SHOWSCORES)) {
-            proportional = !proportional;
-            if (proportional)
-                ratio = FixedDiv(sizeX<<16, sizeY<<16);
-			LocalAmbientSound("misc/sheepblockreturn", 127);
-            log(s:"Keep proportions : ", s:proportional ? "\cdyes" : "\cqNO");
-        }
-        speedUp = inp&BT_ATTACK;
-        if (!mode) incr = 1.0 * (speedUp ? 6 : 1);
-        else       incr = 1 * (speedUp ? 8 : 1);
-        delta = 0;
-        if(!mode) {
-            if  (inp&BT_MOVELEFT)   { x-=incr; delta = true; }
-            if  (inp&BT_MOVERIGHT)  { x+=incr; delta = true; }
-            if  (inp&BT_FORWARD)    { y-=incr; delta = true; }
-            if  (inp&BT_BACK)       { y+=incr; delta = true; }
-        }
-        else {
-            if (!proportional) {
-                if  (inp&BT_MOVELEFT)   { sizeX+=incr; delta = true; }
-                if  (inp&BT_MOVERIGHT)  { sizeX-=incr; delta = true; }
-                if  (inp&BT_FORWARD)    { sizeY+=incr; delta = true; }
-                if  (inp&BT_BACK)       { sizeY-=incr; delta = true; }
-            }
-            else {
-                if (inp&(BT_MOVERIGHT|BT_BACK)) incr *= -1;
-                else if (!(inp&(BT_MOVELEFT|BT_FORWARD))) incr = 0;
-                if (incr) {
-                    int plusX = ratio*incr;
-                    decimals += plusX&0xFFFF;
-                    if(decimals>>16) {
-                        plusX += (decimals&0xFFFF0000); decimals &= 0xFFFF;
-                    }
-                    plusX>>=16;
-                    sizeX += plusX; 
-					sizeY += incr; 
-					delta = true;
-                }
-            }
-        }
-        if (delta)
-            log(s:coords);
-        delay(1);
-		SetHudSize(sizeX,sizeY,true);
-		SetFont(hude_graphic);
-        HudMessageBold(s:"A"; HUDMSG_PLAIN , maxStamp-id,CR_UNTRANSLATED, x, y, 0, 1.0);
-			
-    } while (true);
-}
+// 	// Blaster
+//     i = MOB_COLOR+(BLASTER*MOB_COLOR_SIZE); // O R B
+// 	CreateTranslation (i, 	192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+3, 192:192=217:217, 198:198=225:225, 247:247=188:188);		
+// 	CreateTranslation (i+4, 192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
 
-script "hude_chat" (int type, int arg1, int arg2) EVENT {
-	if (type==GAMEEVENT_CHAT)
-		hude_graphic = GetChatMessage(arg1,0);
-}
+// 	// Screw Driver
+//     i = MOB_COLOR+(SCREW_DRIVER*MOB_COLOR_SIZE); // B O R
+// 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+1, 192:192=66:66, 198:198=251:251, 247:247=79:79);
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+3, 192:192=104:104, 198:198=109:109, 247:247=125:125);
+// 	CreateTranslation (i+4, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=217:217, 247:247=188:188);
+
+
+// 	// Kamadoma
+//     i = MOB_COLOR+(KAMADOMA*MOB_COLOR_SIZE); // R B G
+// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+3, 192:192=66:66, 198:198=251:251, 247:247=79:79);		
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=225:225, 247:247=11:11);	
+
+// 	// Adhering Suzy
+//     i = MOB_COLOR+(ADHERING_SUZY*MOB_COLOR_SIZE); // R O B
+// 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74);
+// 	CreateTranslation (i+3, 192:192=104:104, 198:198=109:109, 247:247=125:125);	
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
+
+// 	// Manbu
+//     i = MOB_COLOR+(MANBU*MOB_COLOR_SIZE); // O G R
+// 	CreateTranslation (i, 192:192=168:168, 198:198=225:225);
+// 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);
+// 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
+// 	CreateTranslation (i+3, 192:192=202:202, 198:198=205:205, 0:0=207:207);
+// 	CreateTranslation (i+4,  192:192=168:168, 198:198=41:41);
+// 	CreateTranslation (i+5, 192:192=160:160, 198:198=228:228, 247:247=158:158);	
+
+// 	// Cutting Wheel
+//     i = MOB_COLOR+(CUTTING_WHEEL*MOB_COLOR_SIZE); // ? ? ?
+// 	CreateTranslation (i, 192:192=178:178, 198:198=245:245, 4:4=168:168, 0:0=6:6);
+// 	CreateTranslation (i+1, 192:192=6:6, 4:4=80:80, 0:0=6:6, 198:198=91:91);
+// 	CreateTranslation (i+2, 192:192=225:225, 198:198=109:109, 4:4=168:168, 0:0=6:6);
+// 	CreateTranslation (i+3, 192:192=91:91, 198:198=83:83, 4:4=168:168, 0:0=91:91);
+// 	CreateTranslation (i+4, 192:192=74:74, 198:198=41:41, 4:4=168:168, 0:0=6:6);
+// 	CreateTranslation (i+5, 192:192=80:80, 198:198=91:91, 4:4=6:6, 0:0=168:168);
+
+
+
+// 	// run custom translatinos
+// }

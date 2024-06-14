@@ -14,8 +14,6 @@ sprite 8CINTROA, 256, 112 { patch 8CINTRO8, 0, 0 patch 8CINTRO3, 0, 104 { flipy 
 sprite 8CINTROB, 1, 1 {}
 
 
-sprite 8CTITLM0, 1, 1 {}
-sprite 8CTITLM1, 1, 1 {}
 
 
 
@@ -48,6 +46,8 @@ sprite 8CTITLM1, 1, 1 {}
 
 // -------------------------- MENU
 
+texture 8CMET, 1, 1 {}
+
 sprite 8CMENU0Q, 560, 384 {
     patch 8CMENU0P, 0, 0 patch 8CMENU0P, 80, 0 patch 8CMENU0P, 160, 0 patch 8CMENU0P, 240, 0 patch 8CMENU0P, 320, 0 patch 8CMENU0P, 400, 0 patch 8CMENU0P, 480, 0
     patch 8CMENU0P, 0, 96 patch 8CMENU0P, 80, 96 patch 8CMENU0P, 160, 96 patch 8CMENU0P, 240, 96 patch 8CMENU0P, 320, 96 patch 8CMENU0P, 400, 96 patch 8CMENU0P, 480, 96
@@ -55,8 +55,12 @@ sprite 8CMENU0Q, 560, 384 {
     patch 8CMENU0P, 0, 288 patch 8CMENU0P, 80, 288 patch 8CMENU0P, 160, 288 patch 8CMENU0P, 240, 288 patch 8CMENU0P, 320, 288 patch 8CMENU0P, 400, 288 patch 8CMENU0P, 480, 288
 }
 
+// top/bot meny
 texture 8CMENU02, 128, 48 { patch 8CMENU04, 0, 0 { flipy }}
 texture 8CMENU08, 128, 48 { patch 8CMENU03, 0, 0  patch 8CMENU03, 120, 0 }
+
+// wheel base
+texture 8CMENU12, 1, 1 {}
 
 // purple index
 texture 8CMENU06, 1, 1 {}
@@ -70,7 +74,7 @@ texture 8CMENU0F, 128, 48 { patch 8CMENU01, 0, 14 patch 8CMENU01, 0, -34 patch 8
 texture 8CMENU0G, 128, 48 { patch 8CMENU01, 0, 16 patch 8CMENU01, 0, -32 patch 8CMENU00, 0, 0 }
 
 // cyan index
-texture 8CMENU05, 112, 48 { patch 8CMENU01, 0, 0 { translation "251:251=204:204", "252:252=205:205" } }
+texture 8CMENU05, 112, 48 { patch 8CMENU01, 0, 0 { translation "251:251=72:72", "252:252=69:69" } }
 texture 8CMENU07, 1, 1 {}
 texture 8CMENU0H, 128, 48 { patch 8CMENU05, 0, 2 patch 8CMENU05, 0, -46 patch 8CMENU00, 0, 0 }
 texture 8CMENU0I, 128, 48 { patch 8CMENU05, 0, 4 patch 8CMENU05, 0, -44 patch 8CMENU00, 0, 0 }
@@ -81,6 +85,34 @@ texture 8CMENU0M, 128, 48 { patch 8CMENU05, 0, 12 patch 8CMENU05, 0, -36 patch 8
 texture 8CMENU0N, 128, 48 { patch 8CMENU05, 0, 14 patch 8CMENU05, 0, -34 patch 8CMENU00, 0, 0 }
 texture 8CMENU0O, 128, 48 { patch 8CMENU05, 0, 16 patch 8CMENU05, 0, -32 patch 8CMENU00, 0, 0 }
 
+// colorless index
+texture 8CMENU21, 128, 48 { patch 8CMENU01, 0, 0 { translation "251:251=11:11", "252:252=10:10" } patch 8CMENU00, 0, 0 }
+
+// char select
+texture 8CMENU19, 1, 1 {}
+texture 8CMENU15, 242, 152 { patch 8CMENU1R, 0, 0 patch 8CMENU1Q, 0, 0 }
+texture 8CMENU1A, 242, 152 { patch 8CMENU15, 0, 0 patch 8CMENU16, 0, 0 }
+texture 8CMENU1B, 242, 152 { patch 8CMENU15, 0, 0 patch 8CMENU17, 0, 0 }
+texture 8CMENU1C, 242, 152 { patch 8CMENU15, 0, 0 patch 8CMENU1S, 0, 0 patch 8CMENU18, 0, 0 }
+texture 8CMENU1D, 1, 1 {}
+texture 8CMENU1F, 64, 64 { patch 8CMENU1E, 0, 0 { translation "195:195=244:244", "198:198=244:244", "192:192=244:244" , "202:202=244:244"  }}
+texture 8CMENU1G, 64, 64 { patch 8CMENU1E, 0, 0 { translation "195:195=244:244", "198:198=244:244", "192:192=208:208" , "202:202=244:244"  }}
+texture 8CMENU1H, 64, 64 { patch 8CMENU1E, 0, 0 { translation "195:195=244:244", "198:198=244:244", "192:192=208:208" , "202:202=58:58"  }}
+texture 8CMENU1I, 64, 64 { patch 8CMENU1E, 0, 0 { translation "195:195=244:244", "198:198=76:76", "192:192=208:208" , "202:202=58:58"  }}
+texture 8CMENU1J, 64, 64 { patch 8CMENU1E, 0, 0 { translation "195:195=245:245", "198:198=76:76", "192:192=208:208" , "202:202=58:58"  }}
+texture 8CMENU1K, 64, 64 { patch 8CMENU1E, 0, 0 { translation "195:195=245:245", "198:198=76:76", "192:192=160:160" , "202:202=58:58"  }}
+
+texture 8CMENU1M, 218, 56 { patch 8CMENU1L, 0, 0 patch 8CMENU1N, 0, 0 }
+texture 8CMENU1O, 1, 1 {}
+texture 8CFLSWHI, 1, 1 {}
+texture 8CFLSBLA, 1, 1 {}
+
+
+// slot select
+texture 8CMENU1X, 1, 1 {}
+texture 8CMENU1Y, 242, 152 { patch 8CMENU1P, 0, 0 patch 8CMENU1U, 0, 0 }
+texture 8CMENU1Z, 242, 152 { patch 8CMENU1P, 0, 0 patch 8CMENU1V, 0, 0 }
+texture 8CMENU20, 242, 152 { patch 8CMENU1T, 0, 0 patch 8CMENU1W, 0, 0 }
 
 
 
@@ -102,33 +134,11 @@ sprite 8CCHRAN2, 1, 1 {}
 sprite 8CCHRAN3, 1, 1 {}
 
 // megaman sprite recycle
-sprite 8CCHAR00, 21, 24 { offset 10, 24 patch MEGMA8A2, 0, 0 }
-sprite 8CCHAR01, 21, 24 { offset 10, 24 patch 0MEGA8A2, 0, 0 }
-texture 8CCHAR0C, 29, 24 { offset 14, 24 patch 8CACM0, 0, 0 { translation "192:192=4:4", "198:198=41:41" } }
+texture 8CCHAR00, 21, 24 { offset 10, 24 patch MEGMA8A2, 0, 0 }
+texture 8CCHAR01, 21, 24 { offset 10, 24 patch 0MEGA8A2, 0, 0 }
+texture 8CCHAR0C, 29, 24 { offset 0, 0 patch 8CACM0, 0, 0 { translation "192:192=4:4", "198:198=41:41" } }
 
 // wily war shading
 texture 8CBARBT0, 2, 8 { patch 8CVARBT0, 0, 0 { rotate 90 } }
 texture 8CVARBT1, 8, 8 { patch 8CVARBT0, 0, 0 patch 8CVARBT0, 0, 2 patch 8CVARBT0, 0, 4 patch 8CVARBT0, 0, 6 }
 texture 8CBARBT1, 8, 8 { patch 8CVARBT1, 0, 0 { rotate 90 }};
-
-// recycled from Xover Weapons  ow o
-texture XWMETCU0, 1, 1 { } // ANIMDEFS
-
-
-texture 8CTITLM7, 1, 1 {}
-texture 8CTITLM8, 64, 64 { patch 8CTITLM6, 0, 0 {
-    translation "195:195=244:244", "198:198=244:244", "192:192=244:244" , "202:202=244:244"  }}
-texture 8CTITLM9, 64, 64 { patch 8CTITLM6, 0, 0 {
-    translation "195:195=244:244", "198:198=244:244", "192:192=208:208" , "202:202=244:244"  }}
-texture 8CTITLMA, 64, 64 { patch 8CTITLM6, 0, 0 {
-    translation "195:195=244:244", "198:198=244:244", "192:192=208:208" , "202:202=58:58"  }}
-texture 8CTITLMB, 64, 64 { patch 8CTITLM6, 0, 0 {
-    translation "195:195=244:244", "198:198=76:76", "192:192=208:208" , "202:202=58:58"  }}
-texture 8CTITLMC, 64, 64 { patch 8CTITLM6, 0, 0 {
-    translation "195:195=245:245", "198:198=76:76", "192:192=208:208" , "202:202=58:58"  }}
-texture 8CTITLMD, 64, 64 { patch 8CTITLM6, 0, 0 {
-    translation "195:195=245:245", "198:198=76:76", "192:192=160:160" , "202:202=58:58"  }}
-
-texture 8CTITLME, 1, 1 {}
-texture 8CTITLMG, 220, 66 { patch 8CTITLMF, 0, 0 patch 8CTITLMH, 0, 0 }
-

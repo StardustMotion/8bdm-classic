@@ -1,0 +1,12 @@
+
+server noarchive string C8_stage_icon_0 =           "8CSTGW00";
+server noarchive string C8_stage_code_0 =           "1CUT";
+
+
+server noarchive string C8_stage_icon_2 =           "8CSTGW02";
+server noarchive string C8_stage_code_2 =           "1ICE";
+
+
+server noarchive string C8_stage_icon_5 =           "8CSTGW00";
+server noarchive string C8_stage_code_5 =           "1ELE";
+

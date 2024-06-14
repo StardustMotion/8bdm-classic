@@ -1,8 +1,8 @@
 
 // used to warp to/copy velocity of another actor i.e a remote mine stuck on an actor (COPY_VELOCITY)
-actor "8C follow me" : once {}
-actor "8C follower" : once {}
-actor "8C Deflect" : once {}
+actor "8C follow me" : varBool {}
+actor "8C follower" : varBool {}
+actor "8C Deflect" : varBool {}
 
 actor "8C Deflect On" : item { states { 
     pickup: 

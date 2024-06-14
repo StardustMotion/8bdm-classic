@@ -1,12 +1,12 @@
 // see acs_source/data.acs
 const int MOB_ON_SPAWN = 0;
-const int XY_DIST = 64;
-const int Z_DIST = 65;
-const int IS_GONE = 66;
-const int COPY_VELOCITY = 67;
-const int CHECK_COLLISION = 69;
-const int SOLID_TOGGLE = 70;
-const int GET_USERVAR = 71;
+const int XY_DIST = 1;
+const int Z_DIST = 2;
+const int IS_GONE = 3;
+const int COPY_VELOCITY = 4;
+const int CHECK_COLLISION = 6;
+const int SOLID_TOGGLE = 7;
+const int GET_USERVAR = 8;
 const int CAMERA_TID = 7800;
 
 
@@ -15,7 +15,10 @@ actor proj : BasicProjectile { obituary "$8C_OBIT_DEFAULT" }
 actor watcher : BasicWatcher {}
 actor gfx : BasicGraphicEffect {}
 actor item : CustomInventory {}
-// actor once : inventory { inventory.amount 1 inventory.maxamount 1} // this one is defined in vanilla
+actor var : Inventory { inventory.amount 1 inventory.maxamount 0xFFFFFFFF +INVENTORY.UNDROPPABLE }
+actor varBool : var { inventory.maxamount 1 }
+actor var16 : var { inventory.maxamount 0xFFFF }
+actor var8 : var { inventory.maxamount 0xFF }
 
 
 
@@ -24,18 +27,15 @@ actor "8C Static Move" : PowerUp { powerup.duration 0x7FFFFFFF }
 actor "8C On actor gravity Giver" : PowerApropGiver {}
 actor "8C On actor gravity" : PowerUp { powerup.duration 0x7FFFFFFF }
 
-// actor index
-actor "8C ID" : once { inventory.maxamount 0xFFFF }
+// actor (hero/enemy) index
+actor "8C ID" : var16 { }
+actor "8C Rank" : var8 { }
 
-// Decimal part of an entity HP. Represents a [-0.5,0.5] difference over their current (real) HP
-// 1 leftmost bit for sign, 16 rightmost bit for decimal value (17 bit total)
-actor "8BDM HP" : once { inventory.maxamount 0x10000 }
+// 1b sign + 16b decimal [-0.5,0.5] HP representation
+actor "8BDM HP" : var { inventory.maxamount 0x10000 }
 
+// Puke reply code given to client from server (OK, ERROR, etc)
+actor "8C Puke Response" : var { }
 
-// Given by server to client after RequestScriptPuke for clientside callback, if any
-// most often will return, as seen in data.acs
-// 0 = TIMED OUT (no answer from server), 1 = OK, 2 = ERROR, 3 = SKIPPED (throttled to avoid spam)
-actor "8C Puke Response" : once { inventory.maxamount 0xFFFFFFFF }
-
-// Given by server to clients to throttle NET call to avoid deliberate spam
-actor "8C Puke Request" : powerup { powerup.duration 35 }
+// Given by server to clients to throttle NET calls
+actor "8C Puke Request" : powerup { powerup.duration 10 }

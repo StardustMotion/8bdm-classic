@@ -1,0 +1,97 @@
+#DEFINE PUKE_WAITING 1
+#DEFINE PUKE_OK 1<<1
+#DEFINE PUKE_ERROR 1<<2
+#DEFINE PUKE_SKIPPED 1<<3
+#DEFINE PUKE_TIMED_OUT 1<<4
+#DEFINE PUKE_TIMEOUT 70 // tics
+
+script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
+	clearInv("8C Puke Response");
+	if (CheckInventory("8C Puke Request")) {
+		pukeReply(PUKE_SKIPPED); // throttling
+		terminate;
+	}
+	GiveInventory("8C Puke Request", 1);
+    int player = PlayerNumber();
+	switch(type) {
+        
+        /*
+        @arg1 slot
+        @arg2 hero index
+        */
+		case PUKE_HERO_CREATE:
+            Log(s:"hero create player ", d:player, s:" slot ", d:arg1, s:" hero index ", d:arg2);
+            if ((arg2<0) || (arg2>=getHeroSize())) {
+                log(s:"// hero index out of bounds");
+				pukeReply(PUKE_ERROR); terminate; 
+            }
+            if (!slotSanityCheck(player, arg1, true)) {
+                pukeReply(PUKE_ERROR); terminate;
+            }
+            createHero(player,arg1,arg2);
+            pukeReply(PUKE_OK);
+		break;
+        
+        /*
+        @arg1 slot to delete
+        */
+		case PUKE_HERO_DELETE:
+            Log(s:"hero delete player ", d:player, s:" slot ", d:arg1);
+			if (!PlayerIsSpectator(player)) {
+                log(s:"// is spect");
+				pukeReply(PUKE_ERROR); terminate;
+            }
+            if (!slotSanityCheck(player, arg1, false)) {
+                pukeReply(PUKE_ERROR); terminate;
+            }
+            deleteHero(player,arg1); // delete slot if slot == this hero's?
+            pukeReply(PUKE_OK);
+		break;
+
+        /*
+        @arg1 slot to enter game with
+        */
+        case PUKE_ENTER_GAME:
+            Log(s:"player ", d:player, s:" wants to enter with slot ", d:arg1);
+            if (!slotSanityCheck(player,arg1,false)) {
+				pukeReply(PUKE_ERROR); terminate; 
+            }
+            log(s:"\cdallowed!");
+            setAllowedSlot(player,arg1);
+            pukeReply(PUKE_OK);
+        break;
+
+        /* no args */
+		case PUKE_LOGIN_REFRESH:
+            if (!isNetworkGame()) {
+				pukeReply(PUKE_ERROR); terminate;
+            }
+			else if (!PlayerIsLoggedIn(arg1)) {
+				setLogin(arg1, "");
+				pukeReply(PUKE_ERROR); terminate;
+			}
+            pukeReply(PUKE_OK);
+            if (isLoggedIn(arg1))                 
+                terminate;
+            else {
+                setLogin(arg1, GetPlayerAccountName(arg1));
+                dbOperation(player, DB_ACCOUNT_LOAD, NULL, NULL);
+            }
+		break;
+	}
+}
+
+function bool slotSanityCheck(int player, int slot, bool mustBeEmpty) {
+    if ((slot < -1) | (slot >= MAX_SLOTS)) {
+        log(s:"// slot out of bounds");
+        return false;
+    } 
+    else if (mustBeEmpty!=isSlotEmpty(player,slot)) {
+        log(s:"// slot availability not satisfied");
+        return false;
+    }
+    return true;
+}
+
+function void pukeReply(int responseCode) { GiveInventory("8C Puke Response", responseCode); }
+function int pukeStatus(void) { return CheckInventory("8C Puke Response"); }

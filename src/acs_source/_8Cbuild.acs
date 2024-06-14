@@ -5,6 +5,17 @@
 #include "DTADD.acs"
 #include "ASSTLIB.acs"
 
-#include "8C.acs" // 8C's API
+// -----------------------------
+#include "8C.acs"
 #include "data.acs"
-#include "main.acs"
+#include "database.acs"
+
+#include "events.acs"
+#include "server_core.acs"
+#include "server_puke.acs"
+#include "server_rpg.acs"
+#include "client_core.acs"
+#include "client_title.acs"
+
+#include "utils.acs"
+// -----------------------------

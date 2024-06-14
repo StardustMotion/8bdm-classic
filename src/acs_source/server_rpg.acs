@@ -1,0 +1,99 @@
+
+#DEFINE INCARNATION_PREINTRO_TIME 25 // tics before actor plays its intro8C state
+#DEFINE INCARNATION_INTRO_SPAWN_TIME 90 // tics allowed for intro8C duration
+#DEFINE INCARNATION_INTRO_TIME INCARNATION_PREINTRO_TIME+INCARNATION_INTRO_SPAWN_TIME
+#DEFINE INCARNATION_INTRO_READY_TIME INCARNATION_PREINTRO_TIME+25 // "ready" animation display time
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ RPG-like system/stats/game progress related behavior  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+
+script "8C RPG" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {
+		case RPG_INCARNATE:
+			if (!isMap8C) 
+				terminate;
+			int player = PlayerNumber();
+			arg1 = getAllowedSlot(player);
+			if (isSlotEmpty(player,arg1)) {
+				KickFromGame(player, "\ckYou first have to create a \cvhero\ck to join the game.");
+				terminate;
+			}
+			int hero = getPlayerHero(player,arg1);
+			arg2 = getHeroActor(hero);
+			MorphActor(0, arg2,
+				"", 0x7FFFFFFF, MRF_WHENINVULNERABLE|MRF_FULLHEALTH|MRF_FAILNOLAUGH|MRF_NEWTIDBEHAVIOUR, "gfx", "gfx");
+			GiveInventory("BaseFlagPack",1);
+			GiveInventory(StrParam(s:arg2, s:" onSpawn"), 1);
+			GiveInventory("8C ID", hero);
+			GiveInventory("8C Rank", toRank(getExp(player,arg1)));
+			arg3 = hpCalculation(NULL);
+			SetActorProperty(0,APROP_SpawnHealth,arg3); // note monsters max/spawn hp can't be modified at current time zandro versions
+			SetActorProperty(0,APROP_Health,arg3);
+		break;
+	}
+}
+
+
+
+function int damageCalculation(int damage) {
+	if (!isMap8C | (damage>>14)) // if suicide/telefrag etc
+		return damage;
+   	damage<<=16;
+
+	// Puissance
+		int puissance = puissanceCalculation(true);
+		damage = FixedMul(damage/100,puissance<<16);
+	// +/- 15% RNG
+		int fluctuation = 1.0 + (0.05*random(0,3)); // +/- 15%
+		damage = random(0,1) ? FixedMul(damage,fluctuation) : FixedDiv(damage,fluctuation);
+	// Debug
+		SetActivator(0, AAPTR_DAMAGE_SOURCE);
+		int strBuild = strParam(s:"\ca[", f:FixedDiv(Timer(),35), s:"] \c-", n:0, s:" \ccRANK \ck", d:getRank(), s:" \caPui ", d:puissance);
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
+		strBuild = strParam(s:strBuild,s:"\cc --> ", n:0, s:" -\ci", f:damage);
+		log(s:strBuild);
+	
+	// Decimal resolve
+		damage = storeDecimalHP(damage);	
+
+    return damage;
+}
+
+// round damage dealt to integer, and store decimal part on the victim actor's inventory
+function int storeDecimalHP(int val) { // int isHeal
+	SetActivator(0, AAPTR_DAMAGE_TARGET);
+	if (!(val&0xFFFF))
+		return val>>16;
+	int decimalPoints = CheckInventory("8BDM HP");
+	TakeInventory("8BDM HP", 0x1FFFF);
+	if (decimalPoints & 0x10000)
+		val += (decimalPoints & 0xFFFF);
+	else
+		val -= (decimalPoints & 0xFFFF);
+	int rounded = roundf(val);
+	if (rounded<val)
+		GiveInventory("8BDM HP", (0x10000) | (val-rounded));
+	else
+		GiveInventory("8BDM HP", 			 (rounded-val));
+	//if (CheckInventory("8BDM HP")&0x10000) 	log(s:"[ HP - ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
+	//else										log(s:"[ HP + ", f:CheckInventory("8BDM HP")&(0xFFFF), s:" ]"); 
+	return rounded>>16;
+}
+
+#DEFINE PER_RANK_MAX (MAX_RANK-1)<<16
+function int statPerRank(int base) {
+	int scaling = FixedMul(7.0*base, 
+		FixedDiv((getRank()-1)<<16, PER_RANK_MAX));
+	return base + (roundf(scaling)>>16);
+}
+
+function int puissanceCalculation(bool source) {
+	if (source)			SetActivator(0, AAPTR_DAMAGE_SOURCE);
+	return statPerRank(getHeroPuissance(getId()));
+}
+
+function int hpCalculation(bool source) {
+	if (source)			SetActivator(0, AAPTR_DAMAGE_SOURCE);
+	return max(1, statPerRank(getHeroHP(getId())));
+}
+

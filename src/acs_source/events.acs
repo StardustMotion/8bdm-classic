@@ -1,0 +1,113 @@
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Server-side  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+bool forcePhysics = false, isMap8C = false;
+script "8C OPEN" OPEN {
+	init();
+}
+
+
+function void init(void) {
+	forcePhysics = GetCvar("C8_physics");
+	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
+
+    if (GetCvar(CVAR_IS_FIRST_START)) 
+		onFirstGameStart();
+
+	if (isMap8C || forcePhysics) {
+		for (int i = 0; i < 512; i++) 
+			Sector_SetFriction(i,-96);
+		DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
+		DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
+	}
+
+	if (isMap8C) {
+		ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), MAX_CLIENTS))); // GAMEMODE
+		ConsoleCommand("mm8bdm_sv_respawnprotection 0"); // side effect / need a hook
+	}
+}
+
+function void onFirstGameStart(void) {
+	log(s:"\cg>>> Parsing data <<<");
+	// Heroes
+	for (int i = 0, count = 0; i < MAX_HERO; i++)
+		if (strLen(strSanitize(__getHeroName(i)))) {
+			setHeroFromIndex(count, i);
+			Log(s:"Adding hero \cd", s:getHeroName(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
+			count++;
+		}
+	SetCVar(CVAR_HERO_SIZE, count);
+
+	// Stages
+	for (i = 0, count = 0; i < MAX_STAGE; i++)
+		if (strLen(strSanitize(__getStageCode(i)))) {
+			setStageFromIndex(count, i);
+			Log(s:"Adding stage \ci", s:getStageCode(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
+			count++;
+		}
+	SetCVar(CVAR_STAGE_SIZE, count);
+
+	// Resolve
+	SetCVar(CVAR_IS_FIRST_START, false);
+}
+
+
+script "8C ENTER" ENTER {
+	delay(1);
+	ACS_NamedExecuteWithResult("8C RPG", RPG_INCARNATE);
+	if (isMap8C || forcePhysics) 	ACS_NamedExecuteWithResult("8C", PHYSICS_8C);
+	//if (isMap8C) 					ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
+}
+script "8C RESPAWN" RESPAWN {
+	ACS_NamedExecuteWithResult("8C ENTER");
+}
+
+
+script "8C EVENT" (int type, int arg1, int arg2) EVENT {
+	switch(type) {
+		case GAMEEVENT_PLAYERCONNECT :
+            setLogin(arg1, "");
+			for (int i = -1; i < MAX_SLOTS; i++)
+				deleteHero(arg1, i);
+		break;
+
+		case GAMEEVENT_ACTOR_DAMAGED:
+			SetResultValue(damageCalculation(GetEventResult()));
+		break;
+        
+		// case GAMEEVENT_ACTOR_DAMAGED:
+		// 	//if (damgetype = cuttingwheel) playsound 8CCUTWHX
+
+        //     if (deflectAttack()) 
+        //         terminate;
+
+			
+		// 	// ------------------------------------------------------------------
+
+		// 	if (isEnemy()) {
+       	// 		PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
+		// 		type = GetUserVariable(0, "user_colorId");
+		// 		for (i = 0; i < 5; i++) {
+		// 			Thing_SetTranslation(0, 68); delay(1);// CLR_BOSSPAIN
+		// 			Thing_SetTranslation(0, type); delay(1);
+		// 		}
+		// 	}
+		// break;		
+    }
+}
+    
+
+	
+
+	
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Client-side  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+    
+
+script "8C NET CS" (int type) NET CLIENTSIDE {
+	switch(type) {
+		case NET_CS_START_SCREEN:
+			ACS_NamedExecuteWithResult("8C CS", CS_START_SCREEN);
+		break;
+	}
+}

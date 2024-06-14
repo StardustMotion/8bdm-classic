@@ -1,0 +1,224 @@
+	/////////////////////////////////////////////////////////////////
+//                           Core scripts                				//
+	/////////////////////////////////////////////////////////////////
+    
+
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Core scripts  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+
+#DEFINE INCARNATION_INTRO_CAMDIST 256.0
+#DEFINE INCARNATION_INTRO_ZOOM 20
+script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
+	int localPlayer = ConsolePlayerNumber();
+    switch(type) {
+        case CS_START_SCREEN:
+			if (inMenu() | !PlayerIsSpectator(localPlayer))
+                terminate; 
+            resetMenu();
+            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, true,  HUD_ID);
+            delay(18);
+			LocalSetMusic("8CDATA");
+		 	setMenu(START_SCREEN_TITLE);
+            setMenuTransition(START_SCREEN_TITLE);
+            int i = 0;
+            arg2 = getMenuIndex();
+            setMenuRefresh(true);
+            erase(HUD_ID); erase(HUD_ID+1);
+            arg1 = 0x100 | 0x6;
+            type = HUD_ID+3;
+            while (true) {
+                //log(s:"state ", d:getMenuArg(0), s:", ", d:getMenuArg(1), s:", ", d:getMenuArg(2));
+                if (getMenuTransition()) {
+                    // special transition
+                    if (getMenuTransition()>>6) { 
+                        if (!arg1) 
+                            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, true,  HUD_ID);
+                        else if (arg1 == 15) {
+                            setMenu(getMenuTransition()&0x3F);
+                            eraseAll(type,128);
+                            setMenuIndex(0); setMenuRefresh(true); eraseAll(HUD_ID,16);
+                            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, false,  HUD_ID);
+                        }
+                        else if (arg1 == 30) {
+                            setMenuTransition(0);
+                            arg1 = 0; continue;
+                        }
+                        arg1++;
+                    }
+                    // fadeout transition
+                    else {
+                        if (arg1>>8) {
+                            arg1++;
+                            if ((arg1&0xFF) == 7) {
+                                setMenu(getMenuTransition());
+                                eraseAll(type,128);
+                                arg1&=0xFF;
+                                setMenuIndex(0);    setMenuRefresh(true);   eraseAll(HUD_ID,16);
+                                if (getMenuTransition()==START_SCREEN_EXIT) {
+                                    draw("8CBLACK", HUD_ID, false, 0, 0,  1, 1, 0.5, 1.0);
+                                    delay(8);
+                                    break;
+                                }
+                            }
+                        }
+                        else if (arg1) {
+                            arg1--;
+                            if (!arg1) setMenuTransition(0);
+                        }  
+                        else            arg1 = 0x100;
+                        draw("8CBLACK", HUD_ID, false, 0, 0,  1, 1, 0.05, FixedDiv((arg1&0xFF)<<16,7.0));
+
+                    }
+                }
+                startScreen(type);
+                drawBI("8CMENU0Q",0,-160.1+((i*80)&0xFFFF0000), -96.1+((i*96)&0xFFFF0000),0,0); // background
+                
+
+				i = (i-512)&0xFFFF;
+                if (getMenuQuery()) {
+                    draw("8CMET", HUD_ID, false, 12.1, 121.2, 240, 150, 0.05, 1.0);
+                    draw("Waiting for\n\n server...", HUD_ID+1, true, 108.0, 212.2, 368, 230, 0.05, 1.0);
+                    draw("8CBLACK", HUD_ID+2, false, 0, 0,  1, 1, 0.05, 0.75);                    
+                } 
+                delay(1);
+            }
+            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, false, HUD_ID);
+			LocalSetMusic("*"); // if8Cmap ...
+            delay(16);
+            setMenu(0);
+            if (getMenuArg(2)>>24)
+                consolecommand("menu_joingame");
+        break;
+
+        // arg1 = the server NET script to puke
+		// arg2/3 = 2 usable arguments
+		case CS_CLIENT_PUKE:
+            clearInv("8C Puke Response");
+			str pukeDebug = strParam(
+				s:"\cdPUKE [net ", d:arg1, 
+				s:" - arg1 ", d:arg2, 
+				s:" - arg2 ", d:arg3, s:"]"
+			);
+			log(s:pukeDebug);
+			type = 0;
+			do {
+				NamedRequestScriptPuke("8C Puke", arg1, arg2, arg3);
+				delay(1);
+				if (type < PUKE_TIMEOUT) 
+					int status = pukeStatus();
+				else {
+                    pukeReply(PUKE_TIMED_OUT);
+					status = PUKE_TIMED_OUT;
+                }
+				type++;
+			} while(status & (PUKE_WAITING|PUKE_SKIPPED));
+            if (!(status&PUKE_SKIPPED))
+			    log(s:pukeDebug, s:" --> ", 
+                    s:( status & PUKE_OK ? "\cvOK" : 
+                        status & PUKE_ERROR ? "\cgERROR" : 
+                        status & PUKE_TIMED_OUT ? "\cqTIMED OUT" :
+                        "???"));
+		break;
+
+        case CS_HUD_TRANSITION:
+            // fadeout
+            if (arg1) { type = 0; localPlayer = 16; arg3 = 1; }
+            else { type = 16; localPlayer = 0; arg3 = -1; }
+            for (type = type; type != localPlayer; type += arg3) {
+                drawBI("8CTRANS0", arg2,    -32.0 + 2.0*type, 8.0, 16, 16);
+                drawBI("8CTRANS0", arg2+1,  48.0  - 2.0*type, 9.0, 16, 16);
+                delay(1);
+            }
+        break;
+        
+		case CS_CAMERA:
+			type = activatorTID();
+			if (localPlayer != type-CAMERA_TID) {
+				Thing_Remove(0);
+				terminate;
+			}
+			SetActivatorToTarget(0);
+			arg1 = (GetActorProperty(0,APROP_ViewHeight)); // eye level
+			arg2 = INCARNATION_INTRO_CAMDIST/INCARNATION_INTRO_ZOOM;
+			for (i = INCARNATION_INTRO_TIME; i; i--) {
+				ChangeCamera(type,0,0);
+				Warp(type, 
+					-4.0, 0, -(GetActorZ(0)-GetActorFloorZ(0))+arg1, 
+					0, WARPF_MOVEPTR | WARPF_NOCHECKPOSITION);
+				SetActorPitch(type,0);
+				if (i <= INCARNATION_INTRO_ZOOM)	cameraExtend(type, INCARNATION_INTRO_CAMDIST-((INCARNATION_INTRO_ZOOM-i)*arg2));	
+				else								cameraExtend(type, INCARNATION_INTRO_CAMDIST);	
+				ActorLookAt(type,0,arg1,0);
+				delay(1);
+			}
+			Thing_Remove(type);
+		break;
+
+		case CS_INTRO_HUD_ANIMATION:
+			if (localPlayer != arg1) terminate;
+			arg1 = 0; // main scene view order offset
+			arg2 = 0; // "ready" space border offset
+			arg3 = 0; // zoom to char border offset
+			int tmp = 0;
+			type = 4;
+			for (i = 0; i < INCARNATION_INTRO_TIME; i++) {
+				if (i > INCARNATION_INTRO_TIME-INCARNATION_INTRO_ZOOM) 
+					arg3 += 1.5; //FixedDiv(30.0,INCARNATION_INTRO_ZOOM<<16);
+
+				for (int j = 0; j < 3; j++) {
+					// borders
+					//drawSBI("8CINTROB", (384.1-(tmp<<16))-(254.0*j), -11.0 -arg1-arg2-arg3);
+					//drawSBI("8CINTRO7", (-384.1+(tmp<<16))+(254.0*j), 99.0 +arg1+arg2+arg3);
+				}
+				if (arg2 < 16.0) 
+					arg2 += 4.0;
+				else {
+					if (i < INCARNATION_INTRO_READY_TIME) {
+						if (type) 	localPlayer = 0.65;
+						else		localPlayer = (!!((i>>2)&0x1))<<16;
+						// "ready" text
+						//draw("8CINTROC", false, 159.0-(type<<22), 139.0, 320, 280, 0.05, localPlayer);
+						//draw("8CINTROD", false, 161.0+(type<<22), 141.0, 320, 280, 0.05, localPlayer);
+						if (i >= (INCARNATION_INTRO_READY_TIME-4)) 
+							type++;
+						else if (type) 
+							type--;
+					}
+					if ((i >= INCARNATION_PREINTRO_TIME) && (arg1 < 55.0)) 
+						arg1 += 5.0;
+				}				
+				tmp = (tmp+8)&0xFF; // %256
+				delay(1);
+			}
+		break;
+    }    
+}
+
+
+
+
+
+
+
+#DEFINE CAMERA_T 4
+function void cameraExtend(int camera, int dist) {
+	int dx = cos(GetActorAngle(camera))*CAMERA_T;
+	int dy = sin(GetActorAngle(camera))*CAMERA_T;
+	int dz = sin(GetActorPitch(camera))*CAMERA_T;
+	int tMax = (dist/CAMERA_T)>>16;
+	for (int t = 1; t <= tMax; t++) {
+		int test = Warp(camera,
+			GetActorX(camera)-dx, GetActorY(camera)-dy, GetActorZ(camera)-dz,
+			0, WARPF_MOVEPTR | WARPF_ABSOLUTEPOSITION		
+		);		
+		if (!test) break;
+	}
+}
+
+// from xover weapons 2.1.0
+script "EarthQuake" (int strength, int duration, int range) {
+	Radius_Quake(strength, duration, 0, range/64, 0); }
+
+    

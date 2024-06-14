@@ -9,11 +9,11 @@ actor "8C Big Eye" : "8C Mob"  {
                 BLAD A 0 nodelay A_GiveInventory("8C Deflect On")
                 BLAD A 0 A_SpawnItemEx("8C Big Eyeye",0,0,0, 0,0,0, 0,SXF_TRANSFERTRANSLATION|SXF_SETMASTER)
             idle:
-                TNT1 A 0 A_TakeInventory("Once")
+                TNT1 A 0 A_TakeInventory("varBool")
                 8CAA P 5 A_LookEx(0,0,meleerange,meleerange,360,"see")
                 loop
             see:
-                8CAA P 0 A_GiveInventory("Once")
+                8CAA P 0 A_GiveInventory("varBool")
                 8CAA X 0 A_FaceTarget
                 8CAA X 0 A_SpawnItemEx("8C Big Eye contact")
                 8CAA QR 2
@@ -55,7 +55,7 @@ actor "8C Big Eyeye" : "8C Mob" {
             "----" A 0 A_SetUserVar("user_colorId", CallACS("8C", GET_USERVAR, AAPTR_MASTER))
             goto check
         check: 
-            "----" A 0 A_JumpIfInventory("Once",1,"open",AAPTR_MASTER)
+            "----" A 0 A_JumpIfInventory("varBool",1,"open",AAPTR_MASTER)
             8CAA M 0 A_ChangeFlag("INVULNERABLE", true)
         main: "----" A 1 A_Warp(AAPTR_MASTER,18,0,91,WARPF_NOCHECKPOSITION)
             "----" A 0 A_SetArg(0,args[0]-1)

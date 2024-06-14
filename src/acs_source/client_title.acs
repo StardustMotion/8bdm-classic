@@ -1,0 +1,591 @@
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Title screen specific  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+
+#DEFINE TITLE_OFFSET 48.0
+#DEFINE TITLE_FLASH_OFFSET 37.0
+// wtf is this design pattern ? o wo ' -' ' -'XD? ?
+function void startScreen(int hudId) {
+    int inputStatus = pressedStatus();
+    switch(getMenu()) {
+        case START_SCREEN_TITLE:
+            int player = ConsolePlayerNumber();
+            bool isOnline = isNetworkGame();
+            int isOnlineOffset = TITLE_OFFSET*isOnline;
+            bool logged = isLoggedIn(player);    
+            bool isFirstHero = isSlotEmpty(player,0) && isSlotEmpty(player,1);
+
+            if (getMenuRefresh()) {
+                drawBI("8CMENU04", hudId, 160.0, 152.0, 320, 350);
+                drawBI("8CMENU02", hudId+1, 160.0, 336.0-(TITLE_OFFSET*(!isOnline)), 320, 350);
+                if (isOnline) {
+                    if (logged) {
+                        drawBT(strParam(s:"Logged in as ", s:getLogin(player)), hudId+14, 160.0, 70.0, 0, 0);
+                        drawStartLabel(isFirstHero ? "START" : "CONTINUE", hudId+11, 144.0, !getMenuIndex());
+                    }
+                    else {
+                        drawStartLabel("LOGIN", hudId+11, 144.0, !getMenuIndex());
+                    }
+                }
+                else if (!getMenuIndex())
+                    setMenuIndex(1);
+                drawStartLabel("QUICK PLAY", hudId+2, 144.0+isOnlineOffset, getMenuIndex()==1);
+                drawStartLabel("OPTIONS",   hudId+5, 144.0+TITLE_OFFSET+isOnlineOffset, getMenuIndex()==2);
+                drawStartLabel("BACK TO GAME", hudId+8, 144.0+(TITLE_OFFSET*2)+isOnlineOffset, getMenuIndex()==3);
+
+                setMenuRefresh(false);
+            }
+            
+
+            if(getMenuTransition())
+                break;
+            if (isOnline) {
+                if (!logged) {
+                    if (!(Timer()&0x1F)) loginPoll(player);
+                }
+                else if (!getMenuArg(1)) {
+                    setMenuRefresh(true);
+                    setMenuArg(1,1);
+                } 
+            }
+            
+            if (isPressed(inputStatus,MENU_NO)) {
+                setMenuTransition(START_SCREEN_EXIT); sfx(SFX_MENU_BACK);
+            }
+            else if (isPressed(inputStatus,MENU_DOWN)) {
+                if (getMenuIndex()<3) {                    
+                    setMenuIndex(getMenuIndex()+1);
+                    setMenuRefresh(true); sfx(SFX_MENU);
+                }
+            }
+            else if (isPressed(inputStatus,MENU_UP)) {
+                if (getMenuIndex() > !isOnline) {
+                    setMenuIndex(getMenuIndex()-1);
+                    setMenuRefresh(true); sfx(SFX_MENU);
+                }
+            }
+            else if (isPressed(inputStatus,MENU_YES)) {
+                switch(getMenuIndex()) {
+                    case 0: 
+                        if (!logged) 
+                            consolecommand("toggleconsole");
+                        else {
+                            flashStartLabel(hudId,116.0);                   
+                            if (isFirstHero) {
+                                setMenuTransition(START_SCREEN_CREATE_HERO); setMenuArg(0,0); 
+                            }
+                            else {
+                                setMenuTransition(START_SCREEN_DATA); setMenuArg(0,1);
+                            }
+                                
+
+                        }
+                    break;
+
+                    case 1:
+                        flashStartLabel(hudId,116.0+TITLE_FLASH_OFFSET*isOnline);
+                        if (isSlotEmpty(player, -1)) {
+                            setMenuTransition(START_SCREEN_CREATE_HERO); setMenuArg(0,-1); 
+                        }
+                        else {
+                           setMenuTransition(START_SCREEN_DATA); setMenuArg(0,0); 
+                        } 
+                    break;
+
+                    case 2:
+                        setMenuTransition(START_SCREEN_OPTIONS);
+                        flashStartLabel(hudId,152.0+TITLE_FLASH_OFFSET*isOnline);
+                    break;
+
+                    case 3: 
+                        setMenuTransition(START_SCREEN_EXIT); sfx(SFX_MENU_BACK);
+                    break;
+                }
+
+            }
+        break;
+
+        case START_SCREEN_OPTIONS:
+            isOnline = isNetworkGame();//, logged = isLoggedIn(player);
+            isOnlineOffset = TITLE_OFFSET*isOnline;            
+        
+            if (getMenuRefresh()) {
+                drawBI("8CMENU04", hudId, 160.0, 108.0, 320, 350);
+                drawBI("8CMENU02", hudId+1, 160.0, 244.0-(TITLE_OFFSET*(!isOnline)), 320, 350);
+                if (isOnline)
+                    drawStartLabel(strParam(s:"AUTO LOGIN\n    ", s:(GetCvar(CVAR_AUTOLOGIN) ? "\cdon" : "\cgoff")), 
+                        hudId+2, 100.0, !getMenuIndex());
+                else if (!getMenuIndex())
+                    setMenuIndex(1);
+                drawStartLabel("KEY BINDS", hudId+5, 100.0+isOnlineOffset, getMenuIndex()==1);
+                drawStartLabel("BACK", hudId+8, 100.0+TITLE_OFFSET+isOnlineOffset, getMenuIndex()==2);
+                setMenuRefresh(false);
+            }
+
+            if(getMenuTransition()) 
+                break;
+            else if (isPressed(inputStatus,MENU_NO)) {
+                setMenuTransition(START_SCREEN_TITLE); sfx(SFX_MENU_BACK);
+            }
+            else if (isPressed(inputStatus,MENU_DOWN)) {
+                if (getMenuIndex()<2) {
+                    setMenuIndex(getMenuIndex()+1);
+                    setMenuRefresh(true); sfx(SFX_MENU);
+                }
+            }
+            else if (isPressed(inputStatus,MENU_UP)) {
+                if (getMenuIndex()>!isOnline) {
+                    setMenuIndex(getMenuIndex()-1);                    
+                    setMenuRefresh(true); sfx(SFX_MENU);
+                }
+            }
+            else if (isPressed(inputStatus,MENU_YES)) {
+                switch(getMenuIndex()) {
+                    case 0: 
+                        consolecommand(strParam(s:CVAR_AUTOLOGIN, s:" ", d:!GetCvar(CVAR_AUTOLOGIN)));
+                        setMenuRefresh(true); sfx(SFX_MENU_OK);
+                    break;
+
+                    case 1:
+                        log(s:"binder");
+                    break;
+
+                    case 2:
+                        setMenuTransition(START_SCREEN_TITLE); sfx(SFX_MENU_BACK);
+                    break;
+                }
+
+            }
+        break;
+
+        // arg0 slot, arg1 spin status/confirm status, arg2 created confirm animation
+        case START_SCREEN_CREATE_HERO:
+            int hero = getMenuIndex()&0xFF;
+            int index = (getMenuIndex()>>8)&0x1;
+            int confirm = (getMenuArg(1)>>8)&0xFF;
+            int spinning = getMenuArg(1)&0xFF;
+            int n = getHeroSize();
+            int created = getMenuArg(2);
+            if (getMenuRefresh()) {
+                if (!(getMenuRefresh()>>1)) {
+                    printHeroText(hero, hudId);
+                    drawTypedT(getHeroName(hero), hudId+1, 46.1, 42.0, 240, 150, 0.18);
+                    drawBT(lineBreak(getSpSkill(hero),16), hudId+2, 326.6, 102.1, 400, 250);
+                    int i = 0;
+                    eraseAll(hudId+32,MAX_WEAPON_GROUPS*3);
+                    while (true) {
+                        draw8cNumber(getHeroWeapons(hero), hudId+32+(i*3), 262.2-(30.0*i), 63.0, 0,0, SMALL_FONT, true);
+                        if ((i+1) >= getHeroWeaponGroups(hero)) break;
+                        drawBT("\cn+", hudId+33+(i*3), 237.0-(30.0*i), 62.0, 0, 0);
+                        i++;
+                    }
+                }        
+                if (!getMenuArg(2)) {
+                    drawBI("8CMENU04", hudId+3, 160.0, 245.0+TITLE_OFFSET*!confirm, 320, 350);
+                    drawBI("8CMENU02", hudId+4, 160.0, 334.0, 320, 350);
+                    drawStartLabel(confirm ? "Cancel" : "Back", hudId+8, 285.0, (index || (confirm==2)));
+                    if (confirm)    drawStartLabel("Confirm", hudId+5, 237.0, confirm==1);
+                    else eraseAll(hudId+5,3);
+                }
+                else 
+                    eraseAll(hudId+3,8);
+                if (created)    drawBI(getHeroSelected(hero), hudId+11, 56.0, 105.2, 214, 134);
+                else            drawBI(getHeroIdle(hero), hudId+11, 56.0, 106.2, 214, 134);
+                                
+                if (spinning) {
+                    drawBI("8CMENU13", hudId+12, 160.0, 0.1, 0, 0);                
+                    if (spinning&0x10)      i = hero+n-1;      // left spin
+                    else                    i = hero+n;                           // right spin
+                    int list[4] = { (i-1)%n, i%n, (i+1)%n, (i+2)%n }; // o wo? ?
+                    drawBI(getHeroMugshot(list[0]), hudId+13, 260.0, 8.1, 640, 400);
+                    drawBI(getHeroMugshot(list[1]), hudId+14, 295.0, 41.1, 640, 400); 
+                    drawBI(getHeroMugshot(list[2]), hudId+15, 343.0, 41.1, 640, 400); 
+                    drawBI(getHeroMugshot(list[3]), hudId+16, 376.0, 8.1, 640, 400); 
+                }
+                else { 
+                    drawBI("8CMENU14", hudId+12, 160.0, 0.1, 0, 0);
+                    drawBI(getHeroMugshot((hero+n-2)%n), hudId+13, 256.0, -18.1, 640, 400);
+                    drawBI(getHeroMugshot((hero+n-1)%n), hudId+14, 274.0, 32.1, 640, 400);
+                    drawBI(getHeroMugshot(hero), hudId+15, 320.0, 48.1, 640, 400);
+                    drawBI(getHeroMugshot((hero+1)%n), hudId+16, 366.0, 32.1, 640, 400);
+                    drawBI(getHeroMugshot((hero+2)%n), hudId+17, 384.0, -18.1, 640, 400);
+                }
+                if (!index)     drawBI("8CMENU19", hudId+18, 40.0, 30.0, 320, 200); // main frame
+                else            drawBI("8CMENU15", hudId+18, 161.0, 106.0, 320, 200);
+                drawBI("8CMENU1D", hudId+19, 53.0, 102.0, DEFAULT_HUD_X, DEFAULT_HUD_Y); // avatar bg
+                setMenuRefresh(false);
+            }
+            drawBI("8CMENU12", 0, 130.0, 0.1, 0, 0); 
+
+            draw8cBar("8CBARHP", true, 2, 56, FixedDiv(getHeroHP(hero)<<16,450.0), 66.0, 64.0, 280, 180);
+            draw8cBar("8CBARPUI", true, 2, 56, FixedDiv(getHeroPuissance(hero)<<16,100.0), 66.0, 78.0, 280, 180);
+            drawBI("8CMENU1O", 0, 52.0, 42.0, 320, 200); // top background
+            
+            if (getMenuQuery()) {   
+                switch(pukeStatus()) {
+                    case PUKE_OK:
+                        sfx("8CMENUD");
+                        drawTypedT(lineBreak("       / / / / / / / / / / / / / / / / 0101001001000101010000010100010001011001  / / / / / /       o/   ",22), hudId, 156.1, 138.1, 400, 250, 0.01);
+                        setMenuQuery(false);
+                        setMenuRefresh(0x3);
+                        setMenuArg(2, 1);
+                    break;
+
+                    case PUKE_ERROR:
+                        log(s:"\caError when trying to create hero");
+                        setMenuQuery(false);
+                    break;
+
+                    case PUKE_TIMED_OUT:
+                        log(s:"\cnTimed out.");
+                        setMenuQuery(false);
+                    break;
+                }
+            }
+            else if (spinning) {
+                if ((spinning&0xF) < 4) setMenuArg(1, getMenuArg(1)+1);
+                else {
+                    setMenuIndex((getMenuIndex()&0xFFFFFF00) | 
+                        spinning&0x10 ? ((hero+n-1) % n) : ((hero+1)%n));
+                    setMenuArg(1, getMenuArg(1)&0xFFFFFF00);
+                    setMenuRefresh(true); sfx(SFX_MENU);
+                } 
+            }            
+            else if (created && !getMenuTransition()) {
+                setMenuArg(2,getMenuArg(2)+1);
+                if ((timer()&0x1) && (created<28))
+                    draw("8CWHITE", hudId-1, false, 0, 0,  1, 1, 0.05, 0.28);
+                
+                if (created>52) {
+                    created = getMenuArg(0);
+                    setMenuTransition(0xC0 | START_SCREEN_DATA);
+                    setMenuArg(0, created != -1);
+                }
+            }         
+            else if (getMenuTransition() | getMenuQuery() | created) 
+                break;
+
+            else if (isPressed(inputStatus, MENU_NO)) {
+                if (confirm) {                    
+                    setMenuArg(1, getMenuArg(1)&0xFFFF00FF);
+                    setMenuRefresh(0x3);
+                    printHeroText(hero, hudId);
+                }
+                else {
+                    setMenuTransition(START_SCREEN_TITLE); sfx(SFX_MENU_BACK);
+                } 
+            }
+            else if (isPressed(inputStatus, MENU_DOWN)) {
+                if (confirm) {
+                    if (confirm==1) {
+                        setMenuArg(1, getMenuArg(1)+(1<<8));
+                        setMenuRefresh(0x3); sfx(SFX_MENU);
+                    }
+                }
+                else if (!index) {                    
+                    setMenuIndex(getMenuIndex()+0x100);
+                    setMenuRefresh(0x3); sfx(SFX_MENU);
+                }
+            }
+            else if (isPressed(inputStatus, MENU_UP)) {
+                if (confirm) {
+                    if (confirm==2) {
+                        setMenuArg(1, getMenuArg(1)-(1<<8));
+                        setMenuRefresh(0x3); sfx(SFX_MENU);
+                    } 
+                }
+                else if (index) {
+                    setMenuIndex(getMenuIndex()-0x100);
+                    setMenuRefresh(0x3); sfx(SFX_MENU);
+                }
+            }
+            else if (isPressed(inputStatus,MENU_LEFT) && !(index|confirm)) {
+                setMenuRefresh(0x3); setMenuArg(1,0x11);
+            }
+            else if (isPressed(inputStatus,MENU_RIGHT) && !(index|confirm)) {
+                setMenuRefresh(0x3); setMenuArg(1,0x1);
+            }                
+            else if (isPressed(inputStatus,MENU_YES)) {
+                if (confirm) {
+                    if (confirm==1) {
+                        ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_HERO_CREATE, getMenuArg(0), hero);
+                        setMenuQuery(true);
+                    }
+                    else {
+                        setMenuArg(1, getMenuArg(1)&0xFFFF00FF);
+                        setMenuRefresh(0x3);
+                        printHeroText(hero, hudId);
+                    }
+                }
+                else {
+                    if (!index) {
+                        setMenuArg(1, getMenuArg(1) | (1<<8));
+                        sfx(SFX_MENU_OK);
+                        drawTypedT(lineBreak(strParam(s:"Start game with\n    ", s:getHeroName(hero), s:"?") ,50), hudId, 156.1, 138.1, 400, 250, 0.015);    
+                        setMenuRefresh(0x3);                
+
+                    }
+                    else {
+                        setMenuTransition(START_SCREEN_TITLE); sfx(SFX_MENU_BACK);
+                    }
+                }
+            }
+        break;
+
+        case START_SCREEN_DATA:
+            player = ConsolePlayerNumber();
+            bool isQuickPlay = !getMenuArg(0);
+            int slot = isQuickPlay ? -1 : getMenuIndex();
+            bool emptySlot = isSlotEmpty(player,slot);
+            n = isQuickPlay ? 1 : MAX_SLOTS;            
+            confirm = getMenuArg(1)&0xFF;
+            index = getMenuArg(1)>>8; // erase state
+            created = getMenuArg(2)&0xFFFF; // enter game/del hero anim
+            hero = getPlayerHero(player,slot);
+            bool deleting = getMenuArg(2)>>16;
+            //log(s:" erase ", d:index, s:" confirm ", d:confirm, s:" curI ", d:getMenuIndex(), s:" n ", d:n);
+            
+            if (getMenuRefresh()) { 
+                drawBI("8CMENU04", hudId+1,   160.0, 293.0-((TITLE_OFFSET<<1)*!!confirm), 320, 350);
+                drawBI("8CMENU02", hudId+2,   160.0, 334.0-TITLE_OFFSET*(!!index|(emptySlot&!!confirm)), 320, 350);
+               
+                if (confirm) {
+                    drawStartLabel(index ? "NO" : emptySlot ? "CREATE HERO" : "START GAME", hudId+7, 285.0-(TITLE_OFFSET<<1), (confirm==1) | (index==1));
+                    drawStartLabel(index ? "YES" : "BACK", hudId+10, 285.0-TITLE_OFFSET, (confirm==2) | (index==2));
+                    if (index | emptySlot) {
+                        eraseAll(hudId+3,3);
+                    }
+                    else if (!index) { 
+                        erase(hudId+6);
+                        drawStartLabel("Erase data", hudId+3, 285.0, confirm==3); 
+                    } 
+                }
+                else {
+                    drawStartLabel("BACK", hudId+3, 285.0, getMenuIndex()==n);
+                    eraseAll(hudId+7,6);
+                }
+
+                if (!getBit(getMenuRefresh(),1)) {
+                    if (isQuickPlay) 
+                        drawPlayerSlot(hudId+13, player, slot,  (confirm<<1) | !getMenuIndex());                    
+                    else {
+                        if (confirm) {
+                            drawPlayerSlot(hudId+13, player, slot, 2);
+                            eraseAll(hudId+13+37,37);
+                        }
+                        else
+                            for (i = 0; i < n; i++)
+                                drawPlayerSlot(hudId+13+(37*i), player, i, getMenuIndex()==i);
+                    }
+                }
+                if (created) {
+                    if (!deleting)  drawBI(getHeroSelected(hero), hudId+13+33, 69.0, 42.2, 223,139);
+                    drawBI(deleting ? "8CFLSBLA" : "8CFLSWHI", hudId, 15.0, 11.0, 61, 134);
+                }
+                setMenuRefresh(false);
+            }
+            
+            if (created) {
+                setMenuArg(2, getMenuArg(2)+1);
+                if (deleting) {
+                    if (created==20) {
+                        setMenuRefresh(true);
+                    }
+                    else if (created==42)  {
+                        erase(hudId);
+                    }
+                    else if (created==55) {
+                        if (isQuickPlay) {
+                            setMenuTransition(START_SCREEN_CREATE_HERO); setMenuArg(0,-1);                            
+                        }
+                        else {
+                            setMenuArg(2,0);
+                            setMenuArg(1,1);
+                            setMenuRefresh(true);
+                        }
+                    }
+                }
+                // enter game
+                else {
+                    if (created==15)
+                        erase(hudId);
+                    else if (created > 35) {
+                        setMenuTransition(START_SCREEN_EXIT);
+                        setMenuArg(2, 1<<24);
+                    }
+                }
+                return;
+            }
+
+            if (getMenuQuery()) {   
+                switch(pukeStatus()) {
+                    case PUKE_OK:
+                        setMenuQuery(false);
+                        // Data delete
+                        if (index) {
+                            sfx("8CMENUE"); setMenuArg(2,0x10001);
+                            setMenuRefresh(0x3);
+                            erase(hudId+6);
+                        }
+                        // Enter game
+                        else {
+                            sfx(SFX_MENU_OK); setMenuArg(2,0x1);
+                            setMenuRefresh(true);
+                        }
+                    break;
+
+                    case PUKE_ERROR:
+                        if (index)      log(s:"\cafailed to delete");
+                        else            log(s:"\caServer rejected your join request");
+                        setMenuQuery(false);
+                    break;
+
+                    case PUKE_TIMED_OUT:
+                        log(s:"\cnTimed out.");
+                        setMenuQuery(false);
+                    break;
+                }
+            }
+
+
+            if(getMenuTransition())
+                break;
+
+            if (isPressed(inputStatus, MENU_NO)) {
+                sfx(SFX_MENU_BACK); setMenuRefresh(index||confirm); 
+                if (index)          setMenuArg(1,1); 
+                else if (confirm)   setMenuArg(1,0);
+                else setMenuTransition(START_SCREEN_TITLE);
+            }
+            else if (isPressed(inputStatus, MENU_DOWN)) {
+                if (index) {
+                    if (index==1) {
+                        sfx(SFX_MENU); setMenuRefresh(true); setMenuArg(1,getMenuArg(1)+(1<<8));
+                    }
+                }
+                else if (confirm) {
+                    if (confirm<(3-emptySlot)) {
+                        sfx(SFX_MENU); setMenuRefresh(true); setMenuArg(1,getMenuArg(1)+1);
+                    }
+                }
+                else if (getMenuIndex()<n) {                    
+                    sfx(SFX_MENU); setMenuRefresh(true); setMenuIndex(getMenuIndex()+1);
+                }
+            }
+            else if (isPressed(inputStatus, MENU_UP)) {
+                if (index) {                    
+                    if (index==2) {
+                        setMenuArg(1,getMenuArg(1)-(1<<8)); sfx(SFX_MENU); setMenuRefresh(true); 
+                    }
+                }
+                else if (confirm) {
+                    if (confirm>1) {
+                        setMenuArg(1,getMenuArg(1)-1); sfx(SFX_MENU); setMenuRefresh(true); 
+                    }
+                }
+                else if (getMenuIndex()>0) {                    
+                    setMenuIndex(getMenuIndex()-1); sfx(SFX_MENU); setMenuRefresh(true);
+                }
+            }
+            else if (isPressed(inputStatus,MENU_YES)) {
+                if (index) {
+                    if (index==1) {
+                        setMenuArg(1,1); setMenuRefresh(true); sfx(SFX_MENU_BACK);
+                    } 
+                    else {
+                        ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_HERO_DELETE, slot);
+                        setMenuQuery(true);
+                    }
+                }
+                else if (confirm) {
+                    switch(confirm) {
+                        case 1:
+                            if (!emptySlot) {
+                                ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_ENTER_GAME, slot);
+                                setMenuQuery(true);                               
+                            }
+                            else {
+                                flashStartLabel(hudId,150.0);
+                                setMenuTransition(START_SCREEN_CREATE_HERO);
+                                setMenuArg(0,slot);    
+                            }
+                        break;
+                        case 2:
+                            setMenuArg(1,0); setMenuRefresh(true); sfx(SFX_MENU_BACK);
+                        break;
+                        case 3:
+                            setMenuArg(1,getMenuArg(1)|(1<<8)); sfx(SFX_MENU); setMenuRefresh(0x2);                            
+                            drawTypedT(strParam(s:"Erase data ", 
+                                s:(!isQuickPlay ? "on this slot?" : "?"),
+                                s:"\nExperience and special weapons\n will be lost."), 
+                                hudId+6, 160.4, 101.1, 400, 250, 0.015);
+                        break;
+                    }
+                }
+                else if (getMenuIndex() == n) {
+                    setMenuTransition(START_SCREEN_TITLE); sfx(SFX_MENU_BACK);
+                }
+                else {
+                    setMenuArg(1,1); sfx(SFX_MENU);
+                    setMenuRefresh(true);
+                }
+            }
+        break;
+    }
+}
+
+
+function void drawStartLabel(str label, int id, int y, bool isSelected) {
+	drawBI("8CMENU08", id, 160.0, y+24.0, 320, 350);
+    drawBT(strParam(s:"\cc", s:label), id+1, 160.0, (FixedMul(y,0.763)&0xFFFF0000) + 22.0, 320, 270);
+	drawBI(strParam(s: !isSelected ? "8CMENU06" : "8CMENU07"), id+2, 104.0, y, 320, 350);
+}
+function void flashStartLabel(int hudId, int y) {
+    drawBI("8CFLSWHI", hudId-1, 31.0, y, 93, 270); 
+    sfx(SFX_MENU_OK);
+}   
+
+
+function void printHeroText(int hero, int hudId) {
+    drawTypedT(lineBreak(getHeroText(hero),22), hudId, 156.1, 138.1, 400, 250, 0.008);
+}
+
+function void drawPlayerSlot(int hudId, int player, int slot, int status) {
+    int hero = getPlayerHero(player,slot);
+    bool noHero = isSlotEmpty(player,slot);
+    if (status>>1) 
+        int yOffset = 0;
+    else 
+        yOffset = (slot == -1 ? 1 : slot<<1);  
+    if (noHero) {
+        eraseAll(hudId,37);
+        drawBI("8CMENU21", hudId+36, 113.0, 33.0 + 34.0*yOffset, 209, 174);
+        drawBT("???", hudId+35, 99.0, 24.0+24.0*yOffset, 200, 125);
+    }
+    else {
+        drawBT("RANK", hudId+35, 125.1, 26.0+39.0*yOffset, 0, 0);
+        draw8cNumber(toRank(getExp(player,slot)), hudId+34, 162.0, 25.0+39.0*yOffset, 0, 0, SMALL_FONT, false);
+        drawBI(getHeroIdle(hero), hudId+33, 69.0, 44.2 + 27.0*yOffset, 223,139);
+        int wepCount = 0;
+        for (int index = 0; (index < 64) && !(wepCount>>4); index++) { // display 16 first weapons only
+            if (isWepUnlocked(player,slot,index)) {
+                drawBI(getStageIcon(index), hudId+(wepCount<<1),    176.0 + 22.0*(wepCount&0x7), 66.0 + 22.0*(wepCount>>3) + 63.0*yOffset, 450, 322);
+                drawBI("8CMENU22", hudId+(wepCount<<1)+1, 176.0 + 22.0*(wepCount&0x7), 66.0 + 22.0*(wepCount>>3) + 63.0*yOffset, 450, 322);
+                wepCount++;
+            }
+        }
+        drawBI(status ? "8CMENU07" : "8CMENU06", hudId+36, 49.0, 9.0 + 34.0*yOffset, 209, 174);
+    }
+    if (!status)    drawBI("8CMENU1P", hudId+32, 160.0, 40.0 + 39.0*yOffset, 0, 0);
+    else            drawBI("8CMENU1X", hudId+32, 63.0, 3.0 + 39.0*yOffset, 0, 0);
+}
+
+
+
+function void loginPoll(int player) {
+	if (!isLoggedIn(player)) {
+		if (GetCvar(CVAR_AUTOLOGIN)) 
+            consolecommand("login");
+        ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_LOGIN_REFRESH);
+	}
+}

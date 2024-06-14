@@ -2,6 +2,7 @@
 
 server bool C8_physics = false;
 user bool C8_autologin = false;
+server noarchive bool C8_is_first_start = true;
 
 /*
 	Top level view
@@ -10,29 +11,33 @@ user bool C8_autologin = false;
 		(x) = data stored per CVAR is x
 
 	// --------------- Runtime values --------------- //
-	- int: C8_hero_size (1)				How much heroes are loaded in the server
-	- int: C8_hero_<i> (4)				(runtime) Index to (compile time) hero ID mapping
-	- string: C8_login_<p> (1)			Player Zandronum account name
-	- int: C8_slot (16)					Slot currently used/allowed by the server
-	- int: C8_player_hero_<s><p> (4)	Player's hero index
-	- int: C8_exp_<s><p> (1)			Experience owned
-	- int: C8_wep_unlocked_<s><p> (32)	Weapon unlocked status
+	- int: C8_hero_size (1)					How much heroes are loaded in the server
+	- int: C8_stage_size (1)				How much stages are loaded in the server
+	- int: C8_hero_<i> (4)					(runtime) Index to (compile time) hero ID mapping
+	- int: C8_stage_<i> (4)					(runtime) Index to (compile time) stage ID mapping
+
+	- string: C8_login_<p> (1)				Player Zandronum account name
+	- int: C8_slot (16)						Slot currently used/allowed by the server
+	- int: C8_player_hero_<s><p> (4)		Player's hero index
+	- int: C8_exp_<s><p> (1)				Experience owned
+	- int: C8_wep_<s><p><i> (32)			Weapon unlocked status
 
 	// --------------- Static values (hero)	--------------- //
-	- string: C8_hero_actor_<id>		Hero actor name
-	- string: C8_hero_name_<id>			Hero display name
-	- int: C8_hero_hp_<id>				Base HP stat
-	- int: C8_hero_puissance_<id>		Base Puissance stat
-	- int: C8_hero_weapons_<id>			Weapons per group
-	- int: C8_hero_weapon_groups_<id>	Weapon group count (can be ommited if only 1)
-	- string: C8_sp_skill_<id>			Hero special skill label
-	- string: C8_hero_text_<id>			Hero description
-	- string: C8_hero_graphic_<id>		A bunch of graphics lump names separated by space. Each must be 8 chars
+	- string: C8_hero_actor_<id>			Hero actor name
+	- string: C8_hero_name_<id>				Hero display name
+	- int: C8_hero_hp_<id>					Base HP stat
+	- int: C8_hero_puissance_<id>			Base Puissance stat
+	- int: C8_hero_weapons_<id>				Weapons per group
+	- int: C8_hero_weapon_groups_<id>		Weapon group count (can be ommited if only 1)
+	- string: C8_sp_skill_<id>				Hero special skill label
+	- string: C8_hero_text_<id>				Hero description
+	- string: C8_hero_graphic_<id>			A bunch of graphics lump names separated by space. Each must be 8 chars
 		- 1: Mugshot
 		- 2: Hero "idle" graphic (in hero selection/data screen)
 		- 3: Hero graphic when selected in hero selection
 
 
+	// --------------- Static values (stage)	--------------- //
 */
 
 
@@ -41,42 +46,78 @@ user bool C8_autologin = false;
 
 
 // initialized once : when server starts
-server noarchive int C8_hero_size = 0;
+server noarchive int C8_hero_size;
+server noarchive int C8_stage_size;
 
 
 // map compile time hero ID to runtime hero ID, 4 hero ID per var
-server noarchive int C8_hero_0 = 0; server noarchive int C8_hero_1 = 0;
-server noarchive int C8_hero_2 = 0; server noarchive int C8_hero_3 = 0;
-server noarchive int C8_hero_4 = 0; server noarchive int C8_hero_5 = 0;
-server noarchive int C8_hero_6 = 0; server noarchive int C8_hero_7 = 0;
-server noarchive int C8_hero_8 = 0; server noarchive int C8_hero_9 = 0;
-server noarchive int C8_hero_10 = 0; server noarchive int C8_hero_11 = 0;
-server noarchive int C8_hero_12 = 0; server noarchive int C8_hero_13 = 0;
-server noarchive int C8_hero_14 = 0; server noarchive int C8_hero_15 = 0;
-server noarchive int C8_hero_16 = 0; server noarchive int C8_hero_17 = 0;
-server noarchive int C8_hero_18 = 0; server noarchive int C8_hero_19 = 0;
-server noarchive int C8_hero_20 = 0; server noarchive int C8_hero_21 = 0;
-server noarchive int C8_hero_22 = 0; server noarchive int C8_hero_23 = 0;
-server noarchive int C8_hero_24 = 0; server noarchive int C8_hero_25 = 0;
-server noarchive int C8_hero_26 = 0; server noarchive int C8_hero_27 = 0;
-server noarchive int C8_hero_28 = 0; server noarchive int C8_hero_29 = 0;
-server noarchive int C8_hero_30 = 0; server noarchive int C8_hero_31 = 0;
-server noarchive int C8_hero_32 = 0; server noarchive int C8_hero_33 = 0;
-server noarchive int C8_hero_34 = 0; server noarchive int C8_hero_35 = 0;
-server noarchive int C8_hero_36 = 0; server noarchive int C8_hero_37 = 0;
-server noarchive int C8_hero_38 = 0; server noarchive int C8_hero_39 = 0;
-server noarchive int C8_hero_40 = 0; server noarchive int C8_hero_41 = 0;
-server noarchive int C8_hero_42 = 0; server noarchive int C8_hero_43 = 0;
-server noarchive int C8_hero_44 = 0; server noarchive int C8_hero_45 = 0;
-server noarchive int C8_hero_46 = 0; server noarchive int C8_hero_47 = 0;
-server noarchive int C8_hero_48 = 0; server noarchive int C8_hero_49 = 0;
-server noarchive int C8_hero_50 = 0; server noarchive int C8_hero_51 = 0;
-server noarchive int C8_hero_52 = 0; server noarchive int C8_hero_53 = 0;
-server noarchive int C8_hero_54 = 0; server noarchive int C8_hero_55 = 0;
-server noarchive int C8_hero_56 = 0; server noarchive int C8_hero_57 = 0;
-server noarchive int C8_hero_58 = 0; server noarchive int C8_hero_59 = 0;
-server noarchive int C8_hero_60 = 0; server noarchive int C8_hero_61 = 0;
-server noarchive int C8_hero_62 = 0; server noarchive int C8_hero_63 = 0;
+server noarchive int C8_hero_0; server noarchive int C8_hero_1;
+server noarchive int C8_hero_2; server noarchive int C8_hero_3;
+server noarchive int C8_hero_4; server noarchive int C8_hero_5;
+server noarchive int C8_hero_6; server noarchive int C8_hero_7;
+server noarchive int C8_hero_8; server noarchive int C8_hero_9;
+server noarchive int C8_hero_10; server noarchive int C8_hero_11;
+server noarchive int C8_hero_12; server noarchive int C8_hero_13;
+server noarchive int C8_hero_14; server noarchive int C8_hero_15;
+server noarchive int C8_hero_16; server noarchive int C8_hero_17;
+server noarchive int C8_hero_18; server noarchive int C8_hero_19;
+server noarchive int C8_hero_20; server noarchive int C8_hero_21;
+server noarchive int C8_hero_22; server noarchive int C8_hero_23;
+server noarchive int C8_hero_24; server noarchive int C8_hero_25;
+server noarchive int C8_hero_26; server noarchive int C8_hero_27;
+server noarchive int C8_hero_28; server noarchive int C8_hero_29;
+server noarchive int C8_hero_30; server noarchive int C8_hero_31;
+server noarchive int C8_hero_32; server noarchive int C8_hero_33;
+server noarchive int C8_hero_34; server noarchive int C8_hero_35;
+server noarchive int C8_hero_36; server noarchive int C8_hero_37;
+server noarchive int C8_hero_38; server noarchive int C8_hero_39;
+server noarchive int C8_hero_40; server noarchive int C8_hero_41;
+server noarchive int C8_hero_42; server noarchive int C8_hero_43;
+server noarchive int C8_hero_44; server noarchive int C8_hero_45;
+server noarchive int C8_hero_46; server noarchive int C8_hero_47;
+server noarchive int C8_hero_48; server noarchive int C8_hero_49;
+server noarchive int C8_hero_50; server noarchive int C8_hero_51;
+server noarchive int C8_hero_52; server noarchive int C8_hero_53;
+server noarchive int C8_hero_54; server noarchive int C8_hero_55;
+server noarchive int C8_hero_56; server noarchive int C8_hero_57;
+server noarchive int C8_hero_58; server noarchive int C8_hero_59;
+server noarchive int C8_hero_60; server noarchive int C8_hero_61;
+server noarchive int C8_hero_62; server noarchive int C8_hero_63;
+
+
+// map compile time stage ID to runtime stage ID, 4 stage ID per var
+server noarchive int C8_stage_0; server noarchive int C8_stage_1;
+server noarchive int C8_stage_2; server noarchive int C8_stage_3;
+server noarchive int C8_stage_4; server noarchive int C8_stage_5;
+server noarchive int C8_stage_6; server noarchive int C8_stage_7;
+server noarchive int C8_stage_8; server noarchive int C8_stage_9;
+server noarchive int C8_stage_10; server noarchive int C8_stage_11;
+server noarchive int C8_stage_12; server noarchive int C8_stage_13;
+server noarchive int C8_stage_14; server noarchive int C8_stage_15;
+server noarchive int C8_stage_16; server noarchive int C8_stage_17;
+server noarchive int C8_stage_18; server noarchive int C8_stage_19;
+server noarchive int C8_stage_20; server noarchive int C8_stage_21;
+server noarchive int C8_stage_22; server noarchive int C8_stage_23;
+server noarchive int C8_stage_24; server noarchive int C8_stage_25;
+server noarchive int C8_stage_26; server noarchive int C8_stage_27;
+server noarchive int C8_stage_28; server noarchive int C8_stage_29;
+server noarchive int C8_stage_30; server noarchive int C8_stage_31;
+server noarchive int C8_stage_32; server noarchive int C8_stage_33;
+server noarchive int C8_stage_34; server noarchive int C8_stage_35;
+server noarchive int C8_stage_36; server noarchive int C8_stage_37;
+server noarchive int C8_stage_38; server noarchive int C8_stage_39;
+server noarchive int C8_stage_40; server noarchive int C8_stage_41;
+server noarchive int C8_stage_42; server noarchive int C8_stage_43;
+server noarchive int C8_stage_44; server noarchive int C8_stage_45;
+server noarchive int C8_stage_46; server noarchive int C8_stage_47;
+server noarchive int C8_stage_48; server noarchive int C8_stage_49;
+server noarchive int C8_stage_50; server noarchive int C8_stage_51;
+server noarchive int C8_stage_52; server noarchive int C8_stage_53;
+server noarchive int C8_stage_54; server noarchive int C8_stage_55;
+server noarchive int C8_stage_56; server noarchive int C8_stage_57;
+server noarchive int C8_stage_58; server noarchive int C8_stage_59;
+server noarchive int C8_stage_60; server noarchive int C8_stage_61;
+server noarchive int C8_stage_62; server noarchive int C8_stage_63;
 
 
 
@@ -95,73 +136,143 @@ server noarchive string C8_login_12 = ""; server noarchive string C8_login_13 = 
 server noarchive string C8_login_14 = ""; server noarchive string C8_login_15 = "";
 
 // which slot each player is currently using/allowed to use by server (quickplay is 0)
-server noarchive int C8_slot = 0;
+server noarchive int C8_slot;
 
 // players saved hero ID
-server noarchive int C8_player_hero_00 = 0;	server noarchive int C8_player_hero_01 = 0;
-server noarchive int C8_player_hero_02 = 0;	server noarchive int C8_player_hero_03 = 0;
-server noarchive int C8_player_hero_10 = 0;	server noarchive int C8_player_hero_11 = 0;
-server noarchive int C8_player_hero_12 = 0;	server noarchive int C8_player_hero_13 = 0;
-server noarchive int C8_player_hero_20 = 0;	server noarchive int C8_player_hero_21 = 0;
-server noarchive int C8_player_hero_22 = 0;	server noarchive int C8_player_hero_23 = 0;
+server noarchive int C8_player_hero_00;	server noarchive int C8_player_hero_01;
+server noarchive int C8_player_hero_02;	server noarchive int C8_player_hero_03;
+server noarchive int C8_player_hero_10;	server noarchive int C8_player_hero_11;
+server noarchive int C8_player_hero_12;	server noarchive int C8_player_hero_13;
+server noarchive int C8_player_hero_20;	server noarchive int C8_player_hero_21;
+server noarchive int C8_player_hero_22;	server noarchive int C8_player_hero_23;
 
 
 // players experience on each of their slots
-server noarchive int C8_exp_00 = 0; server noarchive int C8_exp_01 = 0;
-server noarchive int C8_exp_02 = 0; server noarchive int C8_exp_03 = 0;
-server noarchive int C8_exp_04 = 0; server noarchive int C8_exp_05 = 0;
-server noarchive int C8_exp_06 = 0; server noarchive int C8_exp_07 = 0;
-server noarchive int C8_exp_08 = 0; server noarchive int C8_exp_09 = 0;
-server noarchive int C8_exp_010 = 0; server noarchive int C8_exp_011 = 0;
-server noarchive int C8_exp_012 = 0; server noarchive int C8_exp_013 = 0;
-server noarchive int C8_exp_014 = 0; server noarchive int C8_exp_015 = 0;
+server noarchive int C8_exp_00; server noarchive int C8_exp_01;
+server noarchive int C8_exp_02; server noarchive int C8_exp_03;
+server noarchive int C8_exp_04; server noarchive int C8_exp_05;
+server noarchive int C8_exp_06; server noarchive int C8_exp_07;
+server noarchive int C8_exp_08; server noarchive int C8_exp_09;
+server noarchive int C8_exp_010; server noarchive int C8_exp_011;
+server noarchive int C8_exp_012; server noarchive int C8_exp_013;
+server noarchive int C8_exp_014; server noarchive int C8_exp_015;
 
-server noarchive int C8_exp_10 = 0; server noarchive int C8_exp_11 = 0;
-server noarchive int C8_exp_12 = 0; server noarchive int C8_exp_13 = 0;
-server noarchive int C8_exp_14 = 0; server noarchive int C8_exp_15 = 0;
-server noarchive int C8_exp_16 = 0; server noarchive int C8_exp_17 = 0;
-server noarchive int C8_exp_18 = 0; server noarchive int C8_exp_19 = 0;
-server noarchive int C8_exp_110 = 0; server noarchive int C8_exp_111 = 0;
-server noarchive int C8_exp_112 = 0; server noarchive int C8_exp_113 = 0;
-server noarchive int C8_exp_114 = 0; server noarchive int C8_exp_115 = 0;
+server noarchive int C8_exp_10; server noarchive int C8_exp_11;
+server noarchive int C8_exp_12; server noarchive int C8_exp_13;
+server noarchive int C8_exp_14; server noarchive int C8_exp_15;
+server noarchive int C8_exp_16; server noarchive int C8_exp_17;
+server noarchive int C8_exp_18; server noarchive int C8_exp_19;
+server noarchive int C8_exp_110; server noarchive int C8_exp_111;
+server noarchive int C8_exp_112; server noarchive int C8_exp_113;
+server noarchive int C8_exp_114; server noarchive int C8_exp_115;
 
-server noarchive int C8_exp_20 = 0; server noarchive int C8_exp_21 = 0;
-server noarchive int C8_exp_22 = 0; server noarchive int C8_exp_23 = 0;
-server noarchive int C8_exp_24 = 0; server noarchive int C8_exp_25 = 0;
-server noarchive int C8_exp_26 = 0; server noarchive int C8_exp_27 = 0;
-server noarchive int C8_exp_28 = 0; server noarchive int C8_exp_29 = 0;
-server noarchive int C8_exp_210 = 0; server noarchive int C8_exp_211 = 0;
-server noarchive int C8_exp_212 = 0; server noarchive int C8_exp_213 = 0;
-server noarchive int C8_exp_214 = 0; server noarchive int C8_exp_215 = 0;
+server noarchive int C8_exp_20; server noarchive int C8_exp_21;
+server noarchive int C8_exp_22; server noarchive int C8_exp_23;
+server noarchive int C8_exp_24; server noarchive int C8_exp_25;
+server noarchive int C8_exp_26; server noarchive int C8_exp_27;
+server noarchive int C8_exp_28; server noarchive int C8_exp_29;
+server noarchive int C8_exp_210; server noarchive int C8_exp_211;
+server noarchive int C8_exp_212; server noarchive int C8_exp_213;
+server noarchive int C8_exp_214; server noarchive int C8_exp_215;
 
 
-// players special weapon obtained bitflag on each of their slots
-server noarchive int C8_wep_unlocked_00 = 0;	server noarchive int C8_wep_unlocked_01 = 0;
-server noarchive int C8_wep_unlocked_02 = 0;	server noarchive int C8_wep_unlocked_03 = 0;
-server noarchive int C8_wep_unlocked_04 = 0;	server noarchive int C8_wep_unlocked_05 = 0;
-server noarchive int C8_wep_unlocked_06 = 0;	server noarchive int C8_wep_unlocked_07 = 0;
-server noarchive int C8_wep_unlocked_08 = 0;	server noarchive int C8_wep_unlocked_09 = 0;
-server noarchive int C8_wep_unlocked_010 = 0;	server noarchive int C8_wep_unlocked_011 = 0;
-server noarchive int C8_wep_unlocked_012 = 0;	server noarchive int C8_wep_unlocked_013 = 0;
-server noarchive int C8_wep_unlocked_014 = 0;	server noarchive int C8_wep_unlocked_015 = 0;
-
-server noarchive int C8_wep_unlocked_10 = 0;	server noarchive int C8_wep_unlocked_11 = 0;
-server noarchive int C8_wep_unlocked_12 = 0;	server noarchive int C8_wep_unlocked_13 = 0;
-server noarchive int C8_wep_unlocked_14 = 0;	server noarchive int C8_wep_unlocked_15 = 0;
-server noarchive int C8_wep_unlocked_16 = 0;	server noarchive int C8_wep_unlocked_17 = 0;
-server noarchive int C8_wep_unlocked_18 = 0;	server noarchive int C8_wep_unlocked_19 = 0;
-server noarchive int C8_wep_unlocked_110 = 0;	server noarchive int C8_wep_unlocked_111 = 0;
-server noarchive int C8_wep_unlocked_112 = 0;	server noarchive int C8_wep_unlocked_113 = 0;
-server noarchive int C8_wep_unlocked_114 = 0;	server noarchive int C8_wep_unlocked_115 = 0;
-
-server noarchive int C8_wep_unlocked_20 = 0;	server noarchive int C8_wep_unlocked_21 = 0;
-server noarchive int C8_wep_unlocked_22 = 0;	server noarchive int C8_wep_unlocked_23 = 0;
-server noarchive int C8_wep_unlocked_24 = 0;	server noarchive int C8_wep_unlocked_25 = 0;
-server noarchive int C8_wep_unlocked_26 = 0;	server noarchive int C8_wep_unlocked_27 = 0;
-server noarchive int C8_wep_unlocked_28 = 0;	server noarchive int C8_wep_unlocked_29 = 0;
-server noarchive int C8_wep_unlocked_210 = 0;	server noarchive int C8_wep_unlocked_211 = 0;
-server noarchive int C8_wep_unlocked_212 = 0;	server noarchive int C8_wep_unlocked_213 = 0;
-server noarchive int C8_wep_unlocked_214 = 0;	server noarchive int C8_wep_unlocked_215 = 0;
+// players special weapon obtained bitflag on each of their slots. mmyea bitflag soup
+server noarchive int C8_wep_000;	server noarchive int C8_wep_010;	server noarchive int C8_wep_020;	server noarchive int C8_wep_030;
+server noarchive int C8_wep_040;	server noarchive int C8_wep_050;	server noarchive int C8_wep_060;	server noarchive int C8_wep_070;
+server noarchive int C8_wep_080;	server noarchive int C8_wep_090;	server noarchive int C8_wep_0100;	server noarchive int C8_wep_0110;
+server noarchive int C8_wep_0120;	server noarchive int C8_wep_0130;	server noarchive int C8_wep_0140;	server noarchive int C8_wep_0150;
+server noarchive int C8_wep_001;	server noarchive int C8_wep_011;	server noarchive int C8_wep_021;	server noarchive int C8_wep_031;
+server noarchive int C8_wep_041;	server noarchive int C8_wep_051;	server noarchive int C8_wep_061;	server noarchive int C8_wep_071;
+server noarchive int C8_wep_081;	server noarchive int C8_wep_091;	server noarchive int C8_wep_0101;	server noarchive int C8_wep_0111;
+server noarchive int C8_wep_0121;	server noarchive int C8_wep_0131;	server noarchive int C8_wep_0141;	server noarchive int C8_wep_0151;
+server noarchive int C8_wep_002;	server noarchive int C8_wep_012;	server noarchive int C8_wep_022;	server noarchive int C8_wep_032;
+server noarchive int C8_wep_042;	server noarchive int C8_wep_052;	server noarchive int C8_wep_062;	server noarchive int C8_wep_072;
+server noarchive int C8_wep_082;	server noarchive int C8_wep_092;	server noarchive int C8_wep_0102;	server noarchive int C8_wep_0112;
+server noarchive int C8_wep_0122;	server noarchive int C8_wep_0132;	server noarchive int C8_wep_0142;	server noarchive int C8_wep_0152;
+server noarchive int C8_wep_003;	server noarchive int C8_wep_013;	server noarchive int C8_wep_023;	server noarchive int C8_wep_033;
+server noarchive int C8_wep_043;	server noarchive int C8_wep_053;	server noarchive int C8_wep_063;	server noarchive int C8_wep_073;
+server noarchive int C8_wep_083;	server noarchive int C8_wep_093;	server noarchive int C8_wep_0103;	server noarchive int C8_wep_0113;
+server noarchive int C8_wep_0123;	server noarchive int C8_wep_0133;	server noarchive int C8_wep_0143;	server noarchive int C8_wep_0153;
+server noarchive int C8_wep_004;	server noarchive int C8_wep_014;	server noarchive int C8_wep_024;	server noarchive int C8_wep_034;
+server noarchive int C8_wep_044;	server noarchive int C8_wep_054;	server noarchive int C8_wep_064;	server noarchive int C8_wep_074;
+server noarchive int C8_wep_084;	server noarchive int C8_wep_094;	server noarchive int C8_wep_0104;	server noarchive int C8_wep_0114;
+server noarchive int C8_wep_0124;	server noarchive int C8_wep_0134;	server noarchive int C8_wep_0144;	server noarchive int C8_wep_0154;
+server noarchive int C8_wep_005;	server noarchive int C8_wep_015;	server noarchive int C8_wep_025;	server noarchive int C8_wep_035;
+server noarchive int C8_wep_045;	server noarchive int C8_wep_055;	server noarchive int C8_wep_065;	server noarchive int C8_wep_075;
+server noarchive int C8_wep_085;	server noarchive int C8_wep_095;	server noarchive int C8_wep_0105;	server noarchive int C8_wep_0115;
+server noarchive int C8_wep_0125;	server noarchive int C8_wep_0135;	server noarchive int C8_wep_0145;	server noarchive int C8_wep_0155;
+server noarchive int C8_wep_00;	server noarchive int C8_wep_016;	server noarchive int C8_wep_026;	server noarchive int C8_wep_036;
+server noarchive int C8_wep_046;	server noarchive int C8_wep_056;	server noarchive int C8_wep_066;	server noarchive int C8_wep_076;
+server noarchive int C8_wep_086;	server noarchive int C8_wep_096;	server noarchive int C8_wep_0106;	server noarchive int C8_wep_0116;
+server noarchive int C8_wep_0126;	server noarchive int C8_wep_0136;	server noarchive int C8_wep_0146;	server noarchive int C8_wep_0156;
+server noarchive int C8_wep_007;	server noarchive int C8_wep_017;	server noarchive int C8_wep_027;	server noarchive int C8_wep_037;
+server noarchive int C8_wep_047;	server noarchive int C8_wep_057;	server noarchive int C8_wep_067;	server noarchive int C8_wep_077;
+server noarchive int C8_wep_087;	server noarchive int C8_wep_097;	server noarchive int C8_wep_0107;	server noarchive int C8_wep_0117;
+server noarchive int C8_wep_0127;	server noarchive int C8_wep_0137;	server noarchive int C8_wep_0147;	server noarchive int C8_wep_0157;
+server noarchive int C8_wep_100;	server noarchive int C8_wep_110;	server noarchive int C8_wep_120;	server noarchive int C8_wep_130;
+server noarchive int C8_wep_140;	server noarchive int C8_wep_150;	server noarchive int C8_wep_160;	server noarchive int C8_wep_170;
+server noarchive int C8_wep_180;	server noarchive int C8_wep_190;	server noarchive int C8_wep_1100;	server noarchive int C8_wep_1110;
+server noarchive int C8_wep_1120;	server noarchive int C8_wep_1130;	server noarchive int C8_wep_1140;	server noarchive int C8_wep_1150;
+server noarchive int C8_wep_101;	server noarchive int C8_wep_111;	server noarchive int C8_wep_121;	server noarchive int C8_wep_131;
+server noarchive int C8_wep_141;	server noarchive int C8_wep_151;	server noarchive int C8_wep_161;	server noarchive int C8_wep_171;
+server noarchive int C8_wep_181;	server noarchive int C8_wep_191;	server noarchive int C8_wep_1101;	server noarchive int C8_wep_1111;
+server noarchive int C8_wep_1121;	server noarchive int C8_wep_1131;	server noarchive int C8_wep_1141;	server noarchive int C8_wep_1151;
+server noarchive int C8_wep_102;	server noarchive int C8_wep_112;	server noarchive int C8_wep_122;	server noarchive int C8_wep_132;
+server noarchive int C8_wep_142;	server noarchive int C8_wep_152;	server noarchive int C8_wep_162;	server noarchive int C8_wep_172;
+server noarchive int C8_wep_182;	server noarchive int C8_wep_192;	server noarchive int C8_wep_1102;	server noarchive int C8_wep_1112;
+server noarchive int C8_wep_1122;	server noarchive int C8_wep_1132;	server noarchive int C8_wep_1142;	server noarchive int C8_wep_1152;
+server noarchive int C8_wep_103;	server noarchive int C8_wep_113;	server noarchive int C8_wep_123;	server noarchive int C8_wep_133;
+server noarchive int C8_wep_143;	server noarchive int C8_wep_153;	server noarchive int C8_wep_163;	server noarchive int C8_wep_173;
+server noarchive int C8_wep_183;	server noarchive int C8_wep_193;	server noarchive int C8_wep_1103;	server noarchive int C8_wep_1113;
+server noarchive int C8_wep_1123;	server noarchive int C8_wep_1133;	server noarchive int C8_wep_1143;	server noarchive int C8_wep_1153;
+server noarchive int C8_wep_104;	server noarchive int C8_wep_114;	server noarchive int C8_wep_124;	server noarchive int C8_wep_134;
+server noarchive int C8_wep_144;	server noarchive int C8_wep_154;	server noarchive int C8_wep_164;	server noarchive int C8_wep_174;
+server noarchive int C8_wep_184;	server noarchive int C8_wep_194;	server noarchive int C8_wep_1104;	server noarchive int C8_wep_1114;
+server noarchive int C8_wep_1124;	server noarchive int C8_wep_1134;	server noarchive int C8_wep_1144;	server noarchive int C8_wep_1154;
+server noarchive int C8_wep_105;	server noarchive int C8_wep_115;	server noarchive int C8_wep_125;	server noarchive int C8_wep_135;
+server noarchive int C8_wep_145;	server noarchive int C8_wep_155;	server noarchive int C8_wep_165;	server noarchive int C8_wep_175;
+server noarchive int C8_wep_185;	server noarchive int C8_wep_195;	server noarchive int C8_wep_1105;	server noarchive int C8_wep_1115;
+server noarchive int C8_wep_1125;	server noarchive int C8_wep_1135;	server noarchive int C8_wep_1145;	server noarchive int C8_wep_1155;
+server noarchive int C8_wep_106;	server noarchive int C8_wep_116;	server noarchive int C8_wep_126;	server noarchive int C8_wep_136;
+server noarchive int C8_wep_146;	server noarchive int C8_wep_156;	server noarchive int C8_wep_166;	server noarchive int C8_wep_176;
+server noarchive int C8_wep_186;	server noarchive int C8_wep_196;	server noarchive int C8_wep_1106;	server noarchive int C8_wep_1116;
+server noarchive int C8_wep_1126;	server noarchive int C8_wep_1136;	server noarchive int C8_wep_1146;	server noarchive int C8_wep_1156;
+server noarchive int C8_wep_107;	server noarchive int C8_wep_117;	server noarchive int C8_wep_127;	server noarchive int C8_wep_137;
+server noarchive int C8_wep_147;	server noarchive int C8_wep_157;	server noarchive int C8_wep_167;	server noarchive int C8_wep_177;
+server noarchive int C8_wep_187;	server noarchive int C8_wep_197;	server noarchive int C8_wep_1107;	server noarchive int C8_wep_1117;
+server noarchive int C8_wep_1127;	server noarchive int C8_wep_1137;	server noarchive int C8_wep_1147;	server noarchive int C8_wep_1157;
+server noarchive int C8_wep_200;	server noarchive int C8_wep_210;	server noarchive int C8_wep_220;	server noarchive int C8_wep_230;
+server noarchive int C8_wep_240;	server noarchive int C8_wep_250;	server noarchive int C8_wep_260;	server noarchive int C8_wep_270;
+server noarchive int C8_wep_280;	server noarchive int C8_wep_290;	server noarchive int C8_wep_2100;	server noarchive int C8_wep_2110;
+server noarchive int C8_wep_2120;	server noarchive int C8_wep_2130;	server noarchive int C8_wep_2140;	server noarchive int C8_wep_2150;
+server noarchive int C8_wep_201;	server noarchive int C8_wep_211;	server noarchive int C8_wep_221;	server noarchive int C8_wep_231;
+server noarchive int C8_wep_241;	server noarchive int C8_wep_251;	server noarchive int C8_wep_261;	server noarchive int C8_wep_271;
+server noarchive int C8_wep_281;	server noarchive int C8_wep_291;	server noarchive int C8_wep_2101;	server noarchive int C8_wep_2111;
+server noarchive int C8_wep_2121;	server noarchive int C8_wep_2131;	server noarchive int C8_wep_2141;	server noarchive int C8_wep_2151;
+server noarchive int C8_wep_202;	server noarchive int C8_wep_212;	server noarchive int C8_wep_222;	server noarchive int C8_wep_232;
+server noarchive int C8_wep_242;	server noarchive int C8_wep_252;	server noarchive int C8_wep_262;	server noarchive int C8_wep_272;
+server noarchive int C8_wep_282;	server noarchive int C8_wep_292;	server noarchive int C8_wep_2102;	server noarchive int C8_wep_2112;
+server noarchive int C8_wep_2122;	server noarchive int C8_wep_2132;	server noarchive int C8_wep_2142;	server noarchive int C8_wep_2152;
+server noarchive int C8_wep_203;	server noarchive int C8_wep_213;	server noarchive int C8_wep_223;	server noarchive int C8_wep_233;
+server noarchive int C8_wep_243;	server noarchive int C8_wep_253;	server noarchive int C8_wep_263;	server noarchive int C8_wep_273;
+server noarchive int C8_wep_283;	server noarchive int C8_wep_293;	server noarchive int C8_wep_2103;	server noarchive int C8_wep_2113;
+server noarchive int C8_wep_2123;	server noarchive int C8_wep_2133;	server noarchive int C8_wep_2143;	server noarchive int C8_wep_2153;
+server noarchive int C8_wep_204;	server noarchive int C8_wep_214;	server noarchive int C8_wep_224;	server noarchive int C8_wep_234;
+server noarchive int C8_wep_244;	server noarchive int C8_wep_254;	server noarchive int C8_wep_264;	server noarchive int C8_wep_274;
+server noarchive int C8_wep_284;	server noarchive int C8_wep_294;	server noarchive int C8_wep_2104;	server noarchive int C8_wep_2114;
+server noarchive int C8_wep_2124;	server noarchive int C8_wep_2134;	server noarchive int C8_wep_2144;	server noarchive int C8_wep_2154;
+server noarchive int C8_wep_205;	server noarchive int C8_wep_215;	server noarchive int C8_wep_225;	server noarchive int C8_wep_235;
+server noarchive int C8_wep_245;	server noarchive int C8_wep_255;	server noarchive int C8_wep_265;	server noarchive int C8_wep_275;
+server noarchive int C8_wep_285;	server noarchive int C8_wep_295;	server noarchive int C8_wep_2105;	server noarchive int C8_wep_2115;
+server noarchive int C8_wep_2125;	server noarchive int C8_wep_2135;	server noarchive int C8_wep_2145;	server noarchive int C8_wep_2155;
+server noarchive int C8_wep_206;	server noarchive int C8_wep_216;	server noarchive int C8_wep_226;	server noarchive int C8_wep_236;
+server noarchive int C8_wep_246;	server noarchive int C8_wep_256;	server noarchive int C8_wep_266;	server noarchive int C8_wep_276;
+server noarchive int C8_wep_286;	server noarchive int C8_wep_296;	server noarchive int C8_wep_2106;	server noarchive int C8_wep_2116;
+server noarchive int C8_wep_2126;	server noarchive int C8_wep_2136;	server noarchive int C8_wep_2146;	server noarchive int C8_wep_2156;
+server noarchive int C8_wep_207;	server noarchive int C8_wep_217;	server noarchive int C8_wep_227;	server noarchive int C8_wep_237;
+server noarchive int C8_wep_247;	server noarchive int C8_wep_257;	server noarchive int C8_wep_267;	server noarchive int C8_wep_277;
+server noarchive int C8_wep_287;	server noarchive int C8_wep_297;	server noarchive int C8_wep_2107;	server noarchive int C8_wep_2117;
+server noarchive int C8_wep_2127;	server noarchive int C8_wep_2137;	server noarchive int C8_wep_2147;	server noarchive int C8_wep_2157;
 
 
 

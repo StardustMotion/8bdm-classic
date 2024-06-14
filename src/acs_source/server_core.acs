@@ -1,0 +1,308 @@
+
+
+script "8C" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {
+
+		case PHYSICS_8C:
+			GiveInventory("8C Static Move Giver", 1);
+			SetAirControl(8.392333); // 5.905 for airspeed = groundspeed
+			
+			/*
+			while (true) { // airFriction control }}
+			Player air movement was planned to have lower friction + slower player speed,
+				resulting in jumps being hard to readjust direction, but gaining more momentum/speed (like doom jumps.)
+			This, as a contract to ground movement - high friction + high player speed, resulting in good dodging/position,
+			but not good to cover distances.
+
+			It was dropped because modifying player's speed based on grounded/in air (with setactorproperty or powerspeed i.e)
+			couldn't use client-side prediction (https://zdoom.org/wiki/Creating_multiplayer-friendly_ZScript)
+			to make player movement online smooth.
+
+			Need Player.Forward/Side move properties but for in-air specific :D
+
+			-----------------------------------------------------------------------------------------------
+
+			Also for some reason when an actor (the player) is standing on a solid actor (i.e yoku block),
+			the aircontrol (friction) stops applying, giving player a surge of speed
+			We reposition the player 1 unit above the solid actor, with no gravity, just so aircontrol applies again (code below)
+				
+			Limitations though : there's still 1 tic of speed surge (when landing on the actor),
+			also jump reproduction not accurate ; it allows jumping again as soon as you land on the actor
+			*/
+			while(!isGone(0)) {
+				if ((GetActorZ(0)-GetActorFloorZ(0))>=1.0)
+					if (!checkFooting(-1.0)) {
+						SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),0.0,false,false);
+						SetActorPosition(0,GetActorX(0),GetActorY(0),GetActorZ(0)+1.0,false);
+						GiveInventory("8C On actor gravity Giver", 1);
+						do {
+							delay(1);
+							if (isGone(0)) 
+								terminate;
+							if (GetPlayerInput(-1,INPUT_BUTTONS)&BT_JUMP) {
+								SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),GetActorProperty(0,APROP_JumpZ),false,false);
+								break;
+							}
+						}  while (!checkFooting(-2.0));
+						TakeInventory("8C On actor gravity", 1);
+						continue;
+					}
+				delay(1);
+			}
+		break;
+
+		case XY_DIST:
+			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
+			SetResultValue(xyDistance(0,arg1));
+		break;
+
+		case Z_DIST:
+			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
+			SetResultValue(zDistance(0,arg1));
+		break;
+
+		case IS_GONE:
+			SetResultValue(isGone(arg1));
+		break;
+		
+		case COPY_VELOCITY:
+			GiveInventory("8C follower",1);
+			do {
+				arg2 = ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);				
+				SetActorVelocity(0, 
+					((1-((arg2>>23)&0x2))*(arg2&0xFF))<<16, 
+					((1-((arg2>>24)&0x2))*(arg2&0xFF00))<<8, 
+					(1-((arg2>>25)&0x2))*(arg2&0xFF0000), 
+				false, false);
+				delay(1);
+			} while (CheckInventory("8C follower"));
+		break;
+
+		case GET_VELOCITY:
+			SetActivator(0, arg1);
+			SetResultValue(
+				(abs(GetActorVelX(0)>>16)&0xFF) |
+				((abs(GetActorVelY(0)>>16)&0xFF) << 8) |
+				((abs(GetActorVelZ(0)>>16)&0xFF) << 16) |
+				((GetActorVelX(0)<0)<<24) |
+				((GetActorVelY(0)<0)<<25) |
+				((GetActorVelZ(0)<0)<<26)
+			);
+		break;
+
+		// detect lateral collision with terrain/actors. Used i.e by Cutting Wheel to climb
+		case CHECK_COLLISION:
+			arg1 = GetActorAngle(0)+ 0.25*arg1;
+			int i = GetActorProperty(0,APROP_Radius)>>16;
+
+			// increase this to help non axis aligned collision detection but at the cost of overall worsened collision accuracy
+			arg3 = (i*5)/3;
+			
+			if (arg2) 	int tmp = "8C Check Collision";
+			else 			tmp = "8C Check Terrain";
+
+			arg2 = UniqueTID();
+			while (true) {
+				type = !Spawn(tmp,
+					GetActorX(0) + (arg3 * cos(arg1)) - i*sin(arg1),
+					GetActorY(0) + (arg3 * sin(arg1)) + i*cos(arg1),
+					GetActorZ(0), arg2);
+				if (type) break;
+				type = !Spawn(tmp,
+					GetActorX(0) + (arg3 * cos(arg1)) + i*sin(arg1),
+					GetActorY(0) + (arg3 * sin(arg1)) - i*cos(arg1),
+					GetActorZ(0)+GetActorProperty(0,APROP_Height)-12.0, arg2);
+				break;
+			}
+			SetResultValue(type);
+			Thing_Remove(arg2);
+		break;
+
+		// core_unsolidplayer but more simple, usable for monsters
+		case SOLID_TOGGLE:
+			if (!arg1) {
+				GiveInventory("PlayerPropertyUnsolid", 1);
+				GiveInventory("PlayerPropertySolidOff",1);
+			}
+			else if (CheckInventory("PlayerPropertyUnsolid")) {
+				TakeInventory("PlayerPropertyUnsolid", 1);				
+				if (!CheckInventory("PlayerPropertyUnsolid"))
+					GiveInventory("PlayerPropertySolidOn", 1);
+			}
+		break;
+
+		// to generalize
+		case GET_USERVAR:
+			if (arg1) SetActivator(0,arg1);
+			SetResultValue(GetUserVariable(0, "user_colorId"));
+		break;
+
+		// 6b "map_teleportfog" script overwrite
+		case NO_8C_FOG:
+			if (Timer() < 2) delay(2); // give bootup time to determine isMap8C
+			if (isMap8C) terminate;
+			// edit end
+			arg1 = ACS_NamedExecuteWithResult("core_getptrtid", AAPTR_TARGET);
+			arg2 = UniqueTID();
+			SpawnForced("TeleportFogFX", GetActorX(0), GetActorY(0), GetActorZ(0), arg2, 0);
+			SetActivator(arg2);
+			SetPointer(AAPTR_TARGET, arg1);
+			SetActivator(arg1);
+			Thing_SetTranslation(arg2, -1);
+			Thing_ChangeTID(arg2, 0);
+		break;
+		
+
+		// // From control disable to control enabled again, takes 130 tics
+		// case INTRO_ANIMATION:
+		// 	SetActorProperty(0, APROP_Health, 1);
+		// 	ACS_NamedExecuteWithResult("core_freezeplayer", 0, true);
+		// 	ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, true);
+		// 	ACS_NamedExecuteWithResult("core_invisibleplayer", 0, true);
+		// 	ACS_NamedExecuteWithResult("core_nogravityplayer", 0, true);
+		// 	GiveInventory("noInteractionOn",1);
+							
+		// 	arg3 = CAMERA_TID+PlayerNumber();
+		// 	arg2 = ActivatorTID();
+		// 	SpawnForced("8C Camera",0,0,0,arg3,0);
+		// 	SetActivator(arg3);
+		// 	SetPointer(AAPTR_TARGET,arg2);
+		// 	SetActivator(arg2);
+
+		// 	ACS_NamedExecuteWithResult("8C CS", CS_INTRO_HUD_ANIMATION, PlayerNumber());
+		// 	delay(INCARNATION_PREINTRO_TIME);
+
+		// 	ACS_NamedExecuteWithResult("core_invisibleplayer", 0, false);
+		// 	ACS_NamedExecuteWithResult("core_nogravityplayer", 0, false);
+		// 	GiveInventory("noInteractionOff",1);
+		// 	SetActorState(0,"intro8C",true);
+
+		// 	// ---- INCARNATION_INTRO_SPAWN TIME start ---- //
+		// 	delay(35);
+		// 	type = ((GetActorProperty(0,APROP_SpawnHealth)-1)<<16)/40;
+		// 	for (int i=1; i <= 40; i++) {
+		// 		SetActorProperty(0,APROP_Health, 1+((type*i)>>16));
+		// 		if (i%2) 
+		// 			LocalAmbientSound("8CHPFILL", 127);
+		// 		delay(1);
+		// 	}
+		// 	SetActorProperty(0,APROP_Health, GetActorProperty(0,APROP_SpawnHealth));
+		// 	delay(15);
+		// 	ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
+		// 	ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, false);
+		// 	// ---- INCARNATION_INTRO_SPAWN TIME end ---- //
+		// break;
+
+	}
+}
+
+
+function bool deflectAttack(void) {
+	if (CheckInventory("8C Deflect")) {
+		PlaySound(0,"8CPAIN02",CHAN_VOICE,1.0,false);
+		int isValid = SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		SpawnForced("8C Deflect gfx", GetActorX(0), GetActorY(0), GetActorZ(0));
+		if (isValid && !CheckFlag(0, "DONTREFLECT")) {
+            SetPointer(AAPTR_TARGET, 0, AAPTR_DAMAGE_TARGET);
+			SetActorVelocity(0, -GetActorVelY(0), GetActorVelX(0), -16.0, false, false);
+		}
+		return true;
+	}
+    return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+int playerSize = 0;
+script "8C API" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {		
+		// case API_8C_SPAWN_ENEMY:
+		// 	name = GetCvarString("8bdm_wepTag");
+		// 	arg1 = GetCvar("8bdm_wepMult");
+		// 	if (Timer() < 2) delay(2); // give bootup time to populate enemy table
+		// 	type = HERO_SIZE;
+		// 	while (true) {
+		// 		if (!strICmp(name,getName(type)))
+		// 			break;
+		// 		if (type == (HERO_SIZE+ENEMY_SIZE)) {
+		// 			Log(l:"8C_ENEMY_UNKNOWN", s:"\cc(\ca", s:type, s:"\cc)");
+		// 			SetResultValue(false);
+		// 			terminate;
+		// 		}
+		// 		type++;
+		// 	}
+
+		// 	arg2 = UniqueTID();
+		// 	arg3 = SpawnSpotFacingForced(name, arg1, arg2);
+		// 	if (!arg3) {
+		// 		Log(l:"8C_ENEMY_CANT_SPAWN", s:"\cc(\ca", s:name, s:"\cc, on spot \ca", d:arg1, s:"\cc)");
+		// 		SetResultValue(false);
+		// 		terminate;
+		// 	}
+		// 	SetActivator(arg2);
+		// 	if (type)
+		// 		GiveInventory("8C ID", type);
+		// 	arg1 = random(1,50);
+		// 	setRank(arg1);
+		// 	healthFormula(arg1);
+
+		// 	arg2 = !random(0,1024);
+		// 	if (arg2) 
+		// 		GiveInventory("8C Shiny", 1);
+		// 	//tmp = MOB_COLOR;//+(arg2*MOB_COLOR_SIZE)+i;///+(arg3<<1);
+		// 	arg2 = 0;
+		// 	SetUserVariable(0,"user_8C_color", arg2); Thing_SetTranslation(0, arg2);
+		// 	SetUserVariable(0,"user_8C_score", getScore(type));
+		// 	Setactorposition(0,GetActorX(0)+128.0,GetActorY(0),GetActorZ(0),false);
+		// 	Thing_ChangeTID(0, 0);
+		// 	Log(s:"\cnspawned \cc(\ci", s:name, s:"\cc, rank \ci", d:arg1, s:"\cc)");
+		// 	SetResultValue(true);
+		// break;
+
+		case API_8C_PLAYER_COUNT:
+			SetResultValue(playerSize);
+		break;
+	}
+}
+
+
+
+
+
+
+
+
+
+function void createHero(int player, int slot, int heroIndex) {
+    setPlayerHero(player, slot, heroIndex);
+    clearWeps(player, slot);
+	setExp(player, slot, 0);
+    if (slot >= 0)
+        dbOperation(player, DB_CREATE_HERO, slot, heroIndex);
+}
+
+function void deleteHero(int player, int slot) {
+    setPlayerHero(player, slot, -1);
+    if (slot >= 0)
+        dbOperation(player, DB_DELETE_HERO, slot, 0);
+}
+
+
+
+
+
+
+
+
+
+

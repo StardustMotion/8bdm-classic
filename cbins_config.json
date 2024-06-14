@@ -1,12 +1,12 @@
 {
 	"folder": "src",
 	"libraries": [
-		"8C.acs",
-		"8C2.acs",
-		"data.acs",
-		"data2.acs",
-		"main.acs",
-		"main2.acs"
+		"8C.acs", 
+		"data.acs", "database.acs", "events.acs", 
+
+		"server_core.acs", "server_puke.acs", "server_rpg.acs",
+		"client_core.acs", "client_title.acs",
+		"utils.acs"
 	],
 	"file_name": "8bdm-classic",
 	"version": "1.0.0"
