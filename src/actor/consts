@@ -1,0 +1,15 @@
+
+const int CAMERA_TID = 7800;
+// ACS ENUM calls / see acs_source/data.acs
+const int C8_XY_DIST = 1;
+const int C8_Z_DIST = 2;
+const int C8_IS_GONE = 3;
+const int C8_COPY_VELOCITY = 4;
+const int C8_CHECK_COLLISION = 6;
+const int C8_SOLID_TOGGLE = 7;
+const int C8_GET_USERVAR = 8;
+const int C8_GOAL_CHECK = 10;
+const int C8_PACIFIST = 12;
+
+const int CS_CAMERA = 260;
+const int CS_ACT_SCREEN = 264;

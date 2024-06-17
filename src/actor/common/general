@@ -1,18 +1,6 @@
-// see acs_source/data.acs
-const int MOB_ON_SPAWN = 0;
-const int XY_DIST = 1;
-const int Z_DIST = 2;
-const int IS_GONE = 3;
-const int COPY_VELOCITY = 4;
-const int CHECK_COLLISION = 6;
-const int SOLID_TOGGLE = 7;
-const int GET_USERVAR = 8;
-const int CAMERA_TID = 7800;
-
-
 // 'lets give essential actors long-ass names'
 actor proj : BasicProjectile { obituary "$8C_OBIT_DEFAULT" }
-actor watcher : BasicWatcher {}
+actor watcher : BasicWatcher { scale 2.5 }
 actor gfx : BasicGraphicEffect {}
 actor item : CustomInventory {}
 actor var : Inventory { inventory.amount 1 inventory.maxamount 0xFFFFFFFF +INVENTORY.UNDROPPABLE }
@@ -39,3 +27,8 @@ actor "8C Puke Response" : var { }
 
 // Given by server to clients to throttle NET calls
 actor "8C Puke Request" : powerup { powerup.duration 10 }
+
+// State that prevents dealing/receiving dmg or effects
+actor "8C Pacifist Stack" : var16 {}
+actor "8C Pacifist Giver" : PowerApropGiver {}
+actor "8C Pacifist" : PowerUp {  powerup.duration 0x7FFFFFFF }

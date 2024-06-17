@@ -1,12 +1,14 @@
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Server-side  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-bool forcePhysics = false, isMap8C = false;
 script "8C OPEN" OPEN {
 	init();
+	delay(3);
+	actStart();
 }
 
-
+bool forcePhysics = false, isMap8C = false;
+int selectedPlayersSize, act, goal;
 function void init(void) {
 	forcePhysics = GetCvar("C8_physics");
 	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
@@ -20,12 +22,42 @@ function void init(void) {
 		DefinePowerAprop("8C Static Move Giver", "8C Static Move", APROP_Speed, 16.0, false);
 		DefinePowerAprop("8C On actor gravity Giver", "8C On actor gravity", APROP_Gravity, 0.0, false);
 	}
+	DefinePowerAprop("8C Pacifist Giver", "8C Pacifist", APROP_Alpha, 0.62, NO);
 
-	if (isMap8C) {
+	if (isMap8C) {		
+		selectPlayer(0);
+		selectedPlayersSize = selectedPlayerCount(true);
+		act = 1;
+		consolecommand("sv_maxplayers 0");
 		ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), MAX_CLIENTS))); // GAMEMODE
 		ConsoleCommand("mm8bdm_sv_respawnprotection 0"); // side effect / need a hook
 	}
 }
+
+
+#DEFINE ACT_TID 851
+function void actStart(void) {
+	log(s:"\ci---------------------------\nSTART ACT ", d:act);
+	SetCVar(CVAR_EXP_POOL,0);
+	goal = 0;
+	int index = 0, spawnPoint;
+	for (int player = 0; player < MAX_CLIENTS; player++) {
+		if (PlayerInGame(player) && isSelectedPlayer(player)) {
+			SetActivatorToPlayer(player);
+			spawnPoint = ACT_TID+index+((act-1)*10);
+			log(s:"warp to ", d:spawnPoint);
+			SetActorPosition(0, GetActorX(spawnPoint), GetActorY(spawnPoint), GetActorZ(spawnPoint), false);
+			SetActorAngle(0,GetActorAngle(spawnPoint));
+			index = (index+1)&0x7;
+			ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
+		}
+	}
+	SetMusic(getMusic(0,act-1));
+}
+
+
+
+
 
 function void onFirstGameStart(void) {
 	log(s:"\cg>>> Parsing data <<<");
@@ -56,12 +88,10 @@ script "8C ENTER" ENTER {
 	delay(1);
 	ACS_NamedExecuteWithResult("8C RPG", RPG_INCARNATE);
 	if (isMap8C || forcePhysics) 	ACS_NamedExecuteWithResult("8C", PHYSICS_8C);
-	//if (isMap8C) 					ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
 }
 script "8C RESPAWN" RESPAWN {
 	ACS_NamedExecuteWithResult("8C ENTER");
 }
-
 
 script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 	switch(type) {
@@ -72,32 +102,45 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 		break;
 
 		case GAMEEVENT_ACTOR_DAMAGED:
-			SetResultValue(damageCalculation(GetEventResult()));
-		break;
-        
-		// case GAMEEVENT_ACTOR_DAMAGED:
-		// 	//if (damgetype = cuttingwheel) playsound 8CCUTWHX
-
-        //     if (deflectAttack()) 
-        //         terminate;
-
+			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
+        	if (deflectAttack() | isPacifist()) {
+    		    SetResultValue(0);
+				terminate;
+			}
 			
-		// 	// ------------------------------------------------------------------
+			SetResultValue(damageCalculation(GetEventResult()));
 
-		// 	if (isEnemy()) {
-       	// 		PlaySound(0,"8CPAIN00",CHAN_VOICE,1.0,false);
-		// 		type = GetUserVariable(0, "user_colorId");
-		// 		for (i = 0; i < 5; i++) {
-		// 			Thing_SetTranslation(0, 68); delay(1);// CLR_BOSSPAIN
-		// 			Thing_SetTranslation(0, type); delay(1);
-		// 		}
-		// 	}
-		// break;		
+			int enemy = isEnemy();
+			if (enemy) {
+				arg2 = getId();
+				ACS_NamedExecuteWithResult("8C CS", CS_ENEMY_PAIN);
+			}
+			else {
+				int player = (ClassifyActor(0)&ACTOR_PLAYER);
+			}
+			
+			delay(1);
+			if (isGone(NULL)) {
+				if (enemy) 			onEnemyDeath(arg2);	
+				else if (player)	actOverCheck();
+			}		
+		break;
+
+        	
     }
+}
+
+script "8C LEAVES" (int player) DISCONNECT {
+	delay(1);
+	actOverCheck();
 }
     
 
-	
+function void onEnemyDeath(int enemyID) {
+	SetCVar(CVAR_EXP_POOL, GetCvar(CVAR_EXP_POOL)+getScore(enemyID));
+}
+
+
 
 	
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Client-side  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -109,5 +152,22 @@ script "8C NET CS" (int type) NET CLIENTSIDE {
 		case NET_CS_START_SCREEN:
 			ACS_NamedExecuteWithResult("8C CS", CS_START_SCREEN);
 		break;
+	}
+}
+
+
+#DEFINE ENEMY_COLOR 7247 
+#DEFINE ENEMY_VERSIONS 3
+#DEFINE ENEMY_COLOR_SIZE ENEMY_VERSIONS<<1
+
+script "8C OPEN CS" OPEN CLIENTSIDE {
+	delay(25);
+	createTranslations();
+}
+
+script "8C LEAVES CS" (int player) DISCONNECT CLIENTSIDE {
+	if (ConsolePlayerNumber()==player) {
+		eraseAll(HUD_ID_HERO,16);
+		eraseAll(HUD_ID_EFFECTS,8);
 	}
 }

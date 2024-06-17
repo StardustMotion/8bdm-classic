@@ -13,8 +13,13 @@ states {
     see: MEGM BBBBBCCCCCDDDDDEEEEE 1 A_JumpIf(!CallACS("core_CheckFooting"), "inAir") goto spawn
     inAir: 0MEG D 1 A_JumpIf(CallACS("core_CheckFooting"), "spawn") loop
 
-    missile: MEGM FFFFFF 1 A_JumpIf(!CallACS("core_CheckFooting"), "inAirFire") goto spawn
-    inAirFire: 0MEG EEEEEE 1 A_JumpIf(CallACS("core_CheckFooting"), "missile") goto spawn
+    missile:    MEGM FFFFFFFFF 1 A_JumpIf(!CallACS("core_CheckFooting"), "inAirFire") goto spawn
+    inAirFire:  0MEG EEEEEEEEE 1 A_JumpIf(CallACS("core_CheckFooting"), "missile") goto spawn
+
+    classPain: MEGM H 0 A_PlaySoundEx("MEGAPAIN", "Voice")
+        goto megamanPain
+    classDeath: MEGM H 0
+        goto megamanDeath
 
     intro8Cpose:
         3MEG ABCDEFGHIJKLMNOPQR 4

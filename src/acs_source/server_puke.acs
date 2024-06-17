@@ -78,6 +78,36 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
                 dbOperation(player, DB_ACCOUNT_LOAD, NULL, NULL);
             }
 		break;
+
+        /*
+        @arg1 0 for goal leave ; 1 for go to next act 
+        */
+        case PUKE_GOAL:
+            if (!CheckInventory("8C Goal Status")) {
+                pukeReply(PUKE_ERROR); terminate;
+            }
+            if (!arg1) {
+                pukeReply(PUKE_OK);
+                ACS_NamedExecuteWithResult("core_freezeplayer",0,false);
+                if (CheckInventory("8C Goal Status")>>1) 
+                    goal--;
+                delay(15);
+                ACS_NamedExecuteWithResult("8C", C8_PACIFIST, false);
+                delay(55);
+                clearInv("8C Goal Status");
+            }
+            else {
+                if (CheckInventory("8C Goal Status")>>1) {
+                    pukeReply(PUKE_ERROR); terminate;
+                }
+                pukeReply(PUKE_OK);
+                SetInventory("8C Goal Status", 2);
+                goal++;
+                log(s:"is winnable ", d:isGameWinnable(goal), s:" goal ", d:goal, s:" / ", d:((selectedPlayersSize/2)+1));
+                if (isGameWinnable(goal))
+                    ACS_NamedExecuteWithResult("8C", C8_ACT_COMPLETE);
+            }
+        break;
 	}
 }
 

@@ -1,10 +1,10 @@
 actor "8C Kamadoma" : "8C Mob" {
-    radius 17 height 40 health 10
+    radius 17 height 40
     meleerange 768 accuracy 16
     args 28, 10
         states { 
             spawn:
-                TNT1 A 0 nodelay ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, false)
+                TNT1 A 0 nodelay ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, false)
             checkFloor:
                 8CAA L 2 A_JumpIf(CallACS("core_CheckFooting"), 1)
                 loop
@@ -18,7 +18,7 @@ actor "8C Kamadoma" : "8C Mob" {
                 8CAA K 2
                 BLAD A 0 A_FaceTarget
                 BLAD A 0 A_PlaySoundEx("8CKAMADM", "Weapon")
-                BLAD A 0 A_ChangeVelocity(args[0]>>(CallACS("8C",XY_DIST)<(meleerange>>1)), 0, args[1],CVF_REPLACE|CVF_RELATIVE)
+                BLAD A 0 A_ChangeVelocity(args[0]>>(CallACS("8C",C8_XY_DIST)<(meleerange>>1)), 0, args[1],CVF_REPLACE|CVF_RELATIVE)
                 BLAD A 0 A_SpawnItemEx("8C Kamadoma contact")
                 8CAA L 2
                 goto checkFloor

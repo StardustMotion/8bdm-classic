@@ -14,7 +14,6 @@ function int bitOff(int x, int b) { return x & ~(1 << b); }
 function int getBoolFlagVal(str cvar, int var)                          { return getBit(GetCvar(__boolFlagVal(cvar,var)), var&0x1F); }
 function void setBoolFlagVal(str cvar, int var, int val)                {
     cvar = __boolFlagVal(cvar,var);
-    log(s:"modif ", s:cvar);
     SetCVar(cvar, val ? bitOn(GetCvar(cvar), var&0x1F) : bitOff(GetCvar(cvar), var&0x1F));
 }
 function str __boolFlagVal(str cvar, int var) {                           return strParam(s:cvar, d:var>>5); }
@@ -46,6 +45,13 @@ function void __setNbitFlagVal(str cvar, bool incrCvar, int var, int n, int log2
 		cvar = strParam(s:cvar, d:var>>log2n);    
 	n = (var&n)<<log2n;
 	SetCVar(cvar,  (GetCvar(cvar) & ~(mask<<n)) | (val<<n));		
+}
+
+// i.e char8parser("AAAAAAAA BBBBBBBB CCCCCCCC DDDDDDDD", 2) => "CCCCCCCC"
+function str char8parser(str string, int shift) {
+	if (shift) 
+		string = strRight(string, strLen(string)-(shift*9));
+	return strLeft(string, 8);
 }
 
 function int valueOr(int object, int or) {
@@ -106,7 +112,24 @@ maybe generalize to "draw mask" later
 #DEFINE C8_VAR_X 250.0
 #DEFINE C8_VAR_Y 180.0
 
-function void draw8cBar(str graphic, bool isHorizontal, int unit, int barSize, int fillRatio, int x, int y, int xScreen, int yScreen) {
+
+// a wily wars bar inside a MM7 container
+function void draw8cBar(str graphic, bool isHorizontal, int fillRatio, int x, int y, int xScreen, int yScreen) {
+    if (isHorizontal) {
+        x = (x&0xFFFF0000) | 0.1;
+        drawBI("8CMM7BAR", 0, x,y,xScreen,yScreen);
+        drawBar(graphic,true,2,56,fillRatio,x+4.0,y,xScreen,yScreen);
+    }
+    else {
+        y = (y&0xFFFF0000) | 0.2;
+        drawBI("8CMM7VAR", 0, x,y,xScreen,yScreen);
+        drawBar(graphic,false,2,56,fillRatio,x,y-4.0,xScreen,yScreen);
+    }
+}
+
+
+// wily wars bar
+function void drawBar(str graphic, bool isHorizontal, int unit, int barSize, int fillRatio, int x, int y, int xScreen, int yScreen) {
     if (fillRatio>1.0) fillRatio = 1.0;
     else if (fillRatio<0) fillRatio = 0;
     int n = ((ceilf((1.0-fillRatio)*(barSize/unit)))>>16); // 28
@@ -132,8 +155,8 @@ function void draw8cBar(str graphic, bool isHorizontal, int unit, int barSize, i
 
 function void draw8cNumber(int number, int id, int x, int y, int xScreen, int yScreen, int font, bool fromRight) {
 	switch(font) {
-		case SMALL_FONT: int space = 11.0; break;
-		case BIG_FONT: space = 14.0; break;
+		case SMALL_FONT: int space = 10.0; break;
+		case BIG_FONT: space = 13.0; break;
 	}
 	font = strParam(s:"8CNUMB",d:font);
 	int n = 0;
@@ -166,6 +189,7 @@ function bool isPressed(int status, int key) {
 }
 
 
+
 function str lineBreak(str string, int every) {
     str s = "";
     int length = strLen(string);
@@ -183,9 +207,9 @@ function void sfx(str sound) {
 
 
 // from vanilla but /w zOffset param
-function bool checkFooting(int zOffset) {
+function bool checkFooting(bool thruPlayers, int zOffset) {
 	int tid = UniqueTID();
-	bool check = Spawn("8bdmFootholdCheck",GetActorX(0),GetActorY(0),GetActorZ(0)+zOffset,tid);
+	bool check = Spawn(thruPlayers ? "8bdmFootholdCheck_ThruPlayer" : "8bdmFootholdCheck",GetActorX(0),GetActorY(0),GetActorZ(0)+zOffset,tid);
 	Thing_Remove(tid);
 	return check;
 }
@@ -207,7 +231,7 @@ function bool isGone(int ptr) {
 	//////////////////////////////////////////////////////////
 
 
-// /* ALIGNER
+// /* ALIGNER 341 255 !!
 // x
 // .0 = positions center of box
 // .1 = positions left edge of box

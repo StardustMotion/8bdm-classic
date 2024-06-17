@@ -1,6 +1,6 @@
 actor "8C Blader" : "8C Mob" {
     obituary "$8C_OBIT_BLADER"
-    +NOGRAVITY radius 20 height 50 health 20
+    +NOGRAVITY radius 20 height 50
     meleerange 2048 accuracy 14 stamina 320
         states { 
             idle:
@@ -16,19 +16,19 @@ actor "8C Blader" : "8C Mob" {
             see:
                 BLAD A 0 A_FaceTarget
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
-                BLAD A 0 A_ChangeVelocity(accuracy*0.8, 0, (CallACS("8C",Z_DIST)<stamina)*(accuracy>>1),CVF_REPLACE|CVF_RELATIVE)
-                8CAB AAAABBBBAAAA 1 A_JumpIf((CallACS("8C",XY_DIST)*1.4) < (CallACS("8C",Z_DIST)), "diveStart")
+                BLAD A 0 A_ChangeVelocity(accuracy*0.8, 0, (CallACS("8C",C8_Z_DIST)<stamina)*(accuracy>>1),CVF_REPLACE|CVF_RELATIVE)
+                8CAB AAAABBBBAAAA 1 A_JumpIf((CallACS("8C",C8_XY_DIST)*1.4) < (CallACS("8C",C8_Z_DIST)), "diveStart")
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
-                BLAD A 0 A_ChangeVelocity(accuracy*0.8, 0, (CallACS("8C",Z_DIST)<stamina)*(accuracy>>1),CVF_REPLACE|CVF_RELATIVE)
-                8CAB BBBBAAAABBBB 1 A_JumpIf((CallACS("8C",XY_DIST)*1.4) < (CallACS("8C",Z_DIST)), "diveStart")
+                BLAD A 0 A_ChangeVelocity(accuracy*0.8, 0, (CallACS("8C",C8_Z_DIST)<stamina)*(accuracy>>1),CVF_REPLACE|CVF_RELATIVE)
+                8CAB BBBBAAAABBBB 1 A_JumpIf((CallACS("8C",C8_XY_DIST)*1.4) < (CallACS("8C",C8_Z_DIST)), "diveStart")
                 goto sightCheck
             
             diveStart:
                 BLAD A 0 ACS_NamedExecuteWithResult("core_predicthome", accuracy, AAPTR_TARGET, -5)
                 TNT1 A 0 A_SetArg(0, 0)
                 TNT1 A 0 A_SetArg(1,z)
-                TNT1 A 0 A_SetArg(2, CallACS("8C", Z_DIST)/accuracy)
-                TNT1 A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, false)
+                TNT1 A 0 A_SetArg(2, CallACS("8C", C8_Z_DIST)/accuracy)
+                TNT1 A 0 ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, false)
                 BLAD A 0 A_SpawnItemEx("8C Blader contact")
             diveLoop:
                 BLAD A 0 A_ChangeVelocity(accuracy,0,-accuracy,CVF_REPLACE|CVF_RELATIVE)
@@ -45,13 +45,13 @@ actor "8C Blader" : "8C Mob" {
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
                 BLAD A 0 A_ChangeVelocity(accuracy,0,+accuracy,CVF_REPLACE|CVF_RELATIVE)
 
-                8CAB A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
-                8CAB A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
-                8CAB B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
-                8CAB B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",Z_DIST)>=stamina), "end")
+                8CAB A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",C8_Z_DIST)>=stamina), "end")
+                8CAB A 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",C8_Z_DIST)>=stamina), "end")
+                8CAB B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",C8_Z_DIST)>=stamina), "end")
+                8CAB B 1 A_SetArg(0,args[0]-1) BLAD A 0 A_JumpIf((args[0] <= -8) || (CallACS("8C",C8_Z_DIST)>=stamina), "end")
                 loop
             end:
-                TNT1 A 0 ACS_NamedExecuteWithResult("8C", SOLID_TOGGLE, true)
+                TNT1 A 0 ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, true)
                 BLAD A 0 A_ChangeVelocity(accuracy,0,0,CVF_REPLACE|CVF_RELATIVE)
                 BLAD A 0 A_PlaySoundEx("8CBLADER", "Weapon")
                 TNT1 A 0 A_TakeInventory("8C follow me")

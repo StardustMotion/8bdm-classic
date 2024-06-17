@@ -1,6 +1,6 @@
 
 actor "8C Manbu" : "8C Mob" {
-    +NOGRAVITY radius 20 height 52 health 35
+    +NOGRAVITY radius 20 height 52
     meleerange 768 accuracy 8 args 40
         states { 
             spawn:

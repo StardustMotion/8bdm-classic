@@ -1,8 +1,8 @@
 // cvars not allowed to start with a number, so 8C is C8 instead  ' -'
 
-server bool C8_physics = false;
+
 user bool C8_autologin = false;
-server noarchive bool C8_is_first_start = true;
+server noarchive int C8_exp_pool = 0;
 
 /*
 	Top level view
@@ -16,6 +16,10 @@ server noarchive bool C8_is_first_start = true;
 	- int: C8_hero_<i> (4)					(runtime) Index to (compile time) hero ID mapping
 	- int: C8_stage_<i> (4)					(runtime) Index to (compile time) stage ID mapping
 
+	- int: C8_selected_players (16)			The 8 players allowed to enter stage and receive the special weapon
+	- int: C8_is_first_start (1)			For operations that need to be done once : on server start
+	- int: C8_physics (1)					Force 8C's physics outside of 8C maps
+
 	- string: C8_login_<p> (1)				Player Zandronum account name
 	- int: C8_slot (16)						Slot currently used/allowed by the server
 	- int: C8_player_hero_<s><p> (4)		Player's hero index
@@ -25,7 +29,7 @@ server noarchive bool C8_is_first_start = true;
 	// --------------- Static values (hero)	--------------- //
 	- string: C8_hero_actor_<id>			Hero actor name
 	- string: C8_hero_name_<id>				Hero display name
-	- int: C8_hero_hp_<id>					Base HP stat
+	- int: C8_hero_resilience_<id>			Base resilience stat
 	- int: C8_hero_puissance_<id>			Base Puissance stat
 	- int: C8_hero_weapons_<id>				Weapons per group
 	- int: C8_hero_weapon_groups_<id>		Weapon group count (can be ommited if only 1)
@@ -38,16 +42,19 @@ server noarchive bool C8_is_first_start = true;
 
 
 	// --------------- Static values (stage)	--------------- //
+
 */
-
-
-
 
 
 
 // initialized once : when server starts
 server noarchive int C8_hero_size;
 server noarchive int C8_stage_size;
+server noarchive bool C8_is_first_start = true;
+
+// initialized on map start
+server noarchive int C8_selected_players = 0; //  (only 16 lower bits are used)
+server bool C8_physics = false;
 
 
 // map compile time hero ID to runtime hero ID, 4 hero ID per var
@@ -273,193 +280,5 @@ server noarchive int C8_wep_207;	server noarchive int C8_wep_217;	server noarchi
 server noarchive int C8_wep_247;	server noarchive int C8_wep_257;	server noarchive int C8_wep_267;	server noarchive int C8_wep_277;
 server noarchive int C8_wep_287;	server noarchive int C8_wep_297;	server noarchive int C8_wep_2107;	server noarchive int C8_wep_2117;
 server noarchive int C8_wep_2127;	server noarchive int C8_wep_2137;	server noarchive int C8_wep_2147;	server noarchive int C8_wep_2157;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

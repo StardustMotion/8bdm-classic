@@ -1,17 +1,23 @@
 
+
+/* -----------------------------------------------------------------------------
+						In game stuff
+ ----------------------------------------------------------------------------- */
 texture 8CINTRO7
     pic 8CINTRO4 tics 12
-	pic 8CINTRO5 tics 2
-	pic 8CINTRO6 tics 2
-	pic 8CINTRO5 tics 2
+	pic 8CINTRO5 tics 4
+	pic 8CINTRO6 tics 4
+	pic 8CINTRO5 tics 4
 
 texture 8CINTROB
     pic 8CINTRO8 tics 12
-	pic 8CINTRO9 tics 2
-	pic 8CINTROA tics 2
-	pic 8CINTRO9 tics 2
+	pic 8CINTRO9 tics 4
+	pic 8CINTROA tics 4
+	pic 8CINTRO9 tics 4
 
-
+texture 8CMUGB02
+	pic 8CMUGB00 tics 8
+	pic 8CMUGB01 tics 8
 	
 
 
@@ -88,12 +94,12 @@ texture 8CMENU19
 
 // scan background
 texture 8CMENU1D
-	pic 8CMENU1E tics 4
 	pic 8CMENU1F tics 4
 	pic 8CMENU1G tics 4
 	pic 8CMENU1H tics 4
 	pic 8CMENU1I tics 4
 	pic 8CMENU1J tics 4
+	pic 8CMENU1K tics 4
 
 // wheel core
 texture 8CMENU12

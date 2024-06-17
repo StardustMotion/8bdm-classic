@@ -1,5 +1,13 @@
 
 
+
+#DEFINE INCARNATION_PREINTRO_TIME 25 // tics before actor plays its intro8C state
+#DEFINE INCARNATION_INTRO_SPAWN_TIME 90 // tics allowed for intro8C duration
+#DEFINE INCARNATION_INTRO_TIME INCARNATION_PREINTRO_TIME+INCARNATION_INTRO_SPAWN_TIME
+#DEFINE INCARNATION_INTRO_READY_TIME INCARNATION_PREINTRO_TIME+25 // "ready" animation display time
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Core scripts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
 script "8C" (int type, int arg1, int arg2, int arg3) {
 	switch(type) {
 
@@ -29,21 +37,21 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			Limitations though : there's still 1 tic of speed surge (when landing on the actor),
 			also jump reproduction not accurate ; it allows jumping again as soon as you land on the actor
 			*/
-			while(!isGone(0)) {
+			while(!isGone(NULL)) {
 				if ((GetActorZ(0)-GetActorFloorZ(0))>=1.0)
-					if (!checkFooting(-1.0)) {
+					if (!checkFooting(true,-1.0)) {
 						SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),0.0,false,false);
 						SetActorPosition(0,GetActorX(0),GetActorY(0),GetActorZ(0)+1.0,false);
 						GiveInventory("8C On actor gravity Giver", 1);
 						do {
 							delay(1);
-							if (isGone(0)) 
+							if (isGone(NULL)) 
 								terminate;
 							if (GetPlayerInput(-1,INPUT_BUTTONS)&BT_JUMP) {
 								SetActorVelocity(0,GetActorVelX(0),GetActorVelY(0),GetActorProperty(0,APROP_JumpZ),false,false);
 								break;
 							}
-						}  while (!checkFooting(-2.0));
+						}  while (!checkFooting(true,-2.0));
 						TakeInventory("8C On actor gravity", 1);
 						continue;
 					}
@@ -51,21 +59,21 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			}
 		break;
 
-		case XY_DIST:
+		case C8_XY_DIST:
 			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
 			SetResultValue(xyDistance(0,arg1));
 		break;
 
-		case Z_DIST:
+		case C8_Z_DIST:
 			if (!arg1) arg1 = GetActorProperty(0, APROP_TARGETTID);
 			SetResultValue(zDistance(0,arg1));
 		break;
 
-		case IS_GONE:
+		case C8_IS_GONE:
 			SetResultValue(isGone(arg1));
 		break;
 		
-		case COPY_VELOCITY:
+		case C8_COPY_VELOCITY:
 			GiveInventory("8C follower",1);
 			do {
 				arg2 = ACS_NamedExecuteWithResult("8C", GET_VELOCITY, arg1);				
@@ -91,7 +99,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		break;
 
 		// detect lateral collision with terrain/actors. Used i.e by Cutting Wheel to climb
-		case CHECK_COLLISION:
+		case C8_CHECK_COLLISION:
 			arg1 = GetActorAngle(0)+ 0.25*arg1;
 			int i = GetActorProperty(0,APROP_Radius)>>16;
 
@@ -119,7 +127,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		break;
 
 		// core_unsolidplayer but more simple, usable for monsters
-		case SOLID_TOGGLE:
+		case C8_SOLID_TOGGLE:
 			if (!arg1) {
 				GiveInventory("PlayerPropertyUnsolid", 1);
 				GiveInventory("PlayerPropertySolidOff",1);
@@ -132,7 +140,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		break;
 
 		// to generalize
-		case GET_USERVAR:
+		case C8_GET_USERVAR:
 			if (arg1) SetActivator(0,arg1);
 			SetResultValue(GetUserVariable(0, "user_colorId"));
 		break;
@@ -151,51 +159,164 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			Thing_SetTranslation(arg2, -1);
 			Thing_ChangeTID(arg2, 0);
 		break;
-		
 
-		// // From control disable to control enabled again, takes 130 tics
-		// case INTRO_ANIMATION:
-		// 	SetActorProperty(0, APROP_Health, 1);
-		// 	ACS_NamedExecuteWithResult("core_freezeplayer", 0, true);
-		// 	ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, true);
-		// 	ACS_NamedExecuteWithResult("core_invisibleplayer", 0, true);
-		// 	ACS_NamedExecuteWithResult("core_nogravityplayer", 0, true);
-		// 	GiveInventory("noInteractionOn",1);
-							
-		// 	arg3 = CAMERA_TID+PlayerNumber();
-		// 	arg2 = ActivatorTID();
-		// 	SpawnForced("8C Camera",0,0,0,arg3,0);
-		// 	SetActivator(arg3);
-		// 	SetPointer(AAPTR_TARGET,arg2);
-		// 	SetActivator(arg2);
+		// From control disable to control enabled again, takes 130 tics
+		case INTRO_ANIMATION:
+			SetActorProperty(0, APROP_Health, 1);
+			ACS_NamedExecuteWithResult("core_freezeplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, true);
+			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, true);
+			GiveInventory("noInteractionOn",1);
+			
+			arg3 = CAMERA_TID+PlayerNumber();
+			arg2 = ActivatorTID();
+			SpawnForced("8C Camera",0,0,0,arg3,0);
+			SetActivator(arg3);
+			SetPointer(AAPTR_TARGET,arg2);
+			SetActivator(arg2);
+			
+		 	ACS_NamedExecuteWithResult("8C CS", CS_INTRO_HUD_ANIMATION, PlayerNumber());
+		 	delay(INCARNATION_PREINTRO_TIME);
+			ACS_NamedExecuteWithResult("core_invisibleplayer", 0, false);
+			ACS_NamedExecuteWithResult("core_nogravityplayer", 0, false);
+			GiveInventory("noInteractionOff",1);
+			SetActorState(0,"intro8C",true);
+			
+			// ---- INCARNATION_INTRO_SPAWN TIME start ---- //
+			delay(35);
+			type = ((GetActorProperty(0,APROP_SpawnHealth)-1)<<16)/40;
+			for (i=1; i <= 40; i++) {
+				SetActorProperty(0,APROP_Health, 1+((type*i)>>16));
+				if (i%2) LocalAmbientSound("8CHPFILL", 127);
+				delay(1);
+			}
+			SetActorProperty(0,APROP_Health, GetActorProperty(0,APROP_SpawnHealth));
+			delay(15);
+			ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
+			ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, false);
+			// ---- INCARNATION_INTRO_SPAWN TIME end ---- //
+		break;
 
-		// 	ACS_NamedExecuteWithResult("8C CS", CS_INTRO_HUD_ANIMATION, PlayerNumber());
-		// 	delay(INCARNATION_PREINTRO_TIME);
+		case C8_GOAL_CHECK:
+			if ((GetActorProperty(0, APROP_Accuracy)) < act) {
+				SetResultValue(true);
+				terminate;
+			}
+			SetResultValue(false);
+			arg2 = GetActorProperty(0, APROP_Mass);
+			for (i = 0; i < MAX_CLIENTS; i++)
+				if (PlayerInGame(i) && isSelectedPlayer(i))
+					if ((xyDistance(0,i+1000) < arg2) && !CheckActorInventory(i+1000,"8C Goal Status"))
+						GiveActorInventory(i+1000, "8C Enter Goal", 1);
+		break;
 
-		// 	ACS_NamedExecuteWithResult("core_invisibleplayer", 0, false);
-		// 	ACS_NamedExecuteWithResult("core_nogravityplayer", 0, false);
-		// 	GiveInventory("noInteractionOff",1);
-		// 	SetActorState(0,"intro8C",true);
+		/*
+		prevents dealing or receiving damage/effects when enabled
+		@arg1 on/off
+		*/
+		case C8_PACIFIST:
+			if (arg1) {
+				if (!CheckInventory("8C Pacifist Stack"))
+					GiveInventory("8C Pacifist Giver",1);
+				GiveInventory("8C Pacifist Stack", 1);
+			}
+			else {
+				TakeInventory("8C Pacifist Stack", 1);
+				if (!CheckInventory("8C Pacifist Stack"))
+					TakeInventory("8C Pacifist",1);
+			}
+		break;
 
-		// 	// ---- INCARNATION_INTRO_SPAWN TIME start ---- //
-		// 	delay(35);
-		// 	type = ((GetActorProperty(0,APROP_SpawnHealth)-1)<<16)/40;
-		// 	for (int i=1; i <= 40; i++) {
-		// 		SetActorProperty(0,APROP_Health, 1+((type*i)>>16));
-		// 		if (i%2) 
-		// 			LocalAmbientSound("8CHPFILL", 127);
-		// 		delay(1);
-		// 	}
-		// 	SetActorProperty(0,APROP_Health, GetActorProperty(0,APROP_SpawnHealth));
-		// 	delay(15);
-		// 	ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
-		// 	ACS_NamedExecuteWithResult("core_invulnerableplayer", 0, false);
-		// 	// ---- INCARNATION_INTRO_SPAWN TIME end ---- //
-		// break;
+		case C8_ACT_COMPLETE:
+			act++;
+			AmbientSound("8CGOAL", 127);
+			for (i = 0; i < MAX_CLIENTS; i++) {
+				if (PlayerInGame(i)) {
+					SetActivatorToPlayer(i);
+					if (CheckInventory("8C Goal Status")) {
+						ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
+						ACS_NamedExecuteWithResult("8C", C8_PACIFIST, false);
+						clearInv("8C Goal Status");
+					}}}
+			setServerPacify(true, true, true);
+			ACS_NamedExecuteWithResult("8C CS", CS_COMPLETE_MESSAGE, false);
+			delay(105);
+			setmusic("");
+			ACS_NamedExecuteWithResult("8C CS", CS_CLOSURE_ANIMATION, 60);
+			delay(60);	
+			setServerPacify(false, true, false);
+			actStart();
+		break;
 
 	}
 }
 
+function void setServerPacify(bool value, bool alterFreeze, bool freezeValue) {
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (PlayerInGame(i)) {
+			SetActivatorToPlayer(i);
+				ACS_NamedExecuteWithResult("8C", C8_PACIFIST, value);
+				if (alterFreeze)
+					ACS_NamedExecuteWithResult("core_freezeplayer", 0, freezeValue);
+				
+		}
+	}
+}
+
+script "goal" (void) {
+	spawnGoal(550,128,1);
+}
+
+script "8C API" (int type, int arg1, int arg2, int arg3) {
+	switch(type) {
+		/*
+		@arg1 map spot TID
+		@arg2 radius
+		@arg3 goal of arg3 act (1/2)
+		*/
+		case C8_API_SPAWN_GOAL:
+			type = UniqueTID();
+			SpawnSpotFacingForced("8C Goal", arg1, type);
+			SetActorProperty(type, APROP_Mass, arg2);
+			SetActorProperty(type, APROP_Accuracy, arg3);
+			Thing_ChangeTID(type,0);
+		break;
+	}
+}
+
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// 			W             I              N           N             A              B             L          E.
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function bool isGameWinnable(int count) {
+	return (count >= ((selectedPlayersSize/2)+1));
+}
+
+
+
+function void actOverCheck(void) {
+	if (!isGameWinnable(selectedPlayerCount(false))) {
+		log(s:"game lost...");
+		// lost sequence
+	}
+}
+
+function int selectedPlayerCount(bool ignoreStatus) {
+	int count = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (ignoreStatus) 
+			count += isSelectedPlayer(i);
+		else
+			if (PlayerInGame(i) && isSelectedPlayer(i)) {
+				SetActivatorToPlayer(i);
+				if (!isGone(NULL)) count++;
+			}
+	}
+	log(s:"\cg\n>>> selected players ", d:count);
+	return count;
+}
 
 function bool deflectAttack(void) {
 	if (CheckInventory("8C Deflect")) {
@@ -211,68 +332,10 @@ function bool deflectAttack(void) {
     return false;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-int playerSize = 0;
-script "8C API" (int type, int arg1, int arg2, int arg3) {
-	switch(type) {		
-		// case API_8C_SPAWN_ENEMY:
-		// 	name = GetCvarString("8bdm_wepTag");
-		// 	arg1 = GetCvar("8bdm_wepMult");
-		// 	if (Timer() < 2) delay(2); // give bootup time to populate enemy table
-		// 	type = HERO_SIZE;
-		// 	while (true) {
-		// 		if (!strICmp(name,getName(type)))
-		// 			break;
-		// 		if (type == (HERO_SIZE+ENEMY_SIZE)) {
-		// 			Log(l:"8C_ENEMY_UNKNOWN", s:"\cc(\ca", s:type, s:"\cc)");
-		// 			SetResultValue(false);
-		// 			terminate;
-		// 		}
-		// 		type++;
-		// 	}
-
-		// 	arg2 = UniqueTID();
-		// 	arg3 = SpawnSpotFacingForced(name, arg1, arg2);
-		// 	if (!arg3) {
-		// 		Log(l:"8C_ENEMY_CANT_SPAWN", s:"\cc(\ca", s:name, s:"\cc, on spot \ca", d:arg1, s:"\cc)");
-		// 		SetResultValue(false);
-		// 		terminate;
-		// 	}
-		// 	SetActivator(arg2);
-		// 	if (type)
-		// 		GiveInventory("8C ID", type);
-		// 	arg1 = random(1,50);
-		// 	setRank(arg1);
-		// 	healthFormula(arg1);
-
-		// 	arg2 = !random(0,1024);
-		// 	if (arg2) 
-		// 		GiveInventory("8C Shiny", 1);
-		// 	//tmp = MOB_COLOR;//+(arg2*MOB_COLOR_SIZE)+i;///+(arg3<<1);
-		// 	arg2 = 0;
-		// 	SetUserVariable(0,"user_8C_color", arg2); Thing_SetTranslation(0, arg2);
-		// 	SetUserVariable(0,"user_8C_score", getScore(type));
-		// 	Setactorposition(0,GetActorX(0)+128.0,GetActorY(0),GetActorZ(0),false);
-		// 	Thing_ChangeTID(0, 0);
-		// 	Log(s:"\cnspawned \cc(\ci", s:name, s:"\cc, rank \ci", d:arg1, s:"\cc)");
-		// 	SetResultValue(true);
-		// break;
-
-		case API_8C_PLAYER_COUNT:
-			SetResultValue(playerSize);
-		break;
-	}
+function bool isPacifist(void) {
+	SetActivator(0, AAPTR_DAMAGE_TARGET); if (CheckInventory("8C Pacifist")) return true;
+	SetActivator(0, AAPTR_DAMAGE_SOURCE); if (CheckInventory("8C Pacifist")) return true;
+	return false;
 }
 
 

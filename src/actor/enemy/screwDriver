@@ -1,5 +1,5 @@
 actor "8C Screw Driver" : "8C Mob" {
-     radius 20 height 35 health 100
+     radius 20 height 35
     meleerange 1024 accuracy 35
         states { 
             spawn:

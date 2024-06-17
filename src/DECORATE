@@ -1,5 +1,6 @@
 
-
+#include "actor/consts"
 #include "actor/common/__build"
 #include "actor/hero/__build"
 #include "actor/enemy/__build"
+#include "actor/misc/__build"

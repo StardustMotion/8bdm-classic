@@ -4,8 +4,8 @@ cooperative {
 	addflag COOPERATIVE
 	addflag PLAYERSEARNKILLS
 	addflag MAPRESETS
-	addflag DEADSPECTATORS
-	addflag USEMAXLIVES
+	removeflag DEADSPECTATORS
+	removeflag USEMAXLIVES
 	addflag MAPRESET_RESETS_MAPTIME
 	//removeflag DONTPRINTPLAYERSLEFT
 
@@ -26,7 +26,6 @@ cooperative {
 		SV_NoFreelook = false
 		SV_NoFOV = false
 		SV_NoRunes = false
-		SV_NoRespawn = false
 		SV_InfiniteInventory = false
 		SV_KillAllMonsters = false
 		SV_NoAutomap = false
@@ -59,7 +58,7 @@ cooperative {
 		SV_NoCrouch = true
 		SV_AllowCrouch = false
 		sv_randomcoopstarts = true
-		sv_respawndelaytime = 2
+		sv_respawndelaytime = 1
 		sv_survivalcountdowntime = 5
 		teamdamage = 0.0
 		TimeLimit = 0
@@ -83,14 +82,14 @@ cooperative {
 		Compat_PlasmaBump = false
 		Instagib = false
 		Buckshot = false
-		SV_ForceRespawnTime = 5 // ?
+		SV_ForceRespawnTime = 3 // ?
 		sv_maprotation = false
-		sv_maxlives = 3
+		SV_NoRespawn = true
 
 		////////////////////////////////////////////////////
-		sv_maxplayers = 8 // comme dans dofus mdr
+		//sv_maxplayers = 0
 		//sv_maxclientsperip = 1 // where you going
-		//sv_maxclients 16 // MAX_8C_PLAYERS.acs
+		// sv_maxclients 16 // MAX_8C_PLAYERS.acs
 		////////////////////////////////////////////////////
 		
 
@@ -106,8 +105,6 @@ cooperative {
 		// sv_DeadPlayersCanKeepInventory
 		*/
 
-
-		sv_maxlives = 3
 
 	}
 

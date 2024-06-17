@@ -1,0 +1,28 @@
+actor "8C Goal" : watcher { +FLOATBOB renderstyle normal
+    states {
+        spawn: TNT1 A 1 nodelay A_ChangeVelocity(0,0,(32-(z-floorz)) * ((z-floorz)<32), CVF_REPLACE) // get off the floor
+            TNT1 A 0 A_Stop
+            TNT1 A 0 A_SpawnItemEx("8C Goal Aura",0,0,0,0,0,0,mass>>3,SXF_ABSOLUTEANGLE)
+        idle:  8CAC NONP 4 A_JumpIf(ACS_NamedExecuteWithResult("8C",C8_GOAL_CHECK,mass), "actComplete")
+            loop
+        actComplete: TNT1 A 0 A_GiveInventory("varBool")
+            8CAC QRSTUVWXYZ 4
+            8CAD AB 4
+        idleFlag: 8CAD CDEF 4
+            loop}}
+
+actor "8C Goal Status" : var8 {}
+actor "8C Enter Goal" : item { states {
+    pickup: 
+        TNT1 A 0 A_GiveInventory("8C Goal Status")
+        TNT1 A 0 ACS_NamedExecuteWithResult("core_freezeplayer", 0, true, true) TNT1 A 0 ACS_NamedExecuteWithResult("8C", C8_PACIFIST, true)
+        TNT1 A 0 ACS_NamedExecuteWithResult("8C CS", CS_ACT_SCREEN) stop}}
+
+
+actor "8C Goal Aura" : gfx { translation "192:192=210:210", "198:198=41:41" scale 3.25
+    states { spawn: TNT1 A 0 nodelay A_SetMass((angle<<3)+16)
+    idle:
+        TNT1 A 0 A_SpawnItemEx("8C Shiny Light", mass,0,-(z-floorz), 0,0,14, 0,SXF_TRANSFERTRANSLATION|SXF_TRANSFERSCALE)
+        TNT1 A 0 A_SpawnItemEx("8C Shiny Light", -mass,0,-(z-floorz), 0,0,14, 0,SXF_TRANSFERTRANSLATION|SXF_TRANSFERSCALE)
+        TNT1 A 1 A_SetAngle(angle+15)
+        loop}}

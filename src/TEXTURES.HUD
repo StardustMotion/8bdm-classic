@@ -10,7 +10,10 @@ texture 8CVARVAR, 8, 56 {
     patch 8CVARBT0, 0, 40 patch 8CVARBT0, 0, 42 patch 8CVARBT0, 0, 44 patch 8CVARBT0, 0, 46 patch 8CVARBT0, 0, 48
     patch 8CVARBT0, 0, 50 patch 8CVARBT0, 0, 52 patch 8CVARBT0, 0, 54
 }
+
 texture 8CBARBAR, 56, 8 { patch 8CVARVAR, 0, 0 { rotate 90 }}
+
+texture 8CMM7BAR, 66, 12 { patch 8CMM7VAR, 0, 0 { rotate 90 }}
 
 // bar mask
 texture 8CBARMK0, 2, 8 { patch 8CVARMK0, 0, 0 { rotate 90 }}
@@ -24,10 +27,19 @@ texture 8CBARMK2, 32, 8 { patch 8CVARMK2, 0, 0 { rotate 90 } }
 // ----------------------------------------
 
 texture 8CBARPUI, 56, 8 { patch 8CBARBAR, 0, 0 { translation "192:192=172:172", "198:198=42:42" }}
-texture 8CBARHP, 56, 8  { patch 8CBARBAR, 0, 0 { translation "192:192=202:202", "198:198=192:192" }}
+texture 8CBARRES, 56, 8  { patch 8CBARBAR, 0, 0 { translation "192:192=99:99", "198:198=203:203" }}
+
+texture 8CBARHP, 56, 8  { patch 8CBARBAR, 0, 0 { translation "192:192=160:160", "198:198=215:215" }}
 
 
 
+// ----------------------------------------------- HERO HUD
+
+texture 8CMUGB02, 48, 48 {}
+
+
+
+// -----------------------------------------------
 
 
 
