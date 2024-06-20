@@ -1,0 +1,44 @@
+
+// Cut Man
+
+texture CUT16B09
+	pic CUT59 tics 8
+	pic CUT60 tics 8
+	pic CUT61 tics 8
+	pic CUT60 tics 8
+
+texture CUT16B06
+	pic CUT64 tics 8
+	pic CUT65 tics 8
+	pic CUT66 tics 8
+	pic CUT65 tics 8
+
+texture CUT16B04
+	pic CUT67 tics 8
+	pic CUT68 tics 8
+	pic CUT69 tics 8
+	pic CUT68 tics 8
+	
+texture CUT16B0A
+	pic CUT70 tics 8
+	pic CUT71 tics 8
+	pic CUT72 tics 8
+	pic CUT71 tics 8
+	
+texture CUT16B08
+	pic CUT73 tics 8
+	pic CUT74 tics 8
+	pic CUT75 tics 8
+	pic CUT74 tics 8
+	
+texture CUT16B0B
+	pic CUT80 tics 8
+	pic CUT81 tics 8
+	pic CUT82 tics 8
+	pic CUT81 tics 8
+	
+texture CUT16B0E
+	pic CUT83 tics 8
+	pic CUT84 tics 8
+	pic CUT85 tics 8
+	pic CUT84 tics 8

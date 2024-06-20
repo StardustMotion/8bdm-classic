@@ -1,0 +1,381 @@
+///// MM1CUT /////
+texture CUTFLR, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT16, 0, 0
+   WorldPanning 
+}
+
+
+
+texture CUTBRK1, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT1, 0, 0
+   WorldPanning 
+}
+
+texture CUTBRK2, 32, 512
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT7, 0, 0
+   Patch CUT1, 0, 32
+   Patch CUT1, 0, 64
+   Patch CUT1, 0, 96
+   Patch CUT1, 0, 128
+   Patch CUT1, 0, 160
+   Patch CUT1, 0, 192
+   Patch CUT1, 0, 224
+   Patch CUT1, 0, 256
+   Patch CUT1, 0, 288
+   Patch CUT1, 0, 320
+   Patch CUT1, 0, 352
+   Patch CUT1, 0, 384
+   Patch CUT1, 0, 416
+   Patch CUT1, 0, 448
+   Patch CUT1, 0, 480
+   WorldPanning 
+}
+
+
+texture CUTGRY1, 32, 384
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT5, 0, 0
+   Patch CUT4, 0, 32
+   Patch CUT4, 0, 64
+   Patch CUT4, 0, 96
+   Patch CUT4, 0, 128
+   Patch CUT4, 0, 160
+   Patch CUT4, 0, 192
+   Patch CUT4, 0, 224
+   Patch CUT4, 0, 256
+   Patch CUT4, 0, 288
+   Patch CUT4, 0, 320
+   Patch CUT4, 0, 352
+   WorldPanning 
+}
+
+texture CUTGRY2, 32, 256
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT3, 0, 0
+   Patch CUT2, 0, 32
+   Patch CUT2, 0, 64
+   Patch CUT2, 0, 96
+   Patch CUT2, 0, 128
+   Patch CUT2, 0, 160
+   Patch CUT2, 0, 192
+   Patch CUT2, 0, 224
+   WorldPanning 
+}
+
+texture CUTBARS, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT6, 0, 0
+   WorldPanning 
+}
+
+texture CUTBAR2, 32, 128
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT6, 0, 32
+   WorldPanning 
+}
+
+texture CUTGUTB, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT8, 0, 0
+}
+
+texture CUTTECH, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT9, 0, 0
+}
+
+texture CUTLADD, 16, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT10, 0, 0
+}
+
+texture CUTLAD2, 32, 256
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT7, 0, 0
+   Patch CUT1, 0, 32
+   Patch CUT1, 0, 64
+   Patch CUT1, 0, 96
+   Patch CUT1, 0, 128
+   Patch CUT1, 0, 160
+   Patch CUT1, 0, 192
+   Patch CUT1, 0, 224
+   Patch CUT10, 8, 0
+   Patch CUT10, 8, 32
+   Patch CUT10, 8, 64
+   Patch CUT10, 8, 96
+   Patch CUT10, 8, 128
+   Patch CUT10, 8, 160
+   Patch CUT10, 8, 192
+   Patch CUT10, 8, 224
+   WorldPanning 
+}
+
+texture CUTMACH, 96, 80
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT11, 0, 0
+}
+
+texture CUTMAC2, 96, 80
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT15, 0, 0
+}
+
+texture CUTMAC3, 48, 80
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT14, 0, 0
+}
+
+texture CUTSKY, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT12, 0, 0
+}
+
+texture CUTGRY3, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT4, 0, 0
+}
+
+texture CUTGRY4, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT2, 0, 0
+}
+
+texture CUTGRY5, 32, 32
+{
+   XScale 0.5
+   YScale 0.5
+   Patch CUT13, 0, 0
+}
+
+//////////////////// NEW
+
+texture CUT88, 16, 576 { XScale 0.5 YScale 0.5 WorldPanning
+	patch CUT33, 0, 16 patch CUT33, 0, 32 patch CUT33, 0, 48 patch CUT33, 0, 64
+	patch CUT33, 0, 80 patch CUT33, 0, 96 patch CUT33, 0, 112 patch CUT33, 0, 128
+	patch CUT33, 0, 144 patch CUT33, 0, 160 patch CUT33, 0, 176 patch CUT33, 0, 192
+	patch CUT33, 0, 208 patch CUT33, 0, 224 patch CUT33, 0, 240 patch CUT33, 0, 256
+	patch CUT33, 0, 272 patch CUT33, 0, 288 patch CUT33, 0, 304 patch CUT33, 0, 320
+	patch CUT33, 0, 336 patch CUT33, 0, 352 patch CUT33, 0, 368 patch CUT33, 0, 384
+	patch CUT33, 0, 400 patch CUT33, 0, 416 patch CUT33, 0, 432 patch CUT33, 0, 448
+	patch CUT33, 0, 464 patch CUT33, 0, 480 patch CUT33, 0, 496 patch CUT33, 0, 512
+	patch CUT33, 0, 528 patch CUT33, 0, 544 patch CUT33, 0, 560
+}
+texture CUT87, 32, 576 { XScale 0.5 YScale 0.5 WorldPanning 
+	patch CUT34, 0, 16 patch CUT34, 0, 32 patch CUT34, 0, 48 patch CUT34, 0, 64
+	patch CUT34, 0, 80 patch CUT34, 0, 96 patch CUT34, 0, 112 patch CUT34, 0, 128
+	patch CUT34, 0, 144 patch CUT34, 0, 160 patch CUT34, 0, 176 patch CUT34, 0, 192
+	patch CUT34, 0, 208 patch CUT34, 0, 224 patch CUT34, 0, 240 patch CUT34, 0, 256
+	patch CUT34, 0, 272 patch CUT34, 0, 288 patch CUT34, 0, 304 patch CUT34, 0, 320
+	patch CUT34, 0, 336 patch CUT34, 0, 352 patch CUT34, 0, 368 patch CUT34, 0, 384
+	patch CUT34, 0, 400 patch CUT34, 0, 416 patch CUT34, 0, 432 patch CUT34, 0, 448
+	patch CUT34, 0, 464 patch CUT34, 0, 480 patch CUT34, 0, 496 patch CUT34, 0, 512
+	patch CUT34, 0, 528 patch CUT34, 0, 544 patch CUT34, 0, 560
+}
+
+// main brick one
+texture CUT86, 128, 128 { XScale 0.5 YScale 0.5 WorldPanning 
+	patch CUT44, 0, 0 	patch CUT44, 32, 0 	patch CUT44, 64, 0 	patch CUT44, 96, 0
+	patch CUT44, 0, 16 	patch CUT44, 32, 16 patch CUT44, 64, 16 patch CUT44, 96, 16
+	patch CUT44, 0, 32 	patch CUT44, 32, 32 patch CUT44, 64, 32 patch CUT44, 96, 32
+	patch CUT44, 0, 48 	patch CUT44, 32, 48 patch CUT44, 64, 48 patch CUT44, 96, 48
+	patch CUT44, 0, 64 	patch CUT44, 32, 64 patch CUT44, 64, 64 patch CUT44, 96, 64
+	patch CUT44, 0, 80 	patch CUT44, 32, 80 patch CUT44, 64, 80 patch CUT44, 96, 80
+	patch CUT44, 0, 96 	patch CUT44, 32, 96 patch CUT44, 64, 96 patch CUT44, 96, 96
+	patch CUT44, 0, 112 patch CUT44, 32, 112 patch CUT44, 64, 112 patch CUT44, 96, 112
+}
+
+
+
+texture CUT56, 32, 32 { patch CUT45,0,0 { translation "192:192=0:0", "198:198=0:0" }}
+texture CUT57, 32, 32 { patch CUT45,0,0 { translation "192:192=46:46", "198:198=191:191" }}
+texture CUT58, 32, 32 { patch CUT45,0,0 { translation "192:192=177:177", "198:198=44:44" }}
+
+
+texture CUT62, 512, 512 {  XScale 0.5 YScale 0.5 WorldPanning 
+	patch CUT86, 0, 0 patch CUT86, 128, 0 patch CUT86, 256, 0 patch CUT86, 384, 0
+	patch CUT86, 0, 128 patch CUT86, 128, 128 patch CUT86, 256, 128 patch CUT86, 384, 128
+	patch CUT86, 0, 256 patch CUT86, 128, 256 patch CUT86, 256, 256 patch CUT86, 384, 256
+	patch CUT86, 0, 384 patch CUT86, 128, 384 patch CUT86, 256, 384 patch CUT86, 384, 384
+	
+	// pipes
+	patch CUT52, 64, 24 patch CUT52, 160, 24 { flipx }
+	patch CUT52, 64, 38 {flipy} patch CUT52, 160, 38 { flipx  flipy }
+	patch CUT52, 352, 6 {flipy} patch CUT52, 448, 6 { flipx  flipy }
+	patch CUT52, 16, 144 { rotate 90 }
+	patch CUT52, 16, 280 { rotate 90 }
+	patch CUT52, 16, 416 { rotate 90 }
+	
+	patch CUT52, 464, 112 { rotate 270 flipx }
+	patch CUT52, 464, 248 { rotate 270 flipx }
+	patch CUT52, 464, 386 { rotate 270 flipx }
+	
+	patch CUT52, 192, 280 patch CUT52, 288, 280 { flipx }
+	patch CUT52, 192, 294 {flipy} patch CUT52, 288, 294 { flipx  flipy }
+	
+	
+	patch CUT48, 0, 16 patch CUT48, 0, 80 patch CUT48, 0, 144 patch CUT48, 0, 208
+	patch CUT48, 0, 272 patch CUT48, 0, 336 patch CUT48, 0, 400 patch CUT48, 0, 464
+	patch CUT48, 496, 16{flipx} patch CUT48, 496, 80{flipx} patch CUT48, 496, 144{flipx} patch CUT48, 496, 208 {flipx}
+	patch CUT48, 496, 272{flipx} patch CUT48, 496, 336{flipx} patch CUT48, 496, 400{flipx} patch CUT48, 496, 464 {flipx}
+	patch CUT50, 0, 0 patch CUT50, 64, 0 patch CUT50, 128, 0 patch CUT50, 192, 0
+	patch CUT50, 256, 0 patch CUT50, 320, 0 patch CUT50, 384, 0 patch CUT50, 448, 0
+}
+texture CUT76, 16, 16 { patch CUT49,0,0 { translation "192:192=0:0", "198:198=0:0" }}
+texture CUT77, 16, 16 { patch CUT49,0,0 { translation "192:192=46:46", "198:198=191:191" }}
+texture CUT78, 16, 16 { patch CUT49,0,0 { translation "192:192=177:177", "198:198=44:44" }}
+
+texture CUT59, 512, 512 {
+	XScale 0.5 YScale 0.5 WorldPanning
+	patch CUT62, 0, 0
+	patch CUT56, 64, 64 patch CUT56, 96, 192 patch CUT56, 32, 320 patch CUT56, 128, 448
+	patch CUT56, 192, 128 patch CUT56, 224, 256 patch CUT56, 160, 384 patch CUT56, 256, 512
+	patch CUT56, 320, 64 patch CUT56, 352, 192 patch CUT56, 288, 320 patch CUT56, 384, 448   
+	patch CUT76, 0, 0   patch CUT76, 256, 0  patch CUT76, 496, 0
+}
+texture CUT60, 512, 512 {
+	XScale 0.5 YScale 0.5 WorldPanning
+	patch CUT62, 0, 0
+	patch CUT57, 64, 64 patch CUT57, 96, 192 patch CUT57, 32, 320 patch CUT57, 128, 448
+	patch CUT57, 192, 128 patch CUT57, 224, 256 patch CUT57, 160, 384 patch CUT57, 256, 512
+	patch CUT57, 320, 64 patch CUT57, 352, 192 patch CUT57, 288, 320 patch CUT57, 384, 448
+	patch CUT77, 0, 0   patch CUT77, 256, 0  patch CUT77, 496, 0
+}
+texture CUT61, 512, 512 {
+	XScale 0.5 YScale 0.5 WorldPanning
+	patch CUT62, 0, 0
+	patch CUT58, 64, 64 patch CUT58, 96, 192 patch CUT58, 32, 320 patch CUT58, 128, 448
+	patch CUT58, 192, 128 patch CUT58, 224, 256 patch CUT58, 160, 384 patch CUT58, 256, 512
+	patch CUT58, 320, 64 patch CUT58, 352, 192 patch CUT58, 288, 320 patch CUT58, 384, 448
+	patch CUT78, 0, 0   patch CUT78, 256, 0  patch CUT78, 496, 0
+}
+
+texture CUT64, 128, 80 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT41,0,0 { translation "192:192=0:0" }}
+texture CUT65, 128, 80 { XScale 0.5 YScale 0.5 WorldPanning  patch CUT41,0,0 { translation "192:192=191:191" }}
+texture CUT66, 128, 80 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT41,0,0 { translation "192:192=44:44" }}
+
+texture CUT67, 256, 256 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT39,0,0 { translation "192:192=0:0" }}
+texture CUT68, 256, 256 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT39,0,0 { translation "192:192=191:191" }}
+texture CUT69, 256, 256 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT39,0,0 { translation "192:192=44:44" }}
+
+texture CUT70, 64, 64 {  XScale 0.5 YScale 0.5 WorldPanning patch CUT46,0,0 { translation "192:192=0:0", "198:198=0:0" } patch CUT56, 16, 16 }
+texture CUT71, 64, 64 {  XScale 0.5 YScale 0.5 WorldPanning patch CUT46,0,0 { translation "192:192=46:46", "198:198=191:191" }patch CUT57, 16, 16 }
+texture CUT72, 64, 64 {  XScale 0.5 YScale 0.5 WorldPanning patch CUT46,0,0 { translation "192:192=177:177", "198:198=44:44" }patch CUT58, 16, 16 }
+
+texture CUT79, 128, 32 {   
+	XScale 0.5 YScale 0.5 WorldPanning  patch CUT47, 16, 0
+	patch CUT43, 0, 0 {rotate 270} patch CUT43, 112, 0 {rotate 90}
+	patch CUT43, 0, 16 {rotate 270} patch CUT43, 112, 16 {rotate 90}
+}
+texture CUT73, 128, 32 {   XScale 0.5 YScale 0.5 WorldPanning  patch CUT79, 0, 0 { translation "192:192=0:0", "198:198=0:0"}}
+texture CUT74, 128, 32 {   XScale 0.5 YScale 0.5 WorldPanning  patch CUT79, 0, 0   {  translation "192:192=46:46", "198:198=191:191"}}
+texture CUT75, 128, 32 {    XScale 0.5 YScale 0.5 WorldPanning  patch CUT79, 0, 0  { translation "192:192=177:177", "198:198=44:44" }}
+
+texture CUT80, 16, 16 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT51,0,0 { translation "192:192=0:0", "198:198=0:0" }}
+texture CUT81, 16, 16 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT51,0,0 { translation "192:192=46:46", "198:198=191:191" }}
+texture CUT82, 16, 16 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT51,0,0 { translation "192:192=177:177", "198:198=44:44" }}
+
+texture CUT83, 96, 80 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT53,0,0 { translation "192:192=0:0", "198:198=0:0" }}
+texture CUT84, 96, 80 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT53,0,0 { translation "192:192=46:46", "198:198=191:191" }}
+texture CUT85, 96, 80 {  XScale 0.5 YScale 0.5 WorldPanning  patch CUT53,0,0 { translation "192:192=177:177", "198:198=44:44" }}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ----------------- END USER TEXTURE -------------------- //
+
+texture CUT16B00, 96, 576 { XScale 0.5 YScale 0.5 WorldPanning  
+   patch CUT31, 0, 0 patch CUT30, 0, 96 patch CUT30, 0, 192 patch CUT30, 0, 288 patch CUT30, 0, 384 patch CUT30, 0, 480 }
+
+texture CUT16B01, 256, 576 { XScale 0.5 YScale 0.5 WorldPanning 
+	patch CUT35, 0, 0 patch CUT36, 240, 0 
+	patch CUT88, 0, 0 patch CUT88, 240, 0
+	patch CUT32, 16, 0 patch CUT32, 32, 0 patch CUT32, 48, 0 patch CUT32, 64, 0
+	patch CUT32, 80, 0 patch CUT32, 96, 0 patch CUT32, 112, 0 patch CUT32, 128, 0
+	patch CUT32, 144, 0 patch CUT32, 160, 0 patch CUT32, 176, 0 patch CUT32, 192, 0
+	patch CUT32, 208, 0 patch CUT32, 224, 0
+	patch CUT87, 16, 0 patch CUT87, 48, 0 
+	patch CUT87, 80, 0 patch CUT87, 112, 0
+	patch CUT87, 144, 0 patch CUT87, 176, 0
+	patch CUT87, 208, 0
+}
+texture CUT16B02, 256, 256 { XScale 0.5 YScale 0.5 WorldPanning patch CUT37, 0, 0 }
+texture CUT16B03, 256, 224 { XScale 0.5 YScale 0.5 WorldPanning  patch CUT38, 0, 0 }
+texture CUT16B04, 256, 256 { XScale 0.5 YScale 0.5 WorldPanning patch CUT67, 0, 0 }
+texture CUT16B05, 16, 16 { XScale 0.5 YScale 0.5 WorldPanning  patch CUT40, 0, 0 }
+texture CUT16B06, 128, 80 { XScale 0.5 YScale 0.5 WorldPanning patch CUT64, 0, 0 }
+texture CUT16B07, 96, 80 { XScale 0.5 YScale 0.5 WorldPanning  patch CUT42, 0, 0 }
+texture CUT16B08, 128, 32 { XScale 0.5 YScale 0.5 WorldPanning patch CUT73, 0, 0 }
+texture CUT16B09, 512, 512 {  XScale 0.5 YScale 0.5 WorldPanning patch CUT59, 0, 0 }
+texture CUT16B0A, 64, 64 { XScale 0.5 YScale 0.5 WorldPanning patch CUT70, 0, 0 }
+texture CUT16B0B, 16, 16 { XScale 0.5 YScale 0.5 WorldPanning patch CUT80, 0, 0 }
+texture CUT16B0C, 256, 247 { XScale 0.5 YScale 0.5 WorldPanning patch CUT63, 0, 0 }
+texture CUT16B0D, 48, 80 { XScale 0.5 YScale 0.5 WorldPanning  patch CUT54, 0, 0 }
+texture CUT16B0E, 96, 80 { XScale 0.5 YScale 0.5 WorldPanning patch CUT83, 0, 0 }
+texture CUT16B0F, 32, 16 { XScale 0.5 YScale 0.5 WorldPanning patch CUT89, 0, 0 }
+
+
+
+
+
