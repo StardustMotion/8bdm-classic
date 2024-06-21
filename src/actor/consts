@@ -12,4 +12,4 @@ const int C8_GOAL_CHECK = 10;
 const int C8_PACIFIST = 12;
 
 const int CS_CAMERA = 260;
-const int CS_ACT_SCREEN = 264;
+const int CS_GOAL_SCREEN = 264;

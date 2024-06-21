@@ -16,10 +16,10 @@ actor "8C Enter Goal" : item { states {
     pickup: 
         TNT1 A 0 A_GiveInventory("8C Goal Status")
         TNT1 A 0 ACS_NamedExecuteWithResult("core_freezeplayer", 0, true, true) TNT1 A 0 ACS_NamedExecuteWithResult("8C", C8_PACIFIST, true)
-        TNT1 A 0 ACS_NamedExecuteWithResult("8C CS", CS_ACT_SCREEN) stop}}
+        TNT1 A 0 ACS_NamedExecuteWithResult("8C CS", CS_GOAL_SCREEN) stop}}
 
 
-actor "8C Goal Aura" : gfx { translation "192:192=210:210", "198:198=41:41" scale 3.25
+actor "8C Goal Aura" : gfx { translation "192:192=210:210", "198:198=41:41" scale 2.75
     states { spawn: TNT1 A 0 nodelay A_SetMass((angle<<3)+16)
     idle:
         TNT1 A 0 A_SpawnItemEx("8C Shiny Light", mass,0,-(z-floorz), 0,0,14, 0,SXF_TRANSFERTRANSLATION|SXF_TRANSFERSCALE)

@@ -20,7 +20,7 @@
 #DEFINE C8_GOAL_CHECK 10
 //#DEFINE NO_8C_FOG 11 // 8C.acs
 #DEFINE C8_PACIFIST 12
-#DEFINE C8_ACT_COMPLETE 13
+#DEFINE GAME_STATUS_CHECK 13
 
 
 // ------------------- rpg ------------------- //
@@ -52,14 +52,17 @@
     #DEFINE START_SCREEN_DATA 5
 #DEFINE CS_CLIENT_PUKE 258
 #DEFINE CS_HUD_TRANSITION 259
+	#DEFINE CS_HUD_TRANSITION_STRIPES 0
+	#DEFINE CS_HUD_TRANSITION_ALPHA 1
 #DEFINE CS_CAMERA 260
 #DEFINE CS_INTRO_HUD_ANIMATION 261
 #DEFINE CS_INGAME_HUD 262
 #DEFINE CS_ENEMY_PAIN 263
-#DEFINE CS_ACT_SCREEN 264
-#DEFINE CS_COMPLETE_MESSAGE 265
-	#DEFINE CS_COMPLETE_MESSAGE_LETTER 266
+#DEFINE CS_GOAL_SCREEN 264
+#DEFINE CS_TRANSITION_MESSAGE 265
+	#DEFINE CS_TRANSITION_MESSAGE_LETTER 266
 #DEFINE CS_CLOSURE_ANIMATION 267
+#DEFINE CS_ACT_LOST 268
 
 
 // ------------------------------------------------------------------------------------ //
@@ -116,10 +119,11 @@
 
 // hudmessage IDs
 #DEFINE C8_BASE_HUD_ID 1
-	#DEFINE HUD_ID_SERVER_QUERY C8_BASE_HUD_ID // "waiting for server" overlay
-	#DEFINE HUD_ID_MENU 		HUD_ID_SERVER_QUERY+3 // title screen, goal menu
-	#DEFINE HUD_ID_EFFECTS		HUD_ID_MENU+128 // "ready" / act complete animations for example
-	#DEFINE HUD_ID_HERO 		HUD_ID_EFFECTS+32 // in-game HUD
+	#DEFINE HUD_ID_TRANSITION 	C8_BASE_HUD_ID					// fade in/out effects
+	#DEFINE HUD_ID_SERVER_QUERY HUD_ID_TRANSITION+8 			// "waiting for server" overlay
+	#DEFINE HUD_ID_MENU 		HUD_ID_SERVER_QUERY+3 			// title screen, goal menu
+	#DEFINE HUD_ID_EFFECTS		HUD_ID_MENU+128 				// "ready" / act complete animations for example
+	#DEFINE HUD_ID_HERO 		HUD_ID_EFFECTS+32				// in-game HUD
 
 
 
@@ -175,16 +179,29 @@ function void resetMenuArgs(void) {              for (int i = 0; i < 3; i++) set
 //  	Runtime data		   //
 /////////////////////////////////
 
+#DEFINE CVAR_GAME_STATUS "C8_game_status"
+function int getAct(void) {											return get4bFlagVal(CVAR_GAME_STATUS,false,0); }
+function void setAct(int act) {										set4bFlagVal(CVAR_GAME_STATUS,false,0,act); }
+function int getLives(void) {										return get4bFlagVal(CVAR_GAME_STATUS,false,1); }
+function void setLives(int lives) {									set4bFlagVal(CVAR_GAME_STATUS,false,1,lives); }
+function int getGoal(void) {										return get4bFlagVal(CVAR_GAME_STATUS,false,2); }
+function void setGoal(int players) {								set4bFlagVal(CVAR_GAME_STATUS,false,2,players); }
+function int getMinSurvivors(void) {								return get4bFlagVal(CVAR_GAME_STATUS,false,3); }
+function void setMinSurvivors(int players) {						set4bFlagVal(CVAR_GAME_STATUS,false,3,players); }
+function int isGameInTransition(void) {								return get4bFlagVal(CVAR_GAME_STATUS,false,4); }
+function void setGameInTransition(int state) {						set4bFlagVal(CVAR_GAME_STATUS,false,4,state); }
 
-#DEFINE CVAR_HERO "C8_hero_"
+// ------------------------------------------------------------------------ //
+
 #DEFINE CVAR_HERO_SIZE "C8_hero_size"
 function int getHeroSize(void) { 				        	    	return GetCvar(CVAR_HERO_SIZE); }
+#DEFINE CVAR_HERO "C8_hero_"
 function int getHeroFromIndex(int index) { 				        	return get8bFlagVal(CVAR_HERO, true, index); }
 function void setHeroFromIndex(int index, int heroId) {				set8bFlagVal(CVAR_HERO, true, index, heroId); }
 
-#DEFINE CVAR_STAGE "C8_stage_"
 #DEFINE CVAR_STAGE_SIZE "C8_stage_size"
 function int getStageSize(void) { 				        	    	return GetCvar(CVAR_STAGE_SIZE); }
+#DEFINE CVAR_STAGE "C8_stage_"
 function int getStageFromIndex(int index) { 			        	return get8bFlagVal(CVAR_STAGE, true, index); }
 function void setStageFromIndex(int index, int stageId) {			set8bFlagVal(CVAR_STAGE, true, index, stageId); }
 

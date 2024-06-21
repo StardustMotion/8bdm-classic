@@ -14,29 +14,28 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			if (inMenu() | !PlayerIsSpectator(localPlayer))
                 terminate; 
             resetMenu();
-            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, true,  HUD_ID_MENU);
+            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_STRIPES, true);
             delay(18);
 			LocalSetMusic("8CDATA");
 		 	setMenu(START_SCREEN_TITLE);
             setMenuTransition(START_SCREEN_TITLE);
+            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_ALPHA, false);
             int i = 0;
             arg2 = getMenuIndex();
             setMenuRefresh(true);
-            eraseAll(HUD_ID_MENU,2);
             arg1 = 0x100 | 0x6;
-            type = HUD_ID_MENU+3;
             while (true) {
-                //log(s:"state ", d:getMenuArg(0), s:", ", d:getMenuArg(1), s:", ", d:getMenuArg(2));
+                //log(s:"state ", d:getMenuArg(0), s:", ", d:getMenuArg(1), s:", ", d:getMenuArg(2),s:" transition ", d:getMenuTransition(), s:" index ", d:getMenuIndex(), s:" arg1 ", d:arg1);
                 if (getMenuTransition()) {
-                    // special transition
+                    // stripes transition
                     if (getMenuTransition()>>6) { 
                         if (!arg1) 
-                            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, true,  HUD_ID_MENU);
+                            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_STRIPES, true);
                         else if (arg1 == 15) {
                             setMenu(getMenuTransition()&0x3F);
-                            eraseAll(type,128);
-                            setMenuIndex(0); setMenuRefresh(true); eraseAll(HUD_ID_MENU,16);
-                            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, false,  HUD_ID_MENU);
+                            eraseAll(HUD_ID_MENU,128);
+                            setMenuIndex(0); setMenuRefresh(true);
+                            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_STRIPES, false);
                         }
                         else if (arg1 == 30) {
                             setMenuTransition(0);
@@ -44,39 +43,39 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
                         }
                         arg1++;
                     }
-                    // fadeout transition
+                    // alpha transition
                     else {
                         if (arg1>>8) {
                             arg1++;
                             if ((arg1&0xFF) == 7) {
                                 setMenu(getMenuTransition());
-                                eraseAll(type,128);
+                                eraseAll(HUD_ID_MENU,128);
                                 arg1&=0xFF;
-                                setMenuIndex(0);    setMenuRefresh(true);   eraseAll(HUD_ID_MENU,16);
-                                if (getMenuTransition()==START_SCREEN_EXIT) {
-                                    draw("8CBLACK", HUD_ID_MENU, false, 0, 0,  1, 1, 0.5, 1.0);
-                                    delay(8);
+                                setMenuIndex(0);    setMenuRefresh(true);
+                                if (getMenuTransition()==START_SCREEN_EXIT)
                                     break;
-                                }
+								else 
+                            		ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_ALPHA, false);
                             }
                         }
                         else if (arg1) {
                             arg1--;
                             if (!arg1) setMenuTransition(0);
                         }  
-                        else            arg1 = 0x100;
-                        draw("8CBLACK", HUD_ID_MENU, false, 0, 0,  1, 1, 0.05, FixedDiv((arg1&0xFF)<<16,7.0));
-
+                        else {
+                            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_ALPHA, true);
+							arg1 = 0x100;
+						}           
                     }
                 }
-                startScreen(type);
+                startScreen();
                 drawBI("8CMENU0Q",0,-160.1+((i*80)&0xFFFF0000), -96.1+((i*96)&0xFFFF0000),0,0); // background
                 i = (i-512)&0xFFFF;
                 delay(1);
             }
-			erase(HUD_ID_MENU+256);
-            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, false, HUD_ID_MENU);
-			LocalSetMusic(!isMap8C ? "*" : getMusic(0,act-1));
+			delay(10);
+            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_STRIPES, false);
+			stageMusic(true);
             delay(16);
             setMenu(0);
             if (getMenuArg(2)>>24)
@@ -119,15 +118,30 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
                         "???"));
 		break;
 
+		// @arg1 for animation type : 0 stripes, 1 alpha
+		// @arg2 in/out
         case CS_HUD_TRANSITION:
-            // fadeout
-            if (arg1) { type = 0; localPlayer = 16; arg3 = 1; }
-            else { type = 16; localPlayer = 0; arg3 = -1; }
-            for (type = type; type != localPlayer; type += arg3) {
-                drawBI("8CTRANS0", arg2,    -32.0 + 2.0*type, 8.0, 16, 16);
-                drawBI("8CTRANS0", arg2+1,  48.0  - 2.0*type, 9.0, 16, 16);
-                delay(1);
-            }
+			eraseAll(HUD_ID_TRANSITION,2);
+			switch(arg1) {
+				case CS_HUD_TRANSITION_STRIPES:
+					if (arg2) { type = 0; localPlayer = 16; arg3 = 1; }
+					else { type = 16; localPlayer = 0; arg3 = -1; }
+					for (type = type; type != localPlayer; type += arg3) {
+						drawBI("8CTRANS0", HUD_ID_TRANSITION,    -32.0 + 2.0*type, 8.0, 16, 16);
+						drawBI("8CTRANS0", HUD_ID_TRANSITION+1,  48.0  - 2.0*type, 9.0, 16, 16);
+						delay(1);
+					}
+				break;
+
+				case CS_HUD_TRANSITION_ALPHA:
+					if (arg2) { type = 0; localPlayer = 8; arg3 = 1; }
+					else { type = 7; localPlayer = -1; arg3 = -1; }
+					for (type = type; type != localPlayer; type += arg3) {
+                        draw("8CBLACK", HUD_ID_TRANSITION, false, 0, 0,  1, 1, 0, FixedDiv(type<<16,7.0));
+						delay(1);
+					}
+				break;
+			}
         break;
         
 		case CS_CAMERA:
@@ -163,12 +177,9 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			for (i = 0; i < INCARNATION_INTRO_TIME; i++) {
 				if (i > INCARNATION_INTRO_TIME-INCARNATION_INTRO_ZOOM)
 					arg3 += 1.5; //FixedDiv(30.0,INCARNATION_INTRO_ZOOM<<16);
+			
+				drawBorders(tmp<<16,(arg1+arg2+arg3)&0xFFFF0000,0);
 
-				for (int j = 0; j < 4; j++) {
-					// top/bot borders
-					drawBI("8CINTROB", HUD_ID_EFFECTS+(j<<1), (672.0-(tmp<<16))-(254.0*j), (45.0 -arg1-arg2-arg3)&0xFFFF0000, 0, 0); // 160 perfect
-					drawBI("8CINTRO7", HUD_ID_EFFECTS+1+(j<<1), (-352.0+(tmp<<16))+(254.0*j), (155.0 +arg1+arg2+arg3)&0xFFFF0000, 0, 0);
-				}
 				if (arg2 < 16.0) 
 					arg2 += 4.0;
 				else {
@@ -219,7 +230,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 		break;
 
 		// When entering the act goal
-		case CS_ACT_SCREEN:
+		case CS_GOAL_SCREEN:
 			if (localPlayer != PlayerNumber()) terminate;
 			resetMenu();
 			for (i = 0; i < 10; i++) {
@@ -231,9 +242,11 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			drawBI("8CMENU04", HUD_ID_MENU, 160.0, 151.0, 320, 350);
 			drawBI("8CMENU02", HUD_ID_MENU+1, 160.0, 192.0, 320, 350);
 			drawMenuLabel("Back", HUD_ID_MENU+2, 144.0, true);
-			j = 0, i = 0, status = false;
+			int j = 0;
+			i = 0, status = false;
+			localPlayer = getMinSurvivors();
 			while (true) {
-				draw("Waiting for players...", 0, true, 150.4, 66.0, 288, 240, 0.05, abs(cos((timer()&0x1F)<<11)) );
+				draw(strParam(s:"Waiting for players... ", d:getGoal(),s:"/",d:localPlayer), 0, true, 150.4, 66.0, 288, 240, 0.05, abs(cos((timer()&0x1F)<<11)) );
 				if (!getMenuQuery()) {
 					if (j) {
 						ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_GOAL, false); setMenuQuery(true);
@@ -279,19 +292,23 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 		break;
 
 		/*
+		@arg1 act/mission
+		@arg2 complete/failed
 		*/
-		case CS_COMPLETE_MESSAGE:
+		case CS_TRANSITION_MESSAGE:
 			arg1 = arg1 ? "MISSION" : "ACT";
+			type = arg2 ? "COMPLETE" : "FAILED";
+			localPlayer = arg1;
 			arg3 = 0;
 			i = 0;
 			tmp = 15;
 			status = 3;
 			j = strLen(arg1);
 			while (true) {
-				ACS_NamedExecuteWithResult("8C CS", CS_COMPLETE_MESSAGE_LETTER, 
-					getChar(arg1,i),
-					((64.0+26.0*i+32.0*arg3)>>16)       +         (88.0 + 68.0*arg3), 
-						((arg3 ? (j-i)*status : (j-i + strLen("COMPLETE"))*status+tmp) <<16)
+				ACS_NamedExecuteWithResult("8C CS", CS_TRANSITION_MESSAGE_LETTER, 
+					(arg2<<16)+getChar(arg1,i),
+					((66.0-j*4.0 + 26.0*i+80.0*arg3)>>16)       +         (88.0 + 68.0*arg3), 
+						((arg3 ? (j-i)*status : (j-i + strLen(type))*status+tmp) <<16)
 						+i+arg3*8);
 				delay(status);
 				if (i < (j-1))
@@ -301,7 +318,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 						break;
 					arg3 = 1;
 					delay(tmp);
-					arg1= "COMPLETE";	
+					arg1= type;	
 					j = strLen(arg1);
 					i= 0;				
 				}
@@ -311,13 +328,13 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 		break;
 
 		/*
-		@arg1 [flash/disappear?, letter char]
+		@arg1 [16b: letter color, 16b: letter char asciicode]
 		@arg2 x/y (16b each)
 		@arg3 [tics before fade, hudId]
 		*/
-		case CS_COMPLETE_MESSAGE_LETTER:
+		case CS_TRANSITION_MESSAGE_LETTER:
 			arg3 += HUD_ID_EFFECTS;
-			type = strParam(s:"8CWIN", c:arg1);
+			type = strParam(s:(arg1>>16 ? "8CX8BLU" : "8CX8RED"), c:arg1&0xFFFF);
 			int x = arg2<<16, y = arg2&0xFFFF0000;
 			for (i = 0; i <= 10; i++) {
 				draw(type, arg3&0xFFFF, false,
@@ -341,11 +358,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			AmbientSound("8CMENCLP",127);
 			tmp = 0;
 			for (i = 10, arg1 = arg1-i; arg1; i=i) {
-				for (x = 0; x < 3; x++) {
-					// borders
-					drawBI("8CINTROB", HUD_ID_EFFECTS+(x<<1), 414.0-254.0*x, 45.0-10.0*i+tmp, 0, 0);
-					drawBI("8CINTRO7", HUD_ID_EFFECTS+1+(x<<1), 414.0-254.0*x, 155.0+10.0*i+tmp, 0, 0);
-				}
+				drawBorders(4.0,10.0*i,tmp);
 				delay(1);
 				if (i) {
 					i--; 
@@ -361,17 +374,40 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 				} 
 			}
 		break;
+
+		case CS_ACT_LOST:
+			if (getMinSurvivors()>0)    
+				drawTypedT("\crHalf the team is missing...",HUD_ID_TRANSITION, 140.4, 42.0, 280, 175, 0.04);
+			delay(100);
+            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_ALPHA, true);
+			delay(10);
+            ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_ALPHA, false);
+			drawBorders(4.0,0,0);
+		break;
+
     }    
 }
 
+function void drawBorders(int xOffset, int yOffset, int shake) {
+	for (int j = 0; j < 4; j++) {
+		drawBI("8CINTROB", HUD_ID_EFFECTS+(j<<1), (672.0-xOffset)-(254.0*j), (45.0 -yOffset)+shake, 0, 0);
+		drawBI("8CINTRO7", HUD_ID_EFFECTS+1+(j<<1), (-352.0+xOffset)+(254.0*j), (155.0 +yOffset)+shake, 0, 0);
+	}	
+}
+
+function void stageMusic(bool local) {
+	str name = !isMap8C ? "*" : getMusic(0,getAct()-1);
+	if (local)	LocalSetMusic(name);
+	else		SetMusic(name);
+}
 
 function void drawMenuLabel(str label, int id, int y, bool isSelected) {
 	drawBI("8CMENU08", id, 160.0, y+24.0, 320, 350);
     drawBT(strParam(s:"\cc", s:label), id+1, 160.0, (FixedMul(y,0.763)&0xFFFF0000) + 22.0, 320, 270);
 	drawBI(strParam(s: !isSelected ? "8CMENU06" : "8CMENU07"), id+2, 168.0, y+24.0, 320, 350);
 }
-function void flashMenuLabel(int hudId, int y) {
-    drawBI("8CFLSWHI", hudId-1, 47.0, y+16.0, 93, 270); 
+function void flashMenuLabel(int id, int y) {
+    drawBI("8CFLSWHI", id, 47.0, y+16.0, 93, 270); 
     sfx(SFX_MENU_OK);
 }   
 

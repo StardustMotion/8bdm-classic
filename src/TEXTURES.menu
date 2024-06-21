@@ -2,7 +2,7 @@
 
 
 
-// -------------------------- SPAWN INTRO -------------------------- //
+// -------------------------- IN GAME  -------------------------- //
 
 sprite 8CINTRO4, 256, 112 { patch 8CINTRO0, 0, 0 patch 8CINTRO1, 0, 0 }
 sprite 8CINTRO5, 256, 112 { patch 8CINTRO4, 0, 0 patch 8CINTRO2, 0, 0 }
@@ -14,6 +14,18 @@ sprite 8CINTRO9, 256, 112 { patch 8CINTRO8, 0, 0 patch 8CINTRO2, 0, 104 { flipy 
 sprite 8CINTROA, 256, 112 { patch 8CINTRO8, 0, 0 patch 8CINTRO3, 0, 104 { flipy }}
 sprite 8CINTROB, 256, 112 {}
 
+texture 8CX8REDC, 32, 56 { patch 8CX8BLUC, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDT, 32, 56 { patch 8CX8BLUT, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDM, 32, 56 { patch 8CX8BLUM, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDI, 32, 56 { patch 8CX8BLUI, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDS, 32, 56 { patch 8CX8BLUS, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDO, 32, 56 { patch 8CX8BLUO, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDN, 32, 56 { patch 8CX8BLUN, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDF, 32, 56 { patch 8CX8BLUF, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDA, 32, 56 { patch 8CX8BLUA, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDL, 32, 56 { patch 8CX8BLUL, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDE, 32, 56 { patch 8CX8BLUE, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
+texture 8CX8REDD, 32, 56 { patch 8CX8BLUD, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
 
 
 
@@ -45,7 +57,8 @@ sprite 8CINTROB, 256, 112 {}
 
 
 
-// -------------------------- MENU -------------------------- //
+
+// -------------------------- MAIN MENU / TITLE SCREEN -------------------------- //
 
 texture 8CMET, 22, 21 {}
 
@@ -127,7 +140,7 @@ texture 8CMENU20, 194, 74 { patch 8CMENU1T, 0, 0 patch 8CMENU1W, 0, 0 }
 
 
 //////////////////////
-// character select //
+// heroes animation //
 //////////////////////
 texture 8CCHRAN0, 24, 24 {}
 texture 8CCHRAN1, 21, 26 {}

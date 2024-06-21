@@ -3,12 +3,11 @@
 
 script "8C OPEN" OPEN {
 	init();
-	delay(3);
-	actStart();
+	delay(2);
+	startAct();
 }
 
 bool forcePhysics = false, isMap8C = false;
-int selectedPlayersSize, act, goal;
 function void init(void) {
 	forcePhysics = GetCvar("C8_physics");
 	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
@@ -24,35 +23,49 @@ function void init(void) {
 	}
 	DefinePowerAprop("8C Pacifist Giver", "8C Pacifist", APROP_Alpha, 0.62, NO);
 
-	if (isMap8C) {		
-		selectPlayer(0);
-		selectedPlayersSize = selectedPlayerCount(true);
-		act = 1;
-		consolecommand("sv_maxplayers 0");
-		ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), MAX_CLIENTS))); // GAMEMODE
-		ConsoleCommand("mm8bdm_sv_respawnprotection 0"); // side effect / need a hook
+	if (isMap8C) {
+		drawBorders(4.0,0,0);
+		// Map respawn
+		if (getAct()) {
+			log(s:"this is a respawn...");
+
+		}
+		// Not a respawn
+		else {
+			selectPlayer(0);
+			setAct(1);
+			setLives(3);
+			setMinSurvivors((countSelectedPlayers(true)/2)+1);
+			consolecommand("sv_maxplayers 0");
+			ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), MAX_CLIENTS))); // GAMEMODE
+			ConsoleCommand("mm8bdm_sv_respawnprotection 0"); // side effect / need a hook
+		}
+
+		// ---------
 	}
 }
 
 
 #DEFINE ACT_TID 851
-function void actStart(void) {
-	log(s:"\ci---------------------------\nSTART ACT ", d:act);
+function void startAct(void) {
+	int act = getAct()-1;
+	log(s:"\cc------------\nSTART ACT \ci", d:getAct(), s:" \cclives\ci ",d:getLives(), s:" \ccsurvivorsNeeded\ci ", d:getMinSurvivors());
+	setGoal(0);
 	SetCVar(CVAR_EXP_POOL,0);
-	goal = 0;
+	setGameInTransition(false);
+	
 	int index = 0, spawnPoint;
 	for (int player = 0; player < MAX_CLIENTS; player++) {
 		if (PlayerInGame(player) && isSelectedPlayer(player)) {
 			SetActivatorToPlayer(player);
-			spawnPoint = ACT_TID+index+((act-1)*10);
-			log(s:"warp to ", d:spawnPoint);
+			spawnPoint = ACT_TID+index+(act*10);
 			SetActorPosition(0, GetActorX(spawnPoint), GetActorY(spawnPoint), GetActorZ(spawnPoint), false);
 			SetActorAngle(0,GetActorAngle(spawnPoint));
 			index = (index+1)&0x7;
 			ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
 		}
 	}
-	SetMusic(getMusic(0,act-1));
+	stageMusic(false);
 }
 
 
@@ -60,12 +73,11 @@ function void actStart(void) {
 
 
 function void onFirstGameStart(void) {
-	log(s:"\cg>>> Parsing data <<<");
 	// Heroes
 	for (int i = 0, count = 0; i < MAX_HERO; i++)
 		if (strLen(strSanitize(__getHeroName(i)))) {
 			setHeroFromIndex(count, i);
-			Log(s:"Adding hero \cd", s:getHeroName(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
+			//Log(s:"Adding hero \cd", s:getHeroName(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
 			count++;
 		}
 	SetCVar(CVAR_HERO_SIZE, count);
@@ -74,7 +86,7 @@ function void onFirstGameStart(void) {
 	for (i = 0, count = 0; i < MAX_STAGE; i++)
 		if (strLen(strSanitize(__getStageCode(i)))) {
 			setStageFromIndex(count, i);
-			Log(s:"Adding stage \ci", s:getStageCode(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
+			//Log(s:"Adding stage \ci", s:getStageCode(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
 			count++;
 		}
 	SetCVar(CVAR_STAGE_SIZE, count);
@@ -102,6 +114,7 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 		break;
 
 		case GAMEEVENT_ACTOR_DAMAGED:
+			if (!isMap8C) terminate;
 			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
         	if (deflectAttack() | isPacifist()) {
     		    SetResultValue(0);
@@ -115,14 +128,10 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 				arg2 = getId();
 				ACS_NamedExecuteWithResult("8C CS", CS_ENEMY_PAIN);
 			}
-			else {
-				int player = (ClassifyActor(0)&ACTOR_PLAYER);
-			}
 			
 			delay(1);
 			if (isGone(NULL)) {
 				if (enemy) 			onEnemyDeath(arg2);	
-				else if (player)	actOverCheck();
 			}		
 		break;
 
@@ -132,14 +141,20 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 
 script "8C LEAVES" (int player) DISCONNECT {
 	delay(1);
-	actOverCheck();
+	AmbientSound("8CDEATH", 127);
+	ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
+}
+
+script "8C DEATH" DEATH  {
+	if (!isMap8C) terminate;
+	AmbientSound("8CDEATH", 127);
+	ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
 }
     
 
 function void onEnemyDeath(int enemyID) {
 	SetCVar(CVAR_EXP_POOL, GetCvar(CVAR_EXP_POOL)+getScore(enemyID));
 }
-
 
 
 	

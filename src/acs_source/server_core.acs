@@ -199,7 +199,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		break;
 
 		case C8_GOAL_CHECK:
-			if ((GetActorProperty(0, APROP_Accuracy)) < act) {
+			if ((GetActorProperty(0, APROP_Accuracy)) < getAct()) { // act complete ; pop up the flag
 				SetResultValue(true);
 				terminate;
 			}
@@ -228,28 +228,64 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			}
 		break;
 
-		case C8_ACT_COMPLETE:
-			act++;
-			AmbientSound("8CGOAL", 127);
-			for (i = 0; i < MAX_CLIENTS; i++) {
-				if (PlayerInGame(i)) {
-					SetActivatorToPlayer(i);
-					if (CheckInventory("8C Goal Status")) {
-						ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
-						ACS_NamedExecuteWithResult("8C", C8_PACIFIST, false);
-						clearInv("8C Goal Status");
-					}}}
-			setServerPacify(true, true, true);
-			ACS_NamedExecuteWithResult("8C CS", CS_COMPLETE_MESSAGE, false);
-			delay(105);
-			setmusic("");
-			ACS_NamedExecuteWithResult("8C CS", CS_CLOSURE_ANIMATION, 60);
-			delay(60);	
-			setServerPacify(false, true, false);
-			actStart();
-		break;
+		case GAME_STATUS_CHECK:
+			if (isGameInTransition()) terminate;
+			// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			// 			W             I              N           N             A              B             L          E.
+			// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			arg1 = getMinSurvivors();
 
+			// ACT COMPLETE
+			if (getGoal() >= arg1) {
+				setGameInTransition(true);
+				AmbientSound("8CGOAL", 127);
+				setAct(getAct()+1); clearGoal();  setServerPacify(true, true, true);
+				delay(20);
+				ACS_NamedExecuteWithResult("8C CS", CS_TRANSITION_MESSAGE, false, true);
+				delay(85);
+				setmusic(""); ACS_NamedExecuteWithResult("8C CS", CS_CLOSURE_ANIMATION, 70); delay(70);	
+				setServerPacify(false, true, false);
+				startAct();
+				terminate;
+			}
+
+			arg2 = countSelectedPlayers(false);
+
+			// ACT FAILED
+			if (arg2 < arg1) {
+				setGameInTransition(true);
+				clearGoal(); setmusic(""); setServerPacify(true, true, true);				
+				if (getLives()>1) {
+					delay(15);
+            		ACS_NamedExecuteWithResult("8C CS",CS_ACT_LOST);
+					delay(135);
+					setServerPacify(false, true, false);
+					setLives(getLives()-1);
+					ResetMap();
+				}
+				// Game OVER
+				else {
+					delay(45);
+					ACS_NamedExecuteWithResult("8C CS", CS_TRANSITION_MESSAGE, true, false);
+					delay(85+50);
+					setServerPacify(false, true, false);
+            		ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_ALPHA, true);
+					terminate;
+				}
+			}
+		break;
 	}
+}
+
+function void clearGoal(void) {	
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (PlayerInGame(i)) {
+			SetActivatorToPlayer(i);
+			if (CheckInventory("8C Goal Status")) {
+				ACS_NamedExecuteWithResult("core_freezeplayer", 0, false);
+				ACS_NamedExecuteWithResult("8C", C8_PACIFIST, false);
+				clearInv("8C Goal Status");
+			}}}
 }
 
 function void setServerPacify(bool value, bool alterFreeze, bool freezeValue) {
@@ -264,9 +300,6 @@ function void setServerPacify(bool value, bool alterFreeze, bool freezeValue) {
 	}
 }
 
-script "goal" (void) {
-	spawnGoal(550,128,1);
-}
 
 script "8C API" (int type, int arg1, int arg2, int arg3) {
 	switch(type) {
@@ -287,23 +320,10 @@ script "8C API" (int type, int arg1, int arg2, int arg3) {
 
 
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// 			W             I              N           N             A              B             L          E.
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-function bool isGameWinnable(int count) {
-	return (count >= ((selectedPlayersSize/2)+1));
-}
 
 
 
-function void actOverCheck(void) {
-	if (!isGameWinnable(selectedPlayerCount(false))) {
-		log(s:"game lost...");
-		// lost sequence
-	}
-}
-
-function int selectedPlayerCount(bool ignoreStatus) {
+function int countSelectedPlayers(bool ignoreStatus) {
 	int count = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (ignoreStatus) 
@@ -314,7 +334,6 @@ function int selectedPlayerCount(bool ignoreStatus) {
 				if (!isGone(NULL)) count++;
 			}
 	}
-	log(s:"\cg\n>>> selected players ", d:count);
 	return count;
 }
 

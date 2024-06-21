@@ -1,5 +1,7 @@
 #library "_8Cbuild"
 
+#nocompact // allow to overpass the 256 function definition limits
+
 #include "zcommon.acs"
 #include "8BDMLIB.acs"
 #include "DTADD.acs"

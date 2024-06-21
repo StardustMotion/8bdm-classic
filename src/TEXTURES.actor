@@ -1,4 +1,6 @@
 
+// for in-game sprites / actor sprites
+
 sprite 8CABG0, 16, 16 { offset 8,14 patch 8CABC0, 0, 0 { flipy }}
 sprite 8CABH0, 15, 16{ offset 7,16 patch 8CABD0, 0, 0{ flipy }}
 sprite 8CABI0, 16, 16{ offset 8,16 patch 8CABE0, 0, 0{ flipy }}

@@ -3,7 +3,7 @@
 
 
 // wtf is this design pattern ? o wo ' -' ' -'XD? ?
-function void startScreen(int hudId) {
+function void startScreen(void) {
     int inputStatus = pressedStatus();
     switch(getMenu()) {
         case START_SCREEN_TITLE:
@@ -14,22 +14,22 @@ function void startScreen(int hudId) {
             bool isFirstHero = isSlotEmpty(player,0) && isSlotEmpty(player,1);
 
             if (getMenuRefresh()) {
-                drawBI("8CMENU04", hudId, 160.0, 152.0, 320, 350);
-                drawBI("8CMENU02", hudId+1, 160.0, 336.0-(MENU_OFFSET*(!isOnline)), 320, 350);
+                drawBI("8CMENU04", HUD_ID_MENU+1, 160.0, 152.0, 320, 350);
+                drawBI("8CMENU02", HUD_ID_MENU+2, 160.0, 336.0-(MENU_OFFSET*(!isOnline)), 320, 350);
                 if (isOnline) {
                     if (logged) {
-                        drawBT(strParam(s:"Logged in as ", s:getLogin(player)), hudId+14, 160.0, 70.0, 0, 0);
-                        drawMenuLabel(isFirstHero ? "START" : "CONTINUE", hudId+11, 144.0, !getMenuIndex());
+                        drawBT(strParam(s:"Logged in as ", s:getLogin(player)), HUD_ID_MENU+5, 160.0, 70.0, 0, 0);
+                        drawMenuLabel(isFirstHero ? "START" : "CONTINUE", HUD_ID_MENU+6, 144.0, !getMenuIndex());
                     }
                     else {
-                        drawMenuLabel("LOGIN", hudId+11, 144.0, !getMenuIndex());
+                        drawMenuLabel("LOGIN", HUD_ID_MENU+6, 144.0, !getMenuIndex());
                     }
                 }
                 else if (!getMenuIndex())
                     setMenuIndex(1);
-                drawMenuLabel("QUICK PLAY", hudId+2, 144.0+isOnlineOffset, getMenuIndex()==1);
-                drawMenuLabel("OPTIONS",   hudId+5, 144.0+MENU_OFFSET+isOnlineOffset, getMenuIndex()==2);
-                drawMenuLabel("BACK TO GAME", hudId+8, 144.0+(MENU_OFFSET*2)+isOnlineOffset, getMenuIndex()==3);
+                drawMenuLabel("QUICK PLAY", HUD_ID_MENU+9, 144.0+isOnlineOffset, getMenuIndex()==1);
+                drawMenuLabel("OPTIONS",   HUD_ID_MENU+12, 144.0+MENU_OFFSET+isOnlineOffset, getMenuIndex()==2);
+                drawMenuLabel("BACK TO GAME", HUD_ID_MENU+15, 144.0+(MENU_OFFSET*2)+isOnlineOffset, getMenuIndex()==3);
 
                 setMenuRefresh(false);
             }
@@ -68,7 +68,7 @@ function void startScreen(int hudId) {
                         if (!logged) 
                             consolecommand("toggleconsole");
                         else {
-                            flashMenuLabel(hudId,116.0);                   
+                            flashMenuLabel(HUD_ID_MENU+8,116.0);                   
                             if (isFirstHero) {
                                 setMenuTransition(START_SCREEN_CREATE_HERO); setMenuArg(0,0); 
                             }
@@ -81,7 +81,7 @@ function void startScreen(int hudId) {
                     break;
 
                     case 1:
-                        flashMenuLabel(hudId,116.0+MENU_FLASH_OFFSET*isOnline);
+                        flashMenuLabel(HUD_ID_MENU+8,116.0+MENU_FLASH_OFFSET*isOnline);
                         if (isSlotEmpty(player, -1)) {
                             setMenuTransition(START_SCREEN_CREATE_HERO); setMenuArg(0,-1); 
                         }
@@ -92,7 +92,7 @@ function void startScreen(int hudId) {
 
                     case 2:
                         setMenuTransition(START_SCREEN_OPTIONS);
-                        flashMenuLabel(hudId,152.0+MENU_FLASH_OFFSET*isOnline);
+                        flashMenuLabel(HUD_ID_MENU+8,152.0+MENU_FLASH_OFFSET*isOnline);
                     break;
 
                     case 3: 
@@ -108,15 +108,15 @@ function void startScreen(int hudId) {
             isOnlineOffset = MENU_OFFSET*isOnline;            
         
             if (getMenuRefresh()) {
-                drawBI("8CMENU04", hudId, 160.0, 108.0, 320, 350);
-                drawBI("8CMENU02", hudId+1, 160.0, 244.0-(MENU_OFFSET*(!isOnline)), 320, 350);
+                drawBI("8CMENU04", HUD_ID_MENU+1, 160.0, 108.0, 320, 350);
+                drawBI("8CMENU02", HUD_ID_MENU+2, 160.0, 244.0-(MENU_OFFSET*(!isOnline)), 320, 350);
                 if (isOnline)
                     drawMenuLabel(strParam(s:"AUTO LOGIN\n    ", s:(GetCvar(CVAR_AUTOLOGIN) ? "\cdon" : "\cgoff")), 
-                        hudId+2, 100.0, !getMenuIndex());
+                        HUD_ID_MENU+9, 100.0, !getMenuIndex());
                 else if (!getMenuIndex())
                     setMenuIndex(1);
-                drawMenuLabel("KEY BINDS", hudId+5, 100.0+isOnlineOffset, getMenuIndex()==1);
-                drawMenuLabel("BACK", hudId+8, 100.0+MENU_OFFSET+isOnlineOffset, getMenuIndex()==2);
+                drawMenuLabel("KEY BINDS", HUD_ID_MENU+12, 100.0+isOnlineOffset, getMenuIndex()==1);
+                drawMenuLabel("BACK", HUD_ID_MENU+15, 100.0+MENU_OFFSET+isOnlineOffset, getMenuIndex()==2);
                 setMenuRefresh(false);
             }
 
@@ -166,49 +166,49 @@ function void startScreen(int hudId) {
             int created = getMenuArg(2);
             if (getMenuRefresh()) {
                 if (!(getMenuRefresh()>>1)) {
-                    printHeroText(hero, hudId);
-                    drawTypedT(getHeroName(hero), hudId+1, 46.1, 42.0, 240, 150, 0.18);
-                    drawBT(lineBreak(getSpSkill(hero),16), hudId+2, 326.6, 102.1, 400, 250);
+                    printHeroText(hero, HUD_ID_MENU);
+                    drawTypedT(getHeroName(hero), HUD_ID_MENU+1, 46.1, 42.0, 240, 150, 0.18);
+                    drawBT(lineBreak(getSpSkill(hero),16), HUD_ID_MENU+2, 326.6, 102.1, 400, 250);
                     int i = 0;
-                    eraseAll(hudId+32,MAX_WEAPON_GROUPS*3);
+                    eraseAll(HUD_ID_MENU+32,MAX_WEAPON_GROUPS*3);
                     while (true) {
-                        draw8cNumber(getHeroWeapons(hero), hudId+32+(i*3), 262.2-(30.0*i), 63.0, 0,0, SMALL_FONT, true);
+                        draw8cNumber(getHeroWeapons(hero), HUD_ID_MENU+32+(i*3), 262.2-(30.0*i), 63.0, 0,0, SMALL_FONT, true);
                         if ((i+1) >= getHeroWeaponGroups(hero)) break;
-                        drawBT("\cn+", hudId+33+(i*3), 237.0-(30.0*i), 62.0, 0, 0);
+                        drawBT("\cn+", HUD_ID_MENU+33+(i*3), 237.0-(30.0*i), 62.0, 0, 0);
                         i++;
                     }
                 }        
                 if (!getMenuArg(2)) {
-                    drawBI("8CMENU04", hudId+3, 160.0, 245.0+MENU_OFFSET*!confirm, 320, 350);
-                    drawBI("8CMENU02", hudId+4, 160.0, 334.0, 320, 350);
-                    drawMenuLabel(confirm ? "Cancel" : "Back", hudId+8, 285.0, (index || (confirm==2)));
-                    if (confirm)    drawMenuLabel("Confirm", hudId+5, 237.0, confirm==1);
-                    else eraseAll(hudId+5,3);
+                    drawBI("8CMENU04", HUD_ID_MENU+3, 160.0, 245.0+MENU_OFFSET*!confirm, 320, 350);
+                    drawBI("8CMENU02", HUD_ID_MENU+4, 160.0, 334.0, 320, 350);
+                    drawMenuLabel(confirm ? "Cancel" : "Back", HUD_ID_MENU+8, 285.0, (index || (confirm==2)));
+                    if (confirm)    drawMenuLabel("Confirm", HUD_ID_MENU+5, 237.0, confirm==1);
+                    else eraseAll(HUD_ID_MENU+5,3);
                 }
                 else 
-                    eraseAll(hudId+3,8);
-                drawBI(created ? getHeroSelected(hero) : getHeroIdle(hero), hudId+11, 56.0, 105.2, 214, 134);
+                    eraseAll(HUD_ID_MENU+3,8);
+                drawBI(created ? getHeroSelected(hero) : getHeroIdle(hero), HUD_ID_MENU+11, 56.0, 105.2, 214, 134);
                                 
                 if (spinning) {
-                    drawBI("8CMENU13", hudId+12, 160.0, 0.1, 0, 0);                
+                    drawBI("8CMENU13", HUD_ID_MENU+12, 160.0, 0.1, 0, 0);                
                     if (spinning&0x10)      i = hero+n-1;      // left spin
                     else                    i = hero+n;                           // right spin
                     int list[4] = { (i-1)%n, i%n, (i+1)%n, (i+2)%n }; // o wo? ?
-                    drawBI(getHeroMugshot(list[0]), hudId+13, 260.0, 8.1, 640, 400);
-                    drawBI(getHeroMugshot(list[1]), hudId+14, 295.0, 41.1, 640, 400); 
-                    drawBI(getHeroMugshot(list[2]), hudId+15, 343.0, 41.1, 640, 400); 
-                    drawBI(getHeroMugshot(list[3]), hudId+16, 376.0, 8.1, 640, 400); 
+                    drawBI(getHeroMugshot(list[0]), HUD_ID_MENU+13, 260.0, 8.1, 640, 400);
+                    drawBI(getHeroMugshot(list[1]), HUD_ID_MENU+14, 295.0, 41.1, 640, 400); 
+                    drawBI(getHeroMugshot(list[2]), HUD_ID_MENU+15, 343.0, 41.1, 640, 400); 
+                    drawBI(getHeroMugshot(list[3]), HUD_ID_MENU+16, 376.0, 8.1, 640, 400); 
                 }
                 else { 
-                    drawBI("8CMENU14", hudId+12, 160.0, 0.1, 0, 0);
-                    drawBI(getHeroMugshot((hero+n-2)%n), hudId+13, 256.0, -18.1, 640, 400);
-                    drawBI(getHeroMugshot((hero+n-1)%n), hudId+14, 274.0, 32.1, 640, 400);
-                    drawBI(getHeroMugshot(hero), hudId+15, 320.0, 48.1, 640, 400);
-                    drawBI(getHeroMugshot((hero+1)%n), hudId+16, 366.0, 32.1, 640, 400);
-                    drawBI(getHeroMugshot((hero+2)%n), hudId+17, 384.0, -18.1, 640, 400);
+                    drawBI("8CMENU14", HUD_ID_MENU+12, 160.0, 0.1, 0, 0);
+                    drawBI(getHeroMugshot((hero+n-2)%n), HUD_ID_MENU+13, 256.0, -18.1, 640, 400);
+                    drawBI(getHeroMugshot((hero+n-1)%n), HUD_ID_MENU+14, 274.0, 32.1, 640, 400);
+                    drawBI(getHeroMugshot(hero), HUD_ID_MENU+15, 320.0, 48.1, 640, 400);
+                    drawBI(getHeroMugshot((hero+1)%n), HUD_ID_MENU+16, 366.0, 32.1, 640, 400);
+                    drawBI(getHeroMugshot((hero+2)%n), HUD_ID_MENU+17, 384.0, -18.1, 640, 400);
                 }
-                drawBI(index ? "8CMENU15" : "8CMENU19", hudId+18, 161.0, 106.0, 320, 200);
-                drawBI("8CMENU1D", hudId+19, 85.0, 135.0, 0, 0); // avatar bg
+                drawBI(index ? "8CMENU15" : "8CMENU19", HUD_ID_MENU+18, 161.0, 106.0, 320, 200);
+                drawBI("8CMENU1D", HUD_ID_MENU+19, 85.0, 135.0, 0, 0); // avatar bg
                 setMenuRefresh(false);
             }
             drawBI("8CMENU12", 0, 160.0, 0.1, 0, 0); 
@@ -221,7 +221,7 @@ function void startScreen(int hudId) {
                 switch(pukeStatus()) {
                     case PUKE_OK:
                         sfx("8CMENUD");
-                        drawTypedT(lineBreak("       / / / / / / / / / / / / / / / / 0101001001000101010000010100010001011001  / / / / / /       o/   ",22), hudId, 156.1, 138.1, 400, 250, 0.01);
+                        drawTypedT(lineBreak("       / / / / / / / / / / / / / / / / 0101001001000101010000010100010001011001  / / / / / /       o/   ",22), HUD_ID_MENU, 156.1, 138.1, 400, 250, 0.01);
                         setMenuQuery(false);
                         setMenuRefresh(0x3);
                         setMenuArg(2, 1);
@@ -250,7 +250,7 @@ function void startScreen(int hudId) {
             else if (created && !getMenuTransition()) {
                 setMenuArg(2,getMenuArg(2)+1);
                 if ((timer()&0x1) && (created<28))
-                    draw("8CWHITE", hudId-1, false, 0, 0,  1, 1, 0.05, 0.28);
+                    draw("8CWHITE", HUD_ID_MENU-1, false, 0, 0,  1, 1, 0.05, 0.28);
                 
                 if (created>52) {
                     created = getMenuArg(0);
@@ -265,7 +265,7 @@ function void startScreen(int hudId) {
                 if (confirm) {                    
                     setMenuArg(1, getMenuArg(1)&0xFFFF00FF);
                     setMenuRefresh(0x3); sfx(SFX_MENU_BACK);
-                    printHeroText(hero, hudId);
+                    printHeroText(hero, HUD_ID_MENU);
                 }
                 else {
                     setMenuTransition(START_SCREEN_TITLE); sfx(SFX_MENU_BACK);
@@ -310,14 +310,14 @@ function void startScreen(int hudId) {
                     else {
                         setMenuArg(1, getMenuArg(1)&0xFFFF00FF);
                         setMenuRefresh(0x3); sfx(SFX_MENU_BACK);
-                        printHeroText(hero, hudId);
+                        printHeroText(hero, HUD_ID_MENU);
                     }
                 }
                 else {
                     if (!index) {
                         setMenuArg(1, getMenuArg(1) | (1<<8));
                         sfx(SFX_MENU_OK);
-                        drawTypedT(lineBreak(strParam(s:"Start game with\n    ", s:getHeroName(hero), s:"?") ,50), hudId, 156.1, 138.1, 400, 250, 0.015);    
+                        drawTypedT(lineBreak(strParam(s:"Start game with\n    ", s:getHeroName(hero), s:"?") ,50), HUD_ID_MENU, 156.1, 138.1, 400, 250, 0.015);    
                         setMenuRefresh(0x3);                
 
                     }
@@ -342,41 +342,41 @@ function void startScreen(int hudId) {
             //log(s:" erase ", d:index, s:" confirm ", d:confirm, s:" curI ", d:getMenuIndex(), s:" n ", d:n);
             
             if (getMenuRefresh()) { 
-                drawBI("8CMENU04", hudId+1,   160.0, 293.0-((MENU_OFFSET<<1)*!!confirm), 320, 350);
-                drawBI("8CMENU02", hudId+2,   160.0, 334.0-MENU_OFFSET*(!!index|(emptySlot&!!confirm)), 320, 350);
+                drawBI("8CMENU04", HUD_ID_MENU+1,   160.0, 293.0-((MENU_OFFSET<<1)*!!confirm), 320, 350);
+                drawBI("8CMENU02", HUD_ID_MENU+2,   160.0, 334.0-MENU_OFFSET*(!!index|(emptySlot&!!confirm)), 320, 350);
                
                 if (confirm) {
-                    drawMenuLabel(index ? "NO" : emptySlot ? "CREATE HERO" : "START GAME", hudId+7, 285.0-(MENU_OFFSET<<1), (confirm==1) | (index==1));
-                    drawMenuLabel(index ? "YES" : "BACK", hudId+10, 285.0-MENU_OFFSET, (confirm==2) | (index==2));
+                    drawMenuLabel(index ? "NO" : emptySlot ? "CREATE HERO" : "START GAME", HUD_ID_MENU+7, 285.0-(MENU_OFFSET<<1), (confirm==1) | (index==1));
+                    drawMenuLabel(index ? "YES" : "BACK", HUD_ID_MENU+10, 285.0-MENU_OFFSET, (confirm==2) | (index==2));
                     if (index | emptySlot) {
-                        eraseAll(hudId+3,3);
+                        eraseAll(HUD_ID_MENU+3,3);
                     }
                     else if (!index) { 
-                        erase(hudId+6);
-                        drawMenuLabel("Erase data", hudId+3, 285.0, confirm==3); 
+                        erase(HUD_ID_MENU+6);
+                        drawMenuLabel("Erase data", HUD_ID_MENU+3, 285.0, confirm==3); 
                     } 
                 }
                 else {
-                    drawMenuLabel("BACK", hudId+3, 285.0, getMenuIndex()==n);
-                    eraseAll(hudId+7,6);
+                    drawMenuLabel("BACK", HUD_ID_MENU+3, 285.0, getMenuIndex()==n);
+                    eraseAll(HUD_ID_MENU+7,6);
                 }
 
                 if (!getBit(getMenuRefresh(),1)) {
                     if (isQuickPlay) 
-                        drawPlayerSlot(hudId+13, player, slot,  (confirm<<1) | !getMenuIndex());                    
+                        drawPlayerSlot(HUD_ID_MENU+13, player, slot,  (confirm<<1) | !getMenuIndex());                    
                     else {
                         if (confirm) {
-                            drawPlayerSlot(hudId+13, player, slot, 2);
-                            eraseAll(hudId+13+37,37);
+                            drawPlayerSlot(HUD_ID_MENU+13, player, slot, 2);
+                            eraseAll(HUD_ID_MENU+13+37,37);
                         }
                         else
                             for (i = 0; i < n; i++)
-                                drawPlayerSlot(hudId+13+(37*i), player, i, getMenuIndex()==i);
+                                drawPlayerSlot(HUD_ID_MENU+13+(37*i), player, i, getMenuIndex()==i);
                     }
                 }
                 if (created) {
-                    if (!deleting)  drawBI(getHeroSelected(hero), hudId+13+33, 69.0, 43.2, 223,139);
-                    drawBI(deleting ? "8CFLSBLA" : "8CFLSWHI", hudId, 31.0, 28.0, 61, 134);
+                    if (!deleting)  drawBI(getHeroSelected(hero), HUD_ID_MENU+13+33, 69.0, 43.2, 223,139);
+                    drawBI(deleting ? "8CFLSBLA" : "8CFLSWHI", HUD_ID_MENU, 31.0, 28.0, 61, 134);
                 }
                 setMenuRefresh(false);
             }
@@ -388,7 +388,7 @@ function void startScreen(int hudId) {
                         setMenuRefresh(true);
                     }
                     else if (created==42)  {
-                        erase(hudId);
+                        erase(HUD_ID_MENU);
                     }
                     else if (created==55) {
                         if (isQuickPlay) {
@@ -404,7 +404,7 @@ function void startScreen(int hudId) {
                 // enter game
                 else {
                     if (created==15)
-                        erase(hudId);
+                        erase(HUD_ID_MENU);
                     else if (created > 35) {
                         setMenuTransition(START_SCREEN_EXIT);
                         setMenuArg(2, 1<<24);
@@ -421,7 +421,7 @@ function void startScreen(int hudId) {
                         if (index) {
                             sfx("8CMENUE"); setMenuArg(2,0x10001);
                             setMenuRefresh(0x3);
-                            erase(hudId+6);
+                            erase(HUD_ID_MENU+6);
                         }
                         // Enter game
                         else {
@@ -501,7 +501,7 @@ function void startScreen(int hudId) {
                                 setMenuQuery(true);                               
                             }
                             else {
-                                flashMenuLabel(hudId,150.0);
+                                flashMenuLabel(HUD_ID_MENU,150.0);
                                 setMenuTransition(START_SCREEN_CREATE_HERO);
                                 setMenuArg(0,slot);    
                             }
@@ -514,7 +514,7 @@ function void startScreen(int hudId) {
                             drawTypedT(strParam(s:"Erase data ", 
                                 s:(!isQuickPlay ? "on this slot?" : "?"),
                                 s:"\nExperience and special weapons\n will be lost."), 
-                                hudId+6, 160.4, 101.1, 400, 250, 0.015);
+                                HUD_ID_MENU+6, 160.4, 101.1, 400, 250, 0.015);
                         break;
                     }
                 }

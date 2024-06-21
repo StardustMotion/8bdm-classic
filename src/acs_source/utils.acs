@@ -19,32 +19,48 @@ function void setBoolFlagVal(str cvar, int var, int val)                {
 function str __boolFlagVal(str cvar, int var) {                           return strParam(s:cvar, d:var>>5); }
 
 // 16 values of [2 bits]
-function int get2bFlagVal(str cvar, bool incrCvar,  int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0xF, 4, 0xFFFF); }
-function void set2bFlagVal(str cvar, bool incrCvar, int var, int val)   { __setNbitFlagVal(cvar, incrCvar, var, 0xF, 4, 0xFFFF, val); }
+function int get2bFlagVal(str cvar, bool incrCvar, int index) 			{ return __getNbitFlagVal(cvar, incrCvar, index, 2, 16, 0x3); }
+function void set2bFlagVal(str cvar, bool incrCvar, int index, int val) { __setNbitFlagVal(cvar, incrCvar, index, 2, 16, 0x3, val); }
+
 
 // 8 values of [4 bits]
-function int get4bFlagVal(str cvar, bool incrCvar, int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0x7, 3, 0xFF); }
-function void set4bFlagVal(str cvar, bool incrCvar, int var, int val) 	{ __setNbitFlagVal(cvar, incrCvar, var, 0x7, 3, 0xFF, val); }
+function int get4bFlagVal(str cvar, bool incrCvar, int index) 			{ return __getNbitFlagVal(cvar, incrCvar, index, 4, 8, 0xF); }
+function void set4bFlagVal(str cvar, bool incrCvar, int index, int val) { __setNbitFlagVal(cvar, incrCvar, index, 4, 8, 0xF, val); }
 
 // 4 values of [8 bits]
-function int get8bFlagVal(str cvar, bool incrCvar, int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0x3, 2, 0xF); } 
-function void set8bFlagVal(str cvar, bool incrCvar, int var, int val) 	{ __setNbitFlagVal(cvar, incrCvar, var, 0x3, 2, 0xF, val); }
+function int get8bFlagVal(str cvar, bool incrCvar, int index) 			{ return __getNbitFlagVal(cvar, incrCvar, index, 8, 4, 0xFF); }
+function void set8bFlagVal(str cvar, bool incrCvar, int index, int val) { __setNbitFlagVal(cvar, incrCvar, index, 8, 4, 0xFF, val); }
 
 // 2 values of [16 bits]
-function int get16bFlagVal(str cvar, bool incrCvar, int var) 			{ return __getNbitFlagVal(cvar, incrCvar, var, 0x1, 1, 0x7); }
-function void set16bFlagVal(str cvar, bool incrCvar, int var, int val) 	{ __setNbitFlagVal(cvar, incrCvar, var, 0x1, 1, 0x7, val); }
+function int get16bFlagVal(str cvar, bool incrCvar, int index) 			{ return __getNbitFlagVal(cvar, incrCvar, index, 16, 2, 0xFFFF); }
+function void set16bFlagVal(str cvar, bool incrCvar, int index, int val){ __setNbitFlagVal(cvar, incrCvar, index, 16, 2, 0xFFFF, val); }
 
 
-function int __getNbitFlagVal(str cvar, bool incrCvar, int var, int n, int log2n, int mask) {
-	n = (var&n)<<log2n;
-	return ((GetCvar(incrCvar ? strParam(s:cvar, d:var>>log2n) : cvar) & (mask<<n))>>n)&mask; // é -è'  o w  o ?
+// script "seto1" (int index, int val) {
+//     setBoolFlagVal(CVAR_GAME_STATUS, index, val);
+// }
+// script "seto2" (int index, int val) {
+//     set2bFlagVal(CVAR_GAME_STATUS, false, index, val);
+// }
+// script "seto4" (int index, int val) {
+//     set4bFlagVal(CVAR_GAME_STATUS, false, index, val);
+// }
+// script "seto8" (int index, int val) { // does 8 values of 4 bits each
+//     set8bFlagVal(CVAR_GAME_STATUS, false, index, val);
+// }
+// script "seto16" (int index, int val) { // does 16 values of 2 bits each
+//     set16bFlagVal(CVAR_GAME_STATUS, false, index, val);
+// }
+function int __getNbitFlagVal(str cvar, bool incrCvar, int index, int n, int mod, int mask) {
+    n = (index&(mod-1))*n;
+	return (GetCvar(incrCvar ? strParam(s:cvar, d:index/mod) : cvar)>>n)&mask; 
 }
-
-function void __setNbitFlagVal(str cvar, bool incrCvar, int var, int n, int log2n, int mask, int val) {
+                         // é -è'  o w  o ?                                 
+function void __setNbitFlagVal(str cvar, bool incrCvar, int index, int n, int mod, int mask, int val) {
 	if (incrCvar)
-		cvar = strParam(s:cvar, d:var>>log2n);    
-	n = (var&n)<<log2n;
-	SetCVar(cvar,  (GetCvar(cvar) & ~(mask<<n)) | (val<<n));		
+		cvar = strParam(s:cvar, d:index/mod);
+    n = (index&(mod-1))*n;
+	SetCVar(cvar,  (GetCvar(cvar) & ~(mask<<n)) | ((val&mask)<<n));
 }
 
 // i.e char8parser("AAAAAAAA BBBBBBBB CCCCCCCC DDDDDDDD", 2) => "CCCCCCCC"

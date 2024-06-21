@@ -374,8 +374,7 @@ texture CUT16B0C, 256, 247 { XScale 0.5 YScale 0.5 WorldPanning patch CUT63, 0, 
 texture CUT16B0D, 48, 80 { XScale 0.5 YScale 0.5 WorldPanning  patch CUT54, 0, 0 }
 texture CUT16B0E, 96, 80 { XScale 0.5 YScale 0.5 WorldPanning patch CUT83, 0, 0 }
 texture CUT16B0F, 32, 16 { XScale 0.5 YScale 0.5 WorldPanning patch CUT89, 0, 0 }
-
-
+texture CUT16B0G, 32, 32 { XScale 0.5 YScale 0.5 WorldPanning patch CUT55, 0, 0 }
 
 
 

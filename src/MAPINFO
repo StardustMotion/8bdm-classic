@@ -71,6 +71,5 @@ defaultmap {
 
 
 map "8C-1CUT" lookup "8C_STAGE_CUT" { 
-    music = "8C1CUTA"
 }
 

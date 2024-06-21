@@ -1,6 +1,5 @@
 // cvars not allowed to start with a number, so 8C is C8 instead  ' -'
 
-
 user bool C8_autologin = false;
 server noarchive int C8_exp_pool = 0;
 
@@ -18,6 +17,12 @@ server noarchive int C8_exp_pool = 0;
 
 	- int: C8_selected_players (16)			The 8 players allowed to enter stage and receive the special weapon
 	- int: C8_is_first_start (1)			For operations that need to be done once : on server start
+	- int: C8_game_status (8)				Info about current game state
+		- 0: current act
+		- 1: lives
+		- 2: number of players on goal
+		- 3: minimum survivors required to win
+		- 4: is game in transition? (in state of going to next/resetting act)
 	- int: C8_physics (1)					Force 8C's physics outside of 8C maps
 
 	- string: C8_login_<p> (1)				Player Zandronum account name
@@ -36,9 +41,9 @@ server noarchive int C8_exp_pool = 0;
 	- string: C8_sp_skill_<id>				Hero special skill label
 	- string: C8_hero_text_<id>				Hero description
 	- string: C8_hero_graphic_<id>			A bunch of graphics lump names separated by space. Each must be 8 chars
-		- 1: Mugshot
-		- 2: Hero "idle" graphic (in hero selection/data screen)
-		- 3: Hero graphic when selected in hero selection
+		- 0: Mugshot
+		- 1: Hero "idle" graphic (in hero selection/data screen)
+		- 2: Hero graphic when selected in hero selection
 
 
 	// --------------- Static values (stage)	--------------- //
@@ -54,6 +59,10 @@ server noarchive bool C8_is_first_start = true;
 
 // initialized on map start
 server noarchive int C8_selected_players = 0; //  (only 16 lower bits are used)
+
+/* Various game status info */
+server noarchive int C8_game_status = 0; 
+
 server bool C8_physics = false;
 
 
