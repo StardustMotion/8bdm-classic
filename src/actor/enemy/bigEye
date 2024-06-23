@@ -1,5 +1,5 @@
 
-actor "8C Big Eye" : "8C Mob"  {
+actor "8C Big Eye" : "8C Enemy"  {
     -COUNTKILL gravity 1.2
     obituary "$8C_OBIT_BIG_EYE"
     radius 26 height 120 
@@ -47,7 +47,7 @@ actor "8C Big Eye V3" : "8C Big Eye" {
     
 }
 
-actor "8C Big Eyeye" : "8C Mob" {
+actor "8C Big Eyeye" : "8C Enemy" {
     painchance 256 +INVULNERABLE +NOGRAVITY height 27 radius 20 states {
         spawn:            
             "----" A 0 nodelay ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, false)
@@ -73,4 +73,4 @@ actor "8C Big Eyeye" : "8C Mob" {
     }
 }
 
-actor "8C Big Eye contact" : "8C Mob contact" { args 45, 64, 32 }
+actor "8C Big Eye contact" : "8C Enemy contact" { args 45, 64, 32 }

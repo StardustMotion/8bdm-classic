@@ -1,5 +1,5 @@
 
-actor "8C Cutting Wheel" : "8C Mob" {
+actor "8C Cutting Wheel" : "8C Enemy" {
     +NOGRAVITY
     meleerange 1024 accuracy 4 radius 20 height 40 scale 2.5
     +MISSILE  // allow use of bounce properties/flags

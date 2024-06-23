@@ -5,44 +5,76 @@
 #DEFINE DB_CREATE_HERO 0
 #DEFINE DB_DELETE_HERO 1
 #DEFINE DB_ACCOUNT_LOAD 2
-
-
-
-
-function void dbOperation(int player, int type, int arg0, int arg1) {
-    if (!PlayerIsLoggedIn(player))
-        return;
-    str login = GetPlayerAccountName(player);
+#DEFINE DB_SAVE_ACT_PROGRESS 3
+function void dbEvent(int type, int arg1, int arg2, int arg3) {
 	BeginDBTransaction();
-    Log(s:">>> \ck[DATABASE : ", s:login, s:"] (", d:player, s:") [", d:type, s:", ", d:arg0, s:", ", d:arg1, s:"]");
     switch(type) {
-
         /*
-        @arg0 slot
-        @arg1 heroIndex
+        @arg1 player
+        @arg2 slot
+        @arg3 heroIndex
         */
         case DB_CREATE_HERO:
-            SetDBEntry(login, strParam(s:DB_FIELD_HERO, d:arg0), arg1+1);
-            SetDBEntry(login, strParam(s:DB_FIELD_WEAPONS, d:arg0), 0);
-            SetDBEntry(login, strParam(s:DB_FIELD_EXP, d:arg0), 0);
+            setPlayerHero(arg1, arg2, arg3);
+            clearWeps(arg1, arg2);
+            setExp(arg1, arg2, 0);
+            if ((arg2 >= 0) && PlayerIsLoggedIn(arg1)) {
+                str login = GetPlayerAccountName(arg1);
+                updateDB(login, strParam(s:DB_FIELD_HERO, d:arg2), arg3+1);
+                updateDB(login, strParam(s:DB_FIELD_WEAPONS, d:arg2), 0);
+                updateDB(login, strParam(s:DB_FIELD_EXP, d:arg2), 0);
+            }
         break;
-
+        
         /*
-        @arg0 slot
+        @arg1 player
+        @arg2 slot
         */
         case DB_DELETE_HERO:
-            SetDBEntry(login, strParam(s:DB_FIELD_HERO, d:arg0), 0);
+            setPlayerHero(arg1, arg2, -1);
+            if ((arg2>=0) && PlayerIsLoggedIn(arg1)) {
+                login = GetPlayerAccountName(arg1);
+                updateDB(login, strParam(s:DB_FIELD_HERO, d:arg2), 0);
+            }
+        break;
+        
+        /*
+        @arg1 player
+        */
+        case DB_ACCOUNT_LOAD:
+            if (!PlayerIsLoggedIn(arg1)) return;
+            login = GetPlayerAccountName(arg1);
+            for (int i = 0; i < MAX_SLOTS; i++) {
+                setPlayerHero(arg1, i, selectDB(login,strParam(s:DB_FIELD_HERO, d:i))-1);
+                setExp(arg1, i, selectDB(login,strParam(s:DB_FIELD_EXP, d:i)));
+            }
         break;
 
         /* no args */
-        case DB_ACCOUNT_LOAD:
-            for (int i = 0; i < MAX_SLOTS; i++) {
-                setPlayerHero(player, i, GetDBEntry(login,strParam(s:DB_FIELD_HERO, d:i))-1);
-                //setWepUnlocked(player, i, GetDBEntry(login,strParam(s:DB_FIELD_WEAPONS, d:i)));
-                setExp(player, i, GetDBEntry(login,strParam(s:DB_FIELD_EXP, d:i)));
-            }
+        case DB_SAVE_ACT_PROGRESS:
+            for (i = 0; i < MAX_C8_PLAYERS; i++)
+                if (isSelectedPlayer(i)) {
+                    SetActivatorToPlayer(i);
+                    int slot = getAllowedSlot(i);
+                    arg2 = min(getExp(i,slot)+getExpPool(i),MAX_RANK*1000);
+                    setExp(i,slot,arg2);
+                    setExpPool(i,0);
+			        updateRank(getRank(i,slot), false);
+                    if (PlayerIsLoggedIn(i))
+                        updateDB(GetPlayerAccountName(i), strParam(s:DB_FIELD_EXP, d:i), arg2);
+                }
         break;
     }
-
+	
     EndDBTransaction();
+}
+
+function void updateDB(str login, str field, int value) {
+    Log(s:">>> \ck[UPDATE] ", s:login, s:"\cc--> \ci", s:field, s:" \ccto \ci", d:value);
+    SetDBEntry(login,field,value);
+}
+function int selectDB(str login, str field) {
+    int data = GetDBEntry(login,field);
+    Log(s:">>> \ck[SELECT] ", s:login, s:"\cc--> \ci", s:field, s:" \cc: \ci", d:data);
+    return data;
 }

@@ -1,7 +1,6 @@
 // cvars not allowed to start with a number, so 8C is C8 instead  ' -'
 
 user bool C8_autologin = false;
-server noarchive int C8_exp_pool = 0;
 
 /*
 	Top level view
@@ -16,14 +15,16 @@ server noarchive int C8_exp_pool = 0;
 	- int: C8_stage_<i> (4)					(runtime) Index to (compile time) stage ID mapping
 
 	- int: C8_selected_players (16)			The 8 players allowed to enter stage and receive the special weapon
-	- int: C8_is_first_start (1)			For operations that need to be done once : on server start
 	- int: C8_game_status (8)				Info about current game state
-		- 0: current act
+		- 0: is the first map of the game already booted? For operations that need to be done once : on server start
 		- 1: lives
 		- 2: number of players on goal
-		- 3: minimum survivors required to win
-		- 4: is game in transition? (in state of going to next/resetting act)
+		- 3: selected players count
+		- 4: minimum survivors required to win
+		- 5: is game in transition? (in state of going to next/resetting act)
+		- 6: current act
 	- int: C8_physics (1)					Force 8C's physics outside of 8C maps
+	- int: C8_exp_pool_<p> (1)				Exp stored for current act (after divided by number of players)
 
 	- string: C8_login_<p> (1)				Player Zandronum account name
 	- int: C8_slot (16)						Slot currently used/allowed by the server
@@ -62,6 +63,11 @@ server noarchive int C8_selected_players = 0; //  (only 16 lower bits are used)
 
 /* Various game status info */
 server noarchive int C8_game_status = 0; 
+
+server noarchive int C8_exp_pool_0 = 0; server noarchive int C8_exp_pool_1 = 0; 
+server noarchive int C8_exp_pool_2 = 0; server noarchive int C8_exp_pool_3 = 0; 
+server noarchive int C8_exp_pool_4 = 0; server noarchive int C8_exp_pool_5 = 0; 
+server noarchive int C8_exp_pool_6 = 0; server noarchive int C8_exp_pool_7 = 0; 
 
 server bool C8_physics = false;
 

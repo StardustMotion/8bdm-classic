@@ -92,23 +92,29 @@
 
 // Player properties --------------------------------------------------------
 
-#define PROP_FROZEN                     0
-#define PROP_NOTARGET                   1
-#define PROP_INSTANTWEAPONSWITCH        2
-#define PROP_FLY			3
-#define PROP_TOTALLYFROZEN		4
-#define PROP_BUDDHA			16
+#define PROP_FROZEN					0
+#define PROP_NOTARGET				1
+#define PROP_INSTANTWEAPONSWITCH	2
+#define PROP_FLY					3
+#define PROP_TOTALLYFROZEN			4
+#define PROP_BUDDHA					16
+#define PROP_BUDDHA2				17
+#define PROP_FRIGHTENING 			18
+#define PROP_NOCLIP 				19
+#define PROP_NOCLIP2 				20
+#define PROP_GODMODE 				21
+#define PROP_GODMODE2 				22
 
 // The following properties correspond to powers given by certain items
 #define PROP_INVULNERABILITY		5
-#define PROP_STRENGTH			6
-#define PROP_INVISIBILITY		7
-#define PROP_RADIATIONSUIT		8
-#define PROP_ALLMAP			9
-#define PROP_INFRARED			10
-#define PROP_WEAPONLEVEL2		11
-#define PROP_FLIGHT			12
-#define PROP_SPEED			15
+#define PROP_STRENGTH				6
+#define PROP_INVISIBILITY			7
+#define PROP_RADIATIONSUIT			8
+#define PROP_ALLMAP					9
+#define PROP_INFRARED				10
+#define PROP_WEAPONLEVEL2			11
+#define PROP_FLIGHT					12
+#define PROP_SPEED					15
 
 // Player input -------------------------------------------------------------
 
@@ -769,6 +775,7 @@
 
 #DEFINE AAPTR_FRIENDPLAYER 0x4000
 #DEFINE AAPTR_GET_LINETARGET 0x8000
+#DEFINE AAPTR_PLAYER_GETCAMERA 0x8000000
 
 // [AK] Actor pointers used exclusively for GAMEEVENT_ACTOR_DAMAGED
 #DEFINE AAPTR_DAMAGE_SOURCE 0x10000000
@@ -902,6 +909,13 @@
 #define DB_ORDER_ASC			0
 #define DB_ORDER_DESC			1
 
+// Zandronum gamemode states ------------------------------------------------
+#define GAMESTATE_UNSPECIFIED		-1
+#define GAMESTATE_WAITFORPLAYERS	0
+#define GAMESTATE_COUNTDOWN		1
+#define GAMESTATE_INPROGRESS		2
+#define GAMESTATE_INRESULTSEQUENCE	3
+
 // Zandronum EVENT script types ---------------------------------------------
 #define GAMEEVENT_PLAYERFRAGS		0
 #define GAMEEVENT_MEDALS		1
@@ -919,6 +933,7 @@
 #define GAMEEVENT_DOMINATION_CONTROL		13
 #define GAMEEVENT_DOMINATION_POINT		14
 #define GAMEEVENT_PLAYERLEAVESSERVER	15
+#define GAMEEVENT_LEVEL_INIT		16
 
 // Events when you have input grabbed
 
@@ -1172,6 +1187,19 @@
 #define AMLS_UnexploredSecret	12
 #define AMLS_Portal		13
 
+// Lump reading stuff.
+#define LUMP_OPEN_FULLPATH 1
+
+#define LUMP_READ_BYTE 0
+#define LUMP_READ_UBYTE 1
+#define LUMP_READ_SHORT 2
+#define LUMP_READ_USHORT 3
+#define LUMP_READ_INT 4
+#define LUMP_READ_FLOAT 5
+                
+#define LUMP_INFO_SIZE 0
+#define LUMP_INFO_NAME 1
+
 // [TP] For GetTimeProperty
 #define TM_SECOND 0
 #define TM_MINUTE 1
@@ -1197,6 +1225,8 @@
 #define SCORE_KILLS 4
 #define SCORE_ITEMS 5
 #define SCORE_SECRETS 6
+#define SCORE_SPREAD 7
+#define SCORE_RANK 8
 
 // [AK] For GetMapRotationInfo
 #define MAPROTATION_Name 0
@@ -1212,14 +1242,8 @@
 #define LEAVEREASON_TIMEOUT 3
 #define LEAVEREASON_RECONNECT 4
 
-#define LUMP_OPEN_FULLPATH 0x00000001
-
-#define LUMP_READ_BYTE   0
-#define LUMP_READ_UBYTE  1
-#define LUMP_READ_SHORT  2
-#define LUMP_READ_USHORT 3
-#define LUMP_READ_INT    4
-#define LUMP_READ_FLOAT  5
-
-#define LUMP_INFO_SIZE 0
-#define LUMP_INFO_NAME 1
+// GetPlayerSkin ------------------------------------------------------------
+#define PLAYERSKIN_USERINFO 0
+#define PLAYERSKIN_WEAPON 1
+#define PLAYERSKIN_ACS 2
+#define PLAYERSKIN_VISIBLE 3

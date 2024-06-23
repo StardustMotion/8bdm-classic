@@ -15,7 +15,6 @@ actor "8C Static Move" : PowerUp { powerup.duration 0x7FFFFFFF }
 actor "8C On actor gravity Giver" : PowerApropGiver {}
 actor "8C On actor gravity" : PowerUp { powerup.duration 0x7FFFFFFF }
 
-// actor (hero/enemy) index
 actor "8C ID" : var16 { }
 actor "8C Rank" : var8 { }
 

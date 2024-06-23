@@ -1,4 +1,4 @@
-actor "8C Blader" : "8C Mob" {
+actor "8C Blader" : "8C Enemy" {
     obituary "$8C_OBIT_BLADER"
     +NOGRAVITY radius 20 height 50
     meleerange 2048 accuracy 14 stamina 320
@@ -67,4 +67,4 @@ actor "8C Blader V2" : "8C Blader" {}
 actor "8C Blader V3" : "8C Blader" {}
 
 
-actor "8C Blader contact" : "8C Mob contact" { args 10,32,20 }
+actor "8C Blader contact" : "8C Enemy contact" { args 10,32,20 }

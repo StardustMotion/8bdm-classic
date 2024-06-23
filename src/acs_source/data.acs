@@ -93,8 +93,7 @@
 #DEFINE MAX_STAGE 256
 #DEFINE MAX_ENEMY 1024
 
-#DEFINE MAX_CLIENTS 16
-#DEFINE MAX_C8_PLAYERS 8
+#DEFINE MAX_C8_PLAYERS 16
 #DEFINE MAX_SLOTS 2 // slot == -1 value is used to refer to quick play slot
 #DEFINE MAX_WEAPON_GROUPS 4
 
@@ -133,7 +132,6 @@
 /////////////////
 
 #DEFINE CVAR_IS_FIRST_START "C8_is_first_start"
-#DEFINE CVAR_EXP_POOL "C8_exp_pool"
 
 // Some "globa variables" for title screen
 #DEFINE MENU_COMMON 0
@@ -162,9 +160,6 @@ function bool inMenu(void) {					return !!getMenu(); }
 function void resetMenu(void) {					for (int i=0; i < 5; i++) client_menuStatus[i] = 0; }
 function void resetMenuArgs(void) {              for (int i = 0; i < 3; i++) setMenuArg(i,0); }
 
-// function void menuStatusReset(void) { for (int i = 0; i < 8; i++) setMenu(i,0); }
-
-
 
 
 
@@ -180,16 +175,27 @@ function void resetMenuArgs(void) {              for (int i = 0; i < 3; i++) set
 /////////////////////////////////
 
 #DEFINE CVAR_GAME_STATUS "C8_game_status"
-function int getAct(void) {											return get4bFlagVal(CVAR_GAME_STATUS,false,0); }
-function void setAct(int act) {										set4bFlagVal(CVAR_GAME_STATUS,false,0,act); }
+function int isGameAlreadyBooted(void) {							return get4bFlagVal(CVAR_GAME_STATUS,false,0); }
+function void setGameAlreadyBooted(void) {							set4bFlagVal(CVAR_GAME_STATUS,false,0,true); }
 function int getLives(void) {										return get4bFlagVal(CVAR_GAME_STATUS,false,1); }
 function void setLives(int lives) {									set4bFlagVal(CVAR_GAME_STATUS,false,1,lives); }
 function int getGoal(void) {										return get4bFlagVal(CVAR_GAME_STATUS,false,2); }
 function void setGoal(int players) {								set4bFlagVal(CVAR_GAME_STATUS,false,2,players); }
-function int getMinSurvivors(void) {								return get4bFlagVal(CVAR_GAME_STATUS,false,3); }
-function void setMinSurvivors(int players) {						set4bFlagVal(CVAR_GAME_STATUS,false,3,players); }
-function int isGameInTransition(void) {								return get4bFlagVal(CVAR_GAME_STATUS,false,4); }
-function void setGameInTransition(int state) {						set4bFlagVal(CVAR_GAME_STATUS,false,4,state); }
+function int getSelectedPlayers(void) {								return get4bFlagVal(CVAR_GAME_STATUS,false,3); }
+function void setSelectedPlayers(int players) {						set4bFlagVal(CVAR_GAME_STATUS,false,3,players); }
+function int getMinSurvivors(void) {								return get4bFlagVal(CVAR_GAME_STATUS,false,4); }
+function void setMinSurvivors(int players) {						set4bFlagVal(CVAR_GAME_STATUS,false,4,players); }
+function int isGameInTransition(void) {								return get4bFlagVal(CVAR_GAME_STATUS,false,5); }
+function void setGameInTransition(int state) {						set4bFlagVal(CVAR_GAME_STATUS,false,5,state); }
+function int getAct(void) {											return get4bFlagVal(CVAR_GAME_STATUS,false,6); }
+function void setAct(int act) {										set4bFlagVal(CVAR_GAME_STATUS,false,6,act); }
+
+#DEFINE CVAR_EXP_POOL "C8_exp_pool_"
+// the stored value is made <<4
+function int getExpPool(int player) {								return GetCvar(__expPool(player)); }
+function void setExpPool(int player, int expPool) {					SetCVar(__expPool(player), expPool); }
+function str __expPool(int player) { 								return strParam(s:CVAR_EXP_POOL, d:player); }
+
 
 // ------------------------------------------------------------------------ //
 
@@ -231,6 +237,8 @@ function str __playerHero(int slot) { 								return strParam(s:CVAR_PLAYER_HERO
 #DEFINE CVAR_EXP "C8_exp_"
 function int getExp(int player, int slot) {							return GetCvar(__exp(player,slot)); }
 function void setExp(int player, int slot, int exp) {				SetCVar(__exp(player,slot), exp); }
+function int getRank(int player, int slot) {						return expToRank(getExp(player,slot)); }
+function int expToRank(int exp) {									return 1 + exp/1000; }
 function str __exp(int player, int slot) {							return strParam(s:CVAR_EXP, d:slot+1, d:player); }
 
 #DEFINE CVAR_WEP "C8_wep_"
@@ -311,10 +319,9 @@ function int getScore(int id) {										return GetCvar(strParam(s:"C8_score_", 
 
 
 #DEFINE ENEMY_COLOR_USERVAR "user_8C_color"
-function int getId(void) {											return CheckInventory("8C ID"); }
-function int getRank(void) {										return CheckInventory("8C Rank"); }
-function int toRank(int exp) {										return 1+(exp/50); }
-function bool isEnemy(void) {										return (getRank() && !(ClassifyActor(0)&ACTOR_PLAYER)); }
+function int getActorID(void) {										return CheckInventory("8C ID"); }
+function int getActorRank(void) {									return CheckInventory("8C Rank"); }
+function bool isEnemy(void) {										return (getActorRank() && !(ClassifyActor(0)&ACTOR_PLAYER)); }
 function bool isShiny(void) {										return CheckInventory("8C is Shiny"); }
 
 

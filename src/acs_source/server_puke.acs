@@ -28,7 +28,7 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
             if (!slotSanityCheck(player, arg1, true)) {
                 pukeReply(PUKE_ERROR); terminate;
             }
-            createHero(player,arg1,arg2);
+            dbEvent(DB_CREATE_HERO,player,arg1,arg2);
             pukeReply(PUKE_OK);
 		break;
         
@@ -44,7 +44,7 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
             if (!slotSanityCheck(player, arg1, false)) {
                 pukeReply(PUKE_ERROR); terminate;
             }
-            deleteHero(player,arg1); // delete slot if slot == this hero's?
+            dbEvent(DB_DELETE_HERO,player,arg1,NULL);
             pukeReply(PUKE_OK);
 		break;
 
@@ -66,16 +66,15 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
             if (!isNetworkGame()) {
 				pukeReply(PUKE_ERROR); terminate;
             }
-			else if (!PlayerIsLoggedIn(arg1)) {
-				setLogin(arg1, "");
+			else if (!PlayerIsLoggedIn(player)) {
+				setLogin(player, "");
 				pukeReply(PUKE_ERROR); terminate;
 			}
             pukeReply(PUKE_OK);
-            if (isLoggedIn(arg1))                 
+            if (isLoggedIn(player))                 
                 terminate;
             else {
-                setLogin(arg1, GetPlayerAccountName(arg1));
-                dbOperation(player, DB_ACCOUNT_LOAD, NULL, NULL);
+                dbEvent(DB_ACCOUNT_LOAD, player, NULL, NULL);
             }
 		break;
 

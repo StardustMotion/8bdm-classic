@@ -1,4 +1,4 @@
-actor "8C Blaster" : "8C Mob" {
+actor "8C Blaster" : "8C Enemy" {
     obituary "$8C_OBIT_BLASTER"
     +NOGRAVITY radius 22 height 40
     meleerange 1024 accuracy 14

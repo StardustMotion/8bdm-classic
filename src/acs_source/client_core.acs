@@ -204,19 +204,29 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 		break;
 
 		case CS_INGAME_HUD:
-			arg2 = getRank();
-			draw8cNumber(arg2, HUD_ID_HERO+8, 40.0+9.0*(arg2>=10), 250.0, 340+120*(arg2>=10), 265, BIG_FONT, false);
-			drawBI(getHeroMugshot(getId()), HUD_ID_HERO+10, 36.0, 264.0, 400, 300);
+			if (PlayerNumber() != localPlayer) terminate;
+			drawBI(getHeroMugshot(getActorID()), HUD_ID_HERO+10, 36.0, 264.0, 400, 300);
 			drawBI("8CMUGB00", HUD_ID_HERO+11, 36.0, 264.0, 400, 300);
-			drawBT("\ch/", HUD_ID_HERO+12, 131.0, 240.0, 400, 280);
+			drawBI("8CNUMB0A", HUD_ID_HERO+12, 146.0, 269.0, 450, 315);
+			drawBI("8CNUMB0C", HUD_ID_HERO+14, 156.0, 258.0, 400, 280);
 			while (!isGone(NULL)) {
 				arg3 = GetActorProperty(0,APROP_Health);
 				type = GetActorProperty(0,APROP_SpawnHealth);
 				draw8cNumber(arg3, 0, 120.0, 159.0, 270, 200, SMALL_FONT, true);
 				draw8cNumber(type, 0, 180.0, 269.0, 420, 315, SMALL_FONT, true);
 				draw8cBar("8CBARHP", true, FixedDiv(arg3<<16, type<<16), 75.0-33.0, 183.0, 250, 220);
-				draw8cBar("8CBARHP", true, 1.0, 56.0, 217.0, 320, 240);
-				delay(1);
+
+				i = (getExp(localPlayer, getAllowedSlot(localPlayer))%1000); // current exp
+				int poolExp = getExpPool(localPlayer); // xp ot be claimed
+				i = FixedDiv((i+poolExp)<<16,1000.0);
+
+				drawBI("8CNUMB0B", HUD_ID_HERO+13, 160.0-11.0*((poolExp>99)+(poolExp>999)), 304.0, 472, 330);
+				draw8cNumber(poolExp/10, 0, 159.0, 290.0, 420, 315, SMALL_FONT, true);
+				draw8cBar(i>=1.0 ? "8CBARXP2" : "8CBARXP1", true, i, 56.0, 217.0, 320, 240);
+				arg2 = getActorRank();
+				draw8cNumber(arg2, HUD_ID_HERO+8, 40.0+9.0*(arg2>=10), 250.0, 340+120*(arg2>=10), 265, BIG_FONT, false);
+
+			delay(1);
 			}			
 		break;
 
@@ -376,8 +386,8 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 		break;
 
 		case CS_ACT_LOST:
-			if (getMinSurvivors()>0)    
-				drawTypedT("\crHalf the team is missing...",HUD_ID_TRANSITION, 140.4, 42.0, 280, 175, 0.04);
+			if (getMinSurvivors()>1)    
+				drawTypedT("\ccHalf the team is missing",HUD_ID_TRANSITION, 140.4, 42.0, 280, 175, 0.045);
 			delay(100);
             ACS_NamedExecuteWithResult("8C CS", CS_HUD_TRANSITION, CS_HUD_TRANSITION_ALPHA, true);
 			delay(10);

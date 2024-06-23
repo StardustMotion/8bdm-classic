@@ -205,7 +205,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			}
 			SetResultValue(false);
 			arg2 = GetActorProperty(0, APROP_Mass);
-			for (i = 0; i < MAX_CLIENTS; i++)
+			for (i = 0; i < MAX_C8_PLAYERS; i++)
 				if (PlayerInGame(i) && isSelectedPlayer(i))
 					if ((xyDistance(0,i+1000) < arg2) && !CheckActorInventory(i+1000,"8C Goal Status"))
 						GiveActorInventory(i+1000, "8C Enter Goal", 1);
@@ -239,11 +239,12 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			if (getGoal() >= arg1) {
 				setGameInTransition(true);
 				AmbientSound("8CGOAL", 127);
+				dbEvent(DB_SAVE_ACT_PROGRESS, NULL, NULL, NULL);
 				setAct(getAct()+1); clearGoal();  setServerPacify(true, true, true);
 				delay(20);
 				ACS_NamedExecuteWithResult("8C CS", CS_TRANSITION_MESSAGE, false, true);
-				delay(85);
-				setmusic(""); ACS_NamedExecuteWithResult("8C CS", CS_CLOSURE_ANIMATION, 70); delay(70);	
+				delay(105);
+				setmusic(""); ACS_NamedExecuteWithResult("8C CS", CS_CLOSURE_ANIMATION, 60); delay(60);	
 				setServerPacify(false, true, false);
 				startAct();
 				terminate;
@@ -278,7 +279,7 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 }
 
 function void clearGoal(void) {	
-	for (int i = 0; i < MAX_CLIENTS; i++) {
+	for (int i = 0; i < MAX_C8_PLAYERS; i++) {
 		if (PlayerInGame(i)) {
 			SetActivatorToPlayer(i);
 			if (CheckInventory("8C Goal Status")) {
@@ -289,7 +290,7 @@ function void clearGoal(void) {
 }
 
 function void setServerPacify(bool value, bool alterFreeze, bool freezeValue) {
-	for (int i = 0; i < MAX_CLIENTS; i++) {
+	for (int i = 0; i < MAX_C8_PLAYERS; i++) {
 		if (PlayerInGame(i)) {
 			SetActivatorToPlayer(i);
 				ACS_NamedExecuteWithResult("8C", C8_PACIFIST, value);
@@ -315,17 +316,31 @@ script "8C API" (int type, int arg1, int arg2, int arg3) {
 			SetActorProperty(type, APROP_Accuracy, arg3);
 			Thing_ChangeTID(type,0);
 		break;
+		
+		/*
+		@arg1 enemy ID
+		@arg2 spot tid
+		@arg3 either 1 or 3 or 5 or 7, only
+		*/
+		case C8_API_SPAWN_ENEMY:
+			if (!(arg3&0x1) | (arg3>>3)) {
+				Log(l:"8C_ENEMY_MINPLAYER", s:"\cc(ID \ca", d:arg1, s:"\cc, on spot \ca", d:arg2, s:"\cc)");
+				arg3 = 0;
+			}
+			if (arg1==-1) {
+				log(l:"8C_ENEMY_SPAWNER_ID", 
+					s:"\cc[X=", f:GetActorX(0), s:", \ccY=", f:GetActorY(0), s:", \ccZ=", f:GetActorZ(0), s:"]");
+				terminate;
+			}
+			ACS_NamedExecuteWithResult("8C RPG", RPG_SUMMON_ENEMY, arg1, arg2);
+		break;
 	}
 }
 
 
-
-
-
-
 function int countSelectedPlayers(bool ignoreStatus) {
 	int count = 0;
-	for (int i = 0; i < MAX_CLIENTS; i++) {
+	for (int i = 0; i < MAX_C8_PLAYERS; i++) {
 		if (ignoreStatus) 
 			count += isSelectedPlayer(i);
 		else
@@ -365,19 +380,6 @@ function bool isPacifist(void) {
 
 
 
-function void createHero(int player, int slot, int heroIndex) {
-    setPlayerHero(player, slot, heroIndex);
-    clearWeps(player, slot);
-	setExp(player, slot, 0);
-    if (slot >= 0)
-        dbOperation(player, DB_CREATE_HERO, slot, heroIndex);
-}
-
-function void deleteHero(int player, int slot) {
-    setPlayerHero(player, slot, -1);
-    if (slot >= 0)
-        dbOperation(player, DB_DELETE_HERO, slot, 0);
-}
 
 
 

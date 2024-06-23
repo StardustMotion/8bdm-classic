@@ -1,4 +1,4 @@
-actor "8C Kamadoma" : "8C Mob" {
+actor "8C Kamadoma" : "8C Enemy" {
     radius 17 height 40
     meleerange 768 accuracy 16
     args 28, 10
@@ -29,4 +29,4 @@ actor "8C Kamadoma V2" : "8C Kamadoma" {}
 actor "8C Kamadoma V3" : "8C Kamadoma" {}
 
 
-actor "8C Kamadoma contact" : "8C Mob contact" { args 10,26,18 }
+actor "8C Kamadoma contact" : "8C Enemy contact" { args 10,26,18 }

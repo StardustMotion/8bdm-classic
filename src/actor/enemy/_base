@@ -1,12 +1,12 @@
 
 
-actor "8C Mob" {
+actor "8C Enemy" {
     // private:
         mass 9999 var int user_8C_color;
         +ISMONSTER +USEDAMAGEEVENTSCRIPT +USESPAWNEVENTSCRIPT
         +SOLID +CANPASS +ACTIVATEMCROSS +SHOOTABLE +COUNTKILL
         +CANPUSHWALLS +CANUSEWALLS +MOVEWITHSECTOR +DONTBLAST +FLOORCLIP
-        species "8C Mob" +DONTHARMSPECIES
+        species "8C Enemy" +DONTHARMSPECIES
 
     // public:
         obituary "$8C_OBIT_DEFAULT" 
@@ -34,7 +34,7 @@ actor "8C Mob" {
 
 
 // Don't forget to remove monster's "8C follow me" when this damager must disappear
-actor "8C Mob contact" : watcher {
+actor "8C Enemy contact" : watcher {
     // private:
         var int user_PierceRipper;  scale 5.0  //+SERVERSIDEONLY
          damagetype "normal"
@@ -83,3 +83,5 @@ actor "8C Shiny Light" : gfx { +FORCEXYBILLBOARD +BRIGHT alpha 0.75
         spawn:
          8CAA CCDDEE 3 A_FadeOut(0.06)
          stop}}
+
+

@@ -19,7 +19,9 @@ texture 8CMUGB02
 	pic 8CMUGB00 tics 8
 	pic 8CMUGB01 tics 8
 	
-
+texture 8CBARXP2
+	pic 8CBARXP1 tics 3
+	pic 8CBARXP3 tics 3
 
 
 

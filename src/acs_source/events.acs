@@ -12,7 +12,7 @@ function void init(void) {
 	forcePhysics = GetCvar("C8_physics");
 	isMap8C = !strCmp(strLeft(strParam(n:PRINTNAME_LEVEL), 3),"8C-");
 
-    if (GetCvar(CVAR_IS_FIRST_START)) 
+    if (!isGameAlreadyBooted()) 
 		onFirstGameStart();
 
 	if (isMap8C || forcePhysics) {
@@ -35,9 +35,10 @@ function void init(void) {
 			selectPlayer(0);
 			setAct(1);
 			setLives(3);
-			setMinSurvivors((countSelectedPlayers(true)/2)+1);
-			consolecommand("sv_maxplayers 0");
-			ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), MAX_CLIENTS))); // GAMEMODE
+			i = countSelectedPlayers(true);
+			setSelectedPlayers(i);
+			setMinSurvivors((i/2)+1);
+			ConsoleCommand(strParam(s:"sv_maxclients ", d:min(GetCvar("sv_maxclients"), MAX_C8_PLAYERS))); // GAMEMODE
 			ConsoleCommand("mm8bdm_sv_respawnprotection 0"); // side effect / need a hook
 		}
 
@@ -50,13 +51,12 @@ function void init(void) {
 function void startAct(void) {
 	int act = getAct()-1;
 	log(s:"\cc------------\nSTART ACT \ci", d:getAct(), s:" \cclives\ci ",d:getLives(), s:" \ccsurvivorsNeeded\ci ", d:getMinSurvivors());
-	setGoal(0);
-	SetCVar(CVAR_EXP_POOL,0);
-	setGameInTransition(false);
-	
+	setGoal(0);	
+	setGameInTransition(false);	
 	int index = 0, spawnPoint;
-	for (int player = 0; player < MAX_CLIENTS; player++) {
+	for (int player = 0; player < MAX_C8_PLAYERS; player++) {
 		if (PlayerInGame(player) && isSelectedPlayer(player)) {
+			setExpPool(player,0);
 			SetActivatorToPlayer(player);
 			spawnPoint = ACT_TID+index+(act*10);
 			SetActorPosition(0, GetActorX(spawnPoint), GetActorY(spawnPoint), GetActorZ(spawnPoint), false);
@@ -77,7 +77,7 @@ function void onFirstGameStart(void) {
 	for (int i = 0, count = 0; i < MAX_HERO; i++)
 		if (strLen(strSanitize(__getHeroName(i)))) {
 			setHeroFromIndex(count, i);
-			//Log(s:"Adding hero \cd", s:getHeroName(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
+			Log(s:"Adding hero \cd", s:getHeroName(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
 			count++;
 		}
 	SetCVar(CVAR_HERO_SIZE, count);
@@ -86,13 +86,13 @@ function void onFirstGameStart(void) {
 	for (i = 0, count = 0; i < MAX_STAGE; i++)
 		if (strLen(strSanitize(__getStageCode(i)))) {
 			setStageFromIndex(count, i);
-			//Log(s:"Adding stage \ci", s:getStageCode(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
+			Log(s:"Adding stage \ci", s:getStageCode(count), s:" (", d:i, s:")\c- on slot \cv", d:count);
 			count++;
 		}
 	SetCVar(CVAR_STAGE_SIZE, count);
 
 	// Resolve
-	SetCVar(CVAR_IS_FIRST_START, false);
+	setGameAlreadyBooted();
 }
 
 
@@ -110,7 +110,7 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 		case GAMEEVENT_PLAYERCONNECT :
             setLogin(arg1, "");
 			for (int i = -1; i < MAX_SLOTS; i++)
-				deleteHero(arg1, i);
+				dbEvent(DB_DELETE_HERO,arg1,NULL,NULL);
 		break;
 
 		case GAMEEVENT_ACTOR_DAMAGED:
@@ -125,13 +125,14 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 
 			int enemy = isEnemy();
 			if (enemy) {
-				arg2 = getId();
+				arg2 = getActorID();
+				i = getActorRank();
 				ACS_NamedExecuteWithResult("8C CS", CS_ENEMY_PAIN);
 			}
 			
 			delay(1);
 			if (isGone(NULL)) {
-				if (enemy) 			onEnemyDeath(arg2);	
+				if (enemy) enemyExpGain(arg2,i);
 			}		
 		break;
 
@@ -142,7 +143,7 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 script "8C LEAVES" (int player) DISCONNECT {
 	delay(1);
 	AmbientSound("8CDEATH", 127);
-	ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
+	//ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
 }
 
 script "8C DEATH" DEATH  {
@@ -151,10 +152,6 @@ script "8C DEATH" DEATH  {
 	ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
 }
     
-
-function void onEnemyDeath(int enemyID) {
-	SetCVar(CVAR_EXP_POOL, GetCvar(CVAR_EXP_POOL)+getScore(enemyID));
-}
 
 
 	

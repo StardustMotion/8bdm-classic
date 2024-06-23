@@ -11,10 +11,10 @@ script "8C RPG" (int type, int arg1, int arg2, int arg3) {
 				terminate;
 			int player = PlayerNumber();
 			arg1 = getAllowedSlot(player);
-			// if (isSlotEmpty(player,arg1)) {
-			// 	KickFromGame(player, "\ckYou first have to create a \cvhero\ck to join the game.");
-			// 	terminate;
-			// }
+			if (isSlotEmpty(player,arg1)) {
+				KickFromGame(player, "\ckYou first have to create a \cvhero\ck to join the game");
+				terminate;
+			}
 			int entity = getPlayerHero(player,arg1);
 			arg2 = getHeroActor(entity);
 			MorphActor(0, arg2,
@@ -22,10 +22,7 @@ script "8C RPG" (int type, int arg1, int arg2, int arg3) {
 			GiveInventory("BaseFlagPack",1);
 			GiveInventory(StrParam(s:arg2, s:" onSpawn"), 1);
 			GiveInventory("8C ID", entity);
-			SetInventory("8C Rank", toRank(getExp(player,arg1)));
-			arg3 = hpCalculation();
-			SetActorProperty(0,APROP_SpawnHealth,arg3);
-			SetActorProperty(0,APROP_Health,arg3);
+			updateRank(getRank(player,arg1), true);
 			GiveInventory("NoHud",1);
 			ACS_NamedExecuteWithResult("8C CS", CS_INGAME_HUD);
 		break;
@@ -46,16 +43,15 @@ script "8C RPG" (int type, int arg1, int arg2, int arg3) {
 			if (!arg2) 
 				Setactorposition(0,GetActorX(0)+128.0,GetActorY(0),GetActorZ(0),false);
 			GiveInventory("8C ID", arg1);
-			arg1 = random(1,5);
-			GiveInventory("8C Rank", arg1);	
-			SetActorProperty(0,APROP_Health,hpCalculation()); // monsters max/"spawn" hp can't be modified at current time zandro versions
+			arg1 = random(5,5);
+			updateRank(arg1,true); // monsters max/"spawn" hp can't be modified at current time zandro versions
 		
 			if (!random(0,1024))
 				GiveInventory("8C Shiny", 1);
 			SetUserVariable(0,ENEMY_COLOR_USERVAR,-1);
 			enemyPalette();
 			Thing_ChangeTID(0, 0);
-			//Log(s:"\cnspawned \cc(\ci", s:entity, s:"\cc, rank \ci", d:arg1, s:"\cc)");
+			Log(s:"\cnspawned \cc(\ci", s:entity, s:"\cc, rank \ci", d:arg1, s:"\cc)");
 		break;
 	}
 }
@@ -75,7 +71,7 @@ function int damageCalculation(int damage) {
 		damage = random(0,1) ? FixedMul(damage,fluctuation) : FixedDiv(damage,fluctuation);
 	// Debug
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
-		int strBuild = strParam(s:"\ca[", f:FixedDiv(Timer(),35), s:"] \c-", n:0, s:" \ccRANK \ck", d:getRank(), s:" \caPui ", d:puissance);
+		int strBuild = strParam(s:"\ca[", f:FixedDiv(Timer(),35), s:"] \c-", n:0, s:" \ccRANK \ck", d:getActorRank(), s:" \caPui ", d:puissance);
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		strBuild = strParam(s:strBuild,s:"\cc --> ", n:0, s:" -\ci", f:damage);
 		log(s:strBuild);
@@ -107,26 +103,55 @@ function int storeDecimalHP(int val) { // int isHeal
 	return rounded>>16;
 }
 
-#DEFINE PER_RANK_MAX (MAX_RANK-1)<<16
-function int statPerRank(int base) {
-	int scaling = FixedMul(7.0*base, 
-		FixedDiv((getRank()-1)<<16, PER_RANK_MAX));
-	return base + (roundf(scaling)>>16);
-}
-
+// ---------------------------------- the holy linear function stat calc ------------------------------------------------- //
+function int calcPerRank(int base, int rank) { return base + ((roundf(FixedMul(0.142857142*(rank-1),base<<16)))>>16); }
+// ----------------------------------------------------------------------------------------------------------------------- //
 function int puissanceCalculation(bool source) {
 	if (source)			SetActivator(0, AAPTR_DAMAGE_SOURCE);
-	return statPerRank(isEnemy() ? 
-		getEnemyPuissance(getId()) : getHeroPuissance(getId()));
+	return calcPerRank(isEnemy() ? getEnemyPuissance(getActorID()) : getHeroPuissance(getActorID()), getActorRank());
+}
+function int hpCalculation(void) { 
+	return max(1, calcPerRank(isEnemy() ? getEnemyResilience(getActorID()) : getHeroResilience(getActorID()), getActorRank())); 
 }
 
-function int hpCalculation(void) {
-	return max(1, statPerRank(isEnemy() ? 
-		getEnemyResilience(getId()) : getHeroResilience(getId())));
+#DEFINE EXP_REDUCTION_PER_RANK 100
+function void enemyExpGain(int id, int rank) {
+	int shares = getSelectedPlayers();
+	int shift = (shares-1)/2; // purpose is to work with bigger numbers to reduce accuracy loss when dividing
+	int base = (calcPerRank(getScore(id), rank)<<shift)/shares;
+	log(s:" +\ci", d:base, s:"\cc among \ci ", d:shares);
+	for (int player = 0; player < MAX_C8_PLAYERS; player++)
+		if (PlayerInGame(player) && isSelectedPlayer(player)) {
+			int playerExp = getExp(player,getAllowedSlot(player));	
+			int pendingExp = playerExp + getExpPool(player);
+			int remaining = base;
+			while (true) { // handles cases where exp gain cross to next ranks
+				int reduction = (((((expToRank(pendingExp)-1)*EXP_REDUCTION_PER_RANK)*remaining)/base)/shares);
+				int exp = max(0, (remaining>>shift) - reduction);
+				int toRankUp = 1000 - (pendingExp%1000);
+				if (exp < toRankUp) {
+					SetActivatorToPlayer(player);
+					int prevpool= getExpPool(player);
+					setExpPool(player, pendingExp-playerExp+exp);
+					log(n:0, s:" +", d:getExpPool(player)-prevpool, s:" exp");
+					break;
+				}
+				else {
+					remaining = (exp-toRankUp)<<shift;
+					pendingExp += toRankUp;
+				}
+			}
+		}
 }
-
 
 function void enemyPalette(void) {
 	int color = GetUserVariable(0,ENEMY_COLOR_USERVAR);
-	Thing_SetTranslation(0, (color>=0) ? color : ENEMY_COLOR+(getId()*ENEMY_COLOR_SIZE)+isShiny());
+	Thing_SetTranslation(0, (color>=0) ? color : ENEMY_COLOR+(getActorID()*ENEMY_COLOR_SIZE)+isShiny());
+}
+
+function void updateRank(int rank, bool fillHp) {
+	SetInventory("8C Rank", rank);
+	rank = hpCalculation();
+	SetActorProperty(0,APROP_SpawnHealth,rank);
+	if (fillHp) SetActorProperty(0,APROP_Health,rank);
 }

@@ -1,0 +1,82 @@
+
+const int C8_API_SPAWN_ENEMY = 1;
+
+// doom builder has issues parsing actor properties if there's not 1 property per line
+
+actor "8C Enemy Spawn" {
+//$Category 8C-Enemy
+//$Title [Nameless enemy]
+//$Arg0Tooltip Minimum number of players needed to spawn this
+//$Arg0 Players
+//$Arg0Type 11
+//$Arg0Enum { 0 = "Any"; 1 = "3 or more"; 2 = "5 or more"; 3 = "7 or more";}
+mass -1 
+scale 2.5
+    states { summon: "----" A 0 ACS_NamedExecuteWithResult("8C API", C8_API_SPAWN_ENEMY, mass, 0, (args[0]<<1)+1)
+            stop
+}}
+
+actor "8C Enemy 0" : "8C Enemy Spawn" 7247 { 
+    //$Title Blader
+    mass 0
+    radius 20 
+    height 50 
+    states { spawn: 8CAB A 0
+        goto summon
+}}
+actor "8C Enemy 1" : "8C Enemy Spawn" 7248 { 
+    //$Title Big Eye
+    mass 1 
+    radius 26
+    height 120     
+    states { spawn: 8CAA P 0
+        goto summon
+}}
+actor "8C Enemy 2" : "8C Enemy Spawn" 7249 { 
+    //$Title Blaster
+    mass 2
+    radius 22
+    height 40     
+    states { spawn: 8CAA V 0
+        goto summon
+}}
+actor "8C Enemy 3" : "8C Enemy Spawn" 7250 { 
+    //$Title Screw Driver
+    mass 3
+    radius 20
+    height 35     
+    states { spawn: 8CAB D 0
+        goto summon
+}}
+actor "8C Enemy 4" : "8C Enemy Spawn" 7251 { 
+    //$Title Kamadoma
+    mass 4
+    radius 17
+    height 40     
+    states { spawn: 8CAA K 0
+        goto summon
+}}
+actor "8C Enemy 5" : "8C Enemy Spawn" 7252 { 
+    //$Title Adhering Suzy
+    mass 5
+    radius 20
+    height 40     
+    states { spawn: 8CAA Y 0
+        goto summon
+}}
+actor "8C Enemy 6" : "8C Enemy Spawn" 7253 { 
+    //$Title Manbu
+    mass 6
+    radius 20
+    height 52     
+    states { spawn: 8CAB K 0
+        goto summon
+}}
+actor "8C Enemy 7" : "8C Enemy Spawn" 7254 { 
+    //$Title Cutting Wheel
+    mass 7
+    radius 20
+    height 40     
+    states { spawn: 8CAB M 0
+        goto summon
+}}

@@ -2,7 +2,7 @@
 server noarchive string C8_enemy_name_0 = 		"8C Blader";
 server noarchive int	C8_enemy_resilience_0 = 10;
 server noarchive int	C8_enemy_puissance_0 = 	60;
-server noarchive int	C8_score_0 = 			20;
+server noarchive int	C8_score_0 = 			500;
 
 server noarchive string C8_enemy_name_1 = 		"8C Big Eye";
 server noarchive int	C8_enemy_resilience_1 = 90;
@@ -12,7 +12,7 @@ server noarchive int	C8_score_1 = 			20;
 server noarchive string C8_enemy_name_2 = 		"8C Blaster";
 server noarchive int	C8_enemy_resilience_2 = 60;
 server noarchive int	C8_enemy_puissance_2 = 	35;
-server noarchive int	C8_score_2 = 			20;
+server noarchive int	C8_score_2 = 			100;
 
 server noarchive string C8_enemy_name_3 = 		"8C Screw Driver";
 server noarchive int	C8_enemy_resilience_3 = 60;

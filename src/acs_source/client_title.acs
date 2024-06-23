@@ -551,7 +551,7 @@ function void drawPlayerSlot(int hudId, int player, int slot, int status) {
     }
     else {
         drawBT("RANK", hudId+35, 125.1, 26.0+39.0*yOffset, 0, 0);
-        draw8cNumber(toRank(getExp(player,slot)), hudId+34, 162.0, 25.0+39.0*yOffset, 0, 0, SMALL_FONT, false);
+        draw8cNumber(getRank(player,slot), hudId+34, 162.0, 25.0+39.0*yOffset, 0, 0, SMALL_FONT, false);
         drawBI(getHeroIdle(hero), hudId+33, 69.0, 43.2 + 27.0*yOffset, 223,139);
         int wepCount = 0;
         for (int index = 0; (index < 64) && !(wepCount>>4); index++) { // display 16 first weapons only
