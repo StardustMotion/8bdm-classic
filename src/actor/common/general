@@ -21,11 +21,13 @@ actor "8C Rank" : var8 { }
 // 1b sign + 16b decimal [-0.5,0.5] HP representation
 actor "8BDM HP" : var { inventory.maxamount 0x10000 }
 
-// Puke reply code given to client from server (OK, ERROR, etc)
+// 16 bit for request ID, 16 bit for puke reply code given back by the server (OK, ERROR, etc). Read-only by client
 actor "8C Puke Response" : var { }
+// response value after being request-ID checked (read/write)
+actor "8C Puke Status" : var16 { }
 
 // Given by server to clients to throttle NET calls
-actor "8C Puke Request" : powerup { powerup.duration 10 }
+actor "8C Puke Request" : powerup { powerup.duration 35 }
 
 // State that prevents dealing/receiving dmg or effects
 actor "8C Pacifist Stack" : var16 {}

@@ -109,8 +109,7 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 	switch(type) {
 		case GAMEEVENT_PLAYERCONNECT :
             setLogin(arg1, "");
-			for (int i = -1; i < MAX_SLOTS; i++)
-				dbEvent(DB_DELETE_HERO,arg1,NULL,NULL);
+			dbEvent(DB_DELETE_HERO,arg1,MAX_SLOTS,NULL);
 		break;
 
 		case GAMEEVENT_ACTOR_DAMAGED:
@@ -126,13 +125,13 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 			int enemy = isEnemy();
 			if (enemy) {
 				arg2 = getActorID();
-				i = getActorRank();
+				arg1 = getActorRank();
 				ACS_NamedExecuteWithResult("8C CS", CS_ENEMY_PAIN);
 			}
 			
 			delay(1);
 			if (isGone(NULL)) {
-				if (enemy) enemyExpGain(arg2,i);
+				if (enemy) enemyExpGain(arg2,arg1);
 			}		
 		break;
 

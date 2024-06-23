@@ -7,6 +7,7 @@
 
 #DEFINE INCARNATION_INTRO_CAMDIST 256.0
 #DEFINE INCARNATION_INTRO_ZOOM 20
+int pukeRequestId = 0;
 script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 	int localPlayer = ConsolePlayerNumber();
     switch(type) {
@@ -82,12 +83,17 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
                 consolecommand("menu_joingame");
         break;
 
-        // arg1 = the server NET script to puke
+        // arg1 = the server NET script to puke. Add bitflag PUKE_SILENT to not display "waiting for server"
 		// arg2/3 = 2 usable arguments
 		case CS_CLIENT_PUKE:
-            clearInv("8C Puke Response");
+			i = arg1>>16;
+			arg1&=0xFFFF;
+			pukeRequestId++;
+			setPukeStatus(0);
 			str pukeDebug = strParam(
-				s:"\cdPUKE [net ", d:arg1, 
+				s:"\cdPUKE #", d:pukeRequestId, 
+				s:i ? "----- " : "",
+				s:" [net ", d:arg1, 
 				s:" - arg1 ", d:arg2, 
 				s:" - arg2 ", d:arg3, s:"]"
 			);
@@ -95,27 +101,31 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			type = 0;
 			do {
 				// ---------------------------------------------------------- //
-                drawBI("8CMET", 					HUD_ID_SERVER_QUERY, 12.1, 141.2, 240, 150);
-                drawBT("Waiting for\n\n server...", HUD_ID_SERVER_QUERY+1, 108.0, 212.2, 368, 230);
-             	draw("8CBLACK", 					HUD_ID_SERVER_QUERY+2, false, 0, 0,  1, 1, 0.05, 0.75);     
+				if (!i) {
+                	drawBI("8CMET", 					HUD_ID_SERVER_QUERY, 12.1, 141.2, 240, 150);
+                	drawBT("Waiting for\n\n server...", HUD_ID_SERVER_QUERY+1, 108.0, 212.2, 368, 230);
+             		draw("8CBLACK", 					HUD_ID_SERVER_QUERY+2, false, 0, 0,  1, 1, 0.05, 0.75);
+				}   
 				// ---------------------------------------------------------- //
-				NamedRequestScriptPuke("8C Puke", arg1, arg2, arg3);
+				NamedRequestScriptPuke("8C Puke", (pukeRequestId<<16)|arg1, arg2, arg3);
 				delay(1);
-				if (type < PUKE_TIMEOUT) 
-					int status = pukeStatus();
-				else {
-                    pukeReply(PUKE_TIMED_OUT);
-					status = PUKE_TIMED_OUT;
-                }
+				if (type >= PUKE_TIMEOUT_DURATION) {
+					setPukeStatus(PUKE_TIMED_OUT);
+					break;
+				}
+				else if ((CheckInventory("8C Puke Response")>>16)==pukeRequestId) { 
+					setPukeStatus(CheckInventory("8C Puke Response")&0xFFFF);
+					break;
+				}	
 				type++;
-			} while(status & (PUKE_WAITING|PUKE_SKIPPED));
+			} while(true);
 			eraseAll(HUD_ID_SERVER_QUERY,3);
-            if (!(status&PUKE_SKIPPED))
-			    log(s:pukeDebug, s:" --> ", 
-                    s:( status & PUKE_OK ? "\cvOK" : 
-                        status & PUKE_ERROR ? "\cgERROR" : 
-                        status & PUKE_TIMED_OUT ? "\cqTIMED OUT" :
-                        "???"));
+			int status = getPukeStatus();
+			log(s:pukeDebug, s:" --> ", 
+				s:( status & PUKE_OK ? "\cvOK" : 
+					status & PUKE_ERROR ? "\cgERROR" : 
+					status & PUKE_TIMED_OUT ? "\cqTIMED OUT" :
+					"???"));
 		break;
 
 		// @arg1 for animation type : 0 stripes, 1 alpha
@@ -266,7 +276,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 					}
 				}
 				else {
-					switch(pukeStatus()) {
+					switch(getPukeStatus()) {
 						case PUKE_OK:
 							if (j) 
 								i = 1;

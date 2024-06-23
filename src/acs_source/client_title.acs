@@ -34,12 +34,26 @@ function void startScreen(void) {
                 setMenuRefresh(false);
             }
             
+            if (getMenuQuery()) {   
+                switch(getPukeStatus()) {
+                    case PUKE_OK: 
+                        setMenuRefresh(true);
+                    case PUKE_ERROR: case PUKE_TIMED_OUT:
+                        setMenuQuery(false);
+                    break;
+                }
+            }
 
             if(getMenuTransition())
                 break;
             if (isOnline) {
                 if (!logged) {
-                    if (!(Timer()&0x1F)) loginPoll(player);
+                    if (GetCvar(CVAR_AUTOLOGIN) && !(timer()&0x1F)) 
+                        consolecommand("login");
+                    if(!getMenuQuery()) {
+                        ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_SILENT|PUKE_LOGIN_REFRESH);
+                        setMenuQuery(true);
+                    }
                 }
                 else if (!getMenuArg(1)) {
                     setMenuRefresh(true);
@@ -68,7 +82,7 @@ function void startScreen(void) {
                         if (!logged) 
                             consolecommand("toggleconsole");
                         else {
-                            flashMenuLabel(HUD_ID_MENU+8,116.0);                   
+                            flashMenuLabel(HUD_ID_MENU,116.0);                   
                             if (isFirstHero) {
                                 setMenuTransition(START_SCREEN_CREATE_HERO); setMenuArg(0,0); 
                             }
@@ -81,7 +95,7 @@ function void startScreen(void) {
                     break;
 
                     case 1:
-                        flashMenuLabel(HUD_ID_MENU+8,116.0+MENU_FLASH_OFFSET*isOnline);
+                        flashMenuLabel(HUD_ID_MENU,116.0+MENU_FLASH_OFFSET*isOnline);
                         if (isSlotEmpty(player, -1)) {
                             setMenuTransition(START_SCREEN_CREATE_HERO); setMenuArg(0,-1); 
                         }
@@ -92,7 +106,7 @@ function void startScreen(void) {
 
                     case 2:
                         setMenuTransition(START_SCREEN_OPTIONS);
-                        flashMenuLabel(HUD_ID_MENU+8,152.0+MENU_FLASH_OFFSET*isOnline);
+                        flashMenuLabel(HUD_ID_MENU,152.0+MENU_FLASH_OFFSET*isOnline);
                     break;
 
                     case 3: 
@@ -218,7 +232,7 @@ function void startScreen(void) {
             drawBI("8CMENU1O", 0, 161.0, 70.0, 320, 200); // top background
             
             if (getMenuQuery()) {   
-                switch(pukeStatus()) {
+                switch(getPukeStatus()) {
                     case PUKE_OK:
                         sfx("8CMENUD");
                         drawTypedT(lineBreak("       / / / / / / / / / / / / / / / / 0101001001000101010000010100010001011001  / / / / / /       o/   ",22), HUD_ID_MENU, 156.1, 138.1, 400, 250, 0.01);
@@ -228,12 +242,11 @@ function void startScreen(void) {
                     break;
 
                     case PUKE_ERROR:
-                        log(s:"\caError when trying to create hero");
+                        log(s:"\caError when trying to create hero, try reopening the menu.");
                         setMenuQuery(false);
                     break;
 
                     case PUKE_TIMED_OUT:
-                        log(s:"\cnTimed out.");
                         setMenuQuery(false);
                     break;
                 }
@@ -414,7 +427,7 @@ function void startScreen(void) {
             }
 
             if (getMenuQuery()) {   
-                switch(pukeStatus()) {
+                switch(getPukeStatus()) {
                     case PUKE_OK:
                         setMenuQuery(false);
                         // Data delete
@@ -431,13 +444,14 @@ function void startScreen(void) {
                     break;
 
                     case PUKE_ERROR:
-                        if (index)      log(s:"\cafailed to delete");
-                        else            log(s:"\caServer rejected your join request");
+                        if (index)
+                            log(s:"\caError when trying to delete hero, try reopening the menu.");
+                        else
+                            log(s:"\caSlot requested is not correct, can't join. Try reopening the menu!");
                         setMenuQuery(false);
                     break;
 
                     case PUKE_TIMED_OUT:
-                        log(s:"\cnTimed out.");
                         setMenuQuery(false);
                     break;
                 }
@@ -567,11 +581,3 @@ function void drawPlayerSlot(int hudId, int player, int slot, int status) {
 }
 
 
-
-function void loginPoll(int player) {
-	if (!isLoggedIn(player)) {
-		if (GetCvar(CVAR_AUTOLOGIN)) 
-            consolecommand("login");
-        ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_LOGIN_REFRESH);
-	}
-}

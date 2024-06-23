@@ -217,6 +217,7 @@ function void selectPlayer(int player) {							SetCVar(CVAR_SELECTED_PLAYERS, bi
 function void clearSelectedPlayers(void) {							SetCVar(CVAR_SELECTED_PLAYERS, 0); }
 // ---------------------------------------------------------------------------------------------------------- //
 
+// a client cache to store PlayerIsLoggedIn()
 #DEFINE CVAR_LOGIN "C8_login_"
 function str getLogin(int player) { 								return strSanitize(GetCvarString(__login(player))); }
 function void setLogin(int player, str login) { 					SetCVarString(__login(player), login); }

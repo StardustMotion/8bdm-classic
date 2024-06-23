@@ -114,7 +114,7 @@ function int hpCalculation(void) {
 	return max(1, calcPerRank(isEnemy() ? getEnemyResilience(getActorID()) : getHeroResilience(getActorID()), getActorRank())); 
 }
 
-#DEFINE EXP_REDUCTION_PER_RANK 100
+#DEFINE EXP_REDUCTION_PER_RANK 20
 function void enemyExpGain(int id, int rank) {
 	int shares = getSelectedPlayers();
 	int shift = (shares-1)/2; // purpose is to work with bigger numbers to reduce accuracy loss when dividing
@@ -133,7 +133,7 @@ function void enemyExpGain(int id, int rank) {
 					SetActivatorToPlayer(player);
 					int prevpool= getExpPool(player);
 					setExpPool(player, pendingExp-playerExp+exp);
-					log(n:0, s:" +", d:getExpPool(player)-prevpool, s:" exp");
+					log(s:"   ", n:0, s:" +", d:getExpPool(player)-prevpool, s:"");
 					break;
 				}
 				else {

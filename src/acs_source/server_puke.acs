@@ -1,19 +1,21 @@
-#DEFINE PUKE_WAITING 1
+#DEFINE PUKE_WAITING 0
+#DEFINE PUKE_TIMED_OUT 1
 #DEFINE PUKE_OK 1<<1
 #DEFINE PUKE_ERROR 1<<2
-#DEFINE PUKE_SKIPPED 1<<3
-#DEFINE PUKE_TIMED_OUT 1<<4
-#DEFINE PUKE_TIMEOUT 70 // tics
+
+#DEFINE PUKE_TIMEOUT_DURATION 35*4 // tics
+
+#DEFINE PUKE_SILENT 1<<16
 
 script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
-	clearInv("8C Puke Response");
-	if (CheckInventory("8C Puke Request")) {
-		pukeReply(PUKE_SKIPPED); // throttling
-		terminate;
+    int requestId = type&0xFFFF0000;
+    // throttling, or already answered this request 
+	if (CheckInventory("8C Puke Request") || (CheckInventory("8C Puke Response")&0xFFFF0000)==requestId) {    
+		terminate; 
 	}
 	GiveInventory("8C Puke Request", 1);
     int player = PlayerNumber();
-	switch(type) {
+	switch(type&0xFFFF) {
         
         /*
         @arg1 slot
@@ -56,7 +58,6 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
             if (!slotSanityCheck(player,arg1,false)) {
 				pukeReply(PUKE_ERROR); terminate; 
             }
-            log(s:"\cdallowed!");
             setAllowedSlot(player,arg1);
             pukeReply(PUKE_OK);
         break;
@@ -75,6 +76,7 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
                 terminate;
             else {
                 dbEvent(DB_ACCOUNT_LOAD, player, NULL, NULL);
+                setLogin(player, GetPlayerAccountName(player));
             }
 		break;
 
@@ -107,6 +109,8 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
             }
         break;
 	}
+
+    GiveInventory("8C Puke Response", requestId);
 }
 
 function bool slotSanityCheck(int player, int slot, bool mustBeEmpty) {
@@ -121,5 +125,8 @@ function bool slotSanityCheck(int player, int slot, bool mustBeEmpty) {
     return true;
 }
 
-function void pukeReply(int responseCode) { GiveInventory("8C Puke Response", responseCode); }
-function int pukeStatus(void) { return CheckInventory("8C Puke Response"); }
+// server -> client
+function void pukeReply(int responseCode) { SetInventory("8C Puke Response", responseCode); }
+// client -> client
+function int getPukeStatus(void) { return CheckInventory("8C Puke Status"); }
+function void setPukeStatus(int status) { SetInventory("8C Puke Status", status); }

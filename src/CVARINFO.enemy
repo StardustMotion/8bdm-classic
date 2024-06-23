@@ -2,7 +2,7 @@
 server noarchive string C8_enemy_name_0 = 		"8C Blader";
 server noarchive int	C8_enemy_resilience_0 = 10;
 server noarchive int	C8_enemy_puissance_0 = 	60;
-server noarchive int	C8_score_0 = 			500;
+server noarchive int	C8_score_0 = 			40;
 
 server noarchive string C8_enemy_name_1 = 		"8C Big Eye";
 server noarchive int	C8_enemy_resilience_1 = 90;
