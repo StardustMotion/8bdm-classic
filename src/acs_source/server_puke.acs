@@ -7,6 +7,14 @@
 
 #DEFINE PUKE_SILENT 1<<16
 
+script "join" (void) NET {
+    ACS_NamedExecuteWithResult("8C Puke", (random(1,20000)<<16)|PUKE_HERO_CREATE, -1, 0);
+    delay(25+2);
+    ACS_NamedExecuteWithResult("8C Puke", (random(1,20000)<<16)|PUKE_ENTER_GAME, -1);
+    delay(2);
+    consolecommand("menu_joingame");
+}
+
 script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
     int requestId = type&0xFFFF0000;
     // throttling, or already answered this request 
@@ -14,7 +22,16 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
 		terminate; 
 	}
 	GiveInventory("8C Puke Request", 1);
+    clearInv("8C Puke Response");
     int player = PlayerNumber();
+    pukeReply(requestId);
+    str pukeDebug = strParam(
+        s:"\cn--> PUKE #", d:requestId>>16, s:" (", d:player, s:")",
+        s:" [net ", d:arg1&0xFFFF, 
+        s:" - arg1 ", d:arg1, 
+        s:" - arg2 ", d:arg2, s:"]"
+    );
+    log(s:pukeDebug);
 	switch(type&0xFFFF) {
         
         /*
@@ -24,7 +41,6 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
 		case PUKE_HERO_CREATE:
             Log(s:"hero create player ", d:player, s:" slot ", d:arg1, s:" hero index ", d:arg2);
             if ((arg2<0) || (arg2>=getHeroSize())) {
-                log(s:"// hero index out of bounds");
 				pukeReply(PUKE_ERROR); terminate; 
             }
             if (!slotSanityCheck(player, arg1, true)) {
@@ -40,7 +56,6 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
 		case PUKE_HERO_DELETE:
             Log(s:"hero delete player ", d:player, s:" slot ", d:arg1);
 			if (!PlayerIsSpectator(player)) {
-                log(s:"// is spect");
 				pukeReply(PUKE_ERROR); terminate;
             }
             if (!slotSanityCheck(player, arg1, false)) {
@@ -81,36 +96,38 @@ script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {
 		break;
 
         /*
-        @arg1 0 for goal leave ; 1 for go to next act 
+        @arg1 0 for goal leave ; 1 for join
         */
         case PUKE_GOAL:
             if (!CheckInventory("8C Goal Status")) {
                 pukeReply(PUKE_ERROR); terminate;
             }
-            if (!arg1) { // leave goal
+            // leave 
+            if (!arg1) { 
+                if (!(CheckInventory("8C Goal Status")>>8)) {
+                    pukeReply(PUKE_ERROR); terminate;
+                }
                 pukeReply(PUKE_OK);
                 ACS_NamedExecuteWithResult("core_freezeplayer",0,false);
-                if (CheckInventory("8C Goal Status")>>1) 
-                    setGoal(getGoal()-1);
+                setGoal(getGoal()-1);
+                SetInventory("8C Goal Status", 1);
                 delay(15);
                 ACS_NamedExecuteWithResult("8C", C8_PACIFIST, false);
                 delay(55);
                 clearInv("8C Goal Status");
             }
-            else { // join goal
-                if (CheckInventory("8C Goal Status")>>1) {
+            // join
+            else { 
+                if (CheckInventory("8C Goal Status")>>8) {
                     pukeReply(PUKE_ERROR); terminate;
                 }
                 pukeReply(PUKE_OK);
-                SetInventory("8C Goal Status", 2);
+                SetInventory("8C Goal Status", 1<<8);
                 setGoal(getGoal()+1);
-                log(s:"waiting on goal : ", d:getGoal());
 				ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
             }
         break;
 	}
-
-    GiveInventory("8C Puke Response", requestId);
 }
 
 function bool slotSanityCheck(int player, int slot, bool mustBeEmpty) {
@@ -126,7 +143,7 @@ function bool slotSanityCheck(int player, int slot, bool mustBeEmpty) {
 }
 
 // server -> client
-function void pukeReply(int responseCode) { SetInventory("8C Puke Response", responseCode); }
+function void pukeReply(int responseCode) { GiveInventory("8C Puke Response", responseCode); }
 // client -> client
 function int getPukeStatus(void) { return CheckInventory("8C Puke Status"); }
 function void setPukeStatus(int status) { SetInventory("8C Puke Status", status); }

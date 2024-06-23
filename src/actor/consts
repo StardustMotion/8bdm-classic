@@ -10,6 +10,7 @@ const int C8_SOLID_TOGGLE = 7;
 const int C8_GET_USERVAR = 8;
 const int C8_GOAL_CHECK = 10;
 const int C8_PACIFIST = 12;
+const int EARTHQUAKE = 14;
 
 const int CS_CAMERA = 260;
 const int CS_GOAL_SCREEN = 264;

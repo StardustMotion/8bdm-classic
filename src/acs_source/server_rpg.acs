@@ -10,11 +10,15 @@ script "8C RPG" (int type, int arg1, int arg2, int arg3) {
 			if (!isMap8C) 
 				terminate;
 			int player = PlayerNumber();
+			// if (isSlotEmpty(player,arg1)) {
+			// 	KickFromGame(player, "\ckYou first have to create a \cvhero\ck to join the game");
+			// 	terminate;
+			// }
+			// if (!isSlotAllowed(player)) {
+			// 	KickFromGame(player, "\ckSelect a \cvslot\ck to join the game with");
+			// 	terminate;
+			// }
 			arg1 = getAllowedSlot(player);
-			if (isSlotEmpty(player,arg1)) {
-				KickFromGame(player, "\ckYou first have to create a \cvhero\ck to join the game");
-				terminate;
-			}
 			int entity = getPlayerHero(player,arg1);
 			arg2 = getHeroActor(entity);
 			MorphActor(0, arg2,
@@ -74,7 +78,7 @@ function int damageCalculation(int damage) {
 		int strBuild = strParam(s:"\ca[", f:FixedDiv(Timer(),35), s:"] \c-", n:0, s:" \ccRANK \ck", d:getActorRank(), s:" \caPui ", d:puissance);
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		strBuild = strParam(s:strBuild,s:"\cc --> ", n:0, s:" -\ci", f:damage);
-		log(s:strBuild);
+		//log(s:strBuild);
 	
 	// Decimal resolve
 		damage = storeDecimalHP(damage);	

@@ -1,6 +1,11 @@
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Server-side  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
+script "start" (void) {
+	setAct(0);
+	changelevel("8C-1CUT", 0, 0);
+}
+
 script "8C OPEN" OPEN {
 	init();
 	delay(2);
@@ -32,7 +37,9 @@ function void init(void) {
 		}
 		// Not a respawn
 		else {
-			selectPlayer(0);
+			for (int pute = 0; pute < 1; pute++) {
+				selectPlayer(pute);
+			}
 			setAct(1);
 			setLives(3);
 			i = countSelectedPlayers(true);
@@ -178,7 +185,7 @@ script "8C OPEN CS" OPEN CLIENTSIDE {
 
 script "8C LEAVES CS" (int player) DISCONNECT CLIENTSIDE {
 	if (ConsolePlayerNumber()==player) {
-		eraseAll(HUD_ID_HERO,16);
+		eraseAll(HUD_ID_HERO,48);
 		eraseAll(HUD_ID_EFFECTS,8);
 	}
 }

@@ -27,11 +27,23 @@ texture 8CX8REDL, 32, 56 { patch 8CX8BLUL, 0, 0 { translation "68:68=38:38", "69
 texture 8CX8REDE, 32, 56 { patch 8CX8BLUE, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
 texture 8CX8REDD, 32, 56 { patch 8CX8BLUD, 0, 0 { translation "68:68=38:38", "69:69=41:41", "77:77=44:44"} }
 
+texture 8CRANKU1, 85, 11 { patch 8CRANKU0, 0, 0 { translation "192:192=160:160", "198:198=163:163" } }
+texture 8CRANKUP, 85, 11 {}
 
+texture 8CNUMB20, 11, 11 { patch 8CNUMB00, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB21, 11, 11 { patch 8CNUMB01, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB22, 11, 11 { patch 8CNUMB02, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB23, 11, 11 { patch 8CNUMB03, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB24, 11, 11 { patch 8CNUMB04, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB25, 11, 11 { patch 8CNUMB05, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB26, 11, 11 { patch 8CNUMB06, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB27, 11, 11 { patch 8CNUMB07, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB28, 11, 11 { patch 8CNUMB08, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB29, 11, 11 { patch 8CNUMB09, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB2A, 11, 11 { patch 8CNUMB0A, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
+texture 8CNUMB2D, 11, 11 { patch 8CNUMB0D, 0, 0 { translation "198:198=43:43", "204:204=38:38", "205:205=40:40", "137:137=36:36" } }
 
-
-
-
+texture 8CGOALHD, 28, 33 { }
 
 
 

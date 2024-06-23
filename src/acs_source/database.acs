@@ -38,7 +38,6 @@ function void dbEvent(int type, int arg1, int arg2, int arg3) {
             else                        login="";
 
             for (arg2=type; arg2 < arg3; arg2++) {
-                log(s:"delete ", d:arg1, s:" slot ", d:arg2);
                 setPlayerHero(arg1, arg2, -1);
                 if ((arg2>=0) && strLen(login))
                     updateDB(login, strParam(s:DB_FIELD_HERO, d:arg2), 0);

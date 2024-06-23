@@ -180,7 +180,7 @@ function void startScreen(void) {
             int created = getMenuArg(2);
             if (getMenuRefresh()) {
                 if (!(getMenuRefresh()>>1)) {
-                    printHeroText(hero, HUD_ID_MENU);
+                    printHeroText(hero, HUD_ID_MENU+18);
                     drawTypedT(getHeroName(hero), HUD_ID_MENU+1, 46.1, 42.0, 240, 150, 0.18);
                     drawBT(lineBreak(getSpSkill(hero),16), HUD_ID_MENU+2, 326.6, 102.1, 400, 250);
                     int i = 0;
@@ -221,8 +221,8 @@ function void startScreen(void) {
                     drawBI(getHeroMugshot((hero+1)%n), HUD_ID_MENU+16, 366.0, 32.1, 640, 400);
                     drawBI(getHeroMugshot((hero+2)%n), HUD_ID_MENU+17, 384.0, -18.1, 640, 400);
                 }
-                drawBI(index ? "8CMENU15" : "8CMENU19", HUD_ID_MENU+18, 161.0, 106.0, 320, 200);
-                drawBI("8CMENU1D", HUD_ID_MENU+19, 85.0, 135.0, 0, 0); // avatar bg
+                drawBI(index ? "8CMENU15" : "8CMENU19", HUD_ID_MENU+25, 161.0, 106.0, 320, 200);
+                drawBI("8CMENU1D", HUD_ID_MENU+26, 85.0, 135.0, 0, 0); // avatar bg
                 setMenuRefresh(false);
             }
             drawBI("8CMENU12", 0, 160.0, 0.1, 0, 0); 
@@ -235,10 +235,11 @@ function void startScreen(void) {
                 switch(getPukeStatus()) {
                     case PUKE_OK:
                         sfx("8CMENUD");
-                        drawTypedT(lineBreak("       / / / / / / / / / / / / / / / / 0101001001000101010000010100010001011001  / / / / / /       o/   ",22), HUD_ID_MENU, 156.1, 138.1, 400, 250, 0.01);
+                        drawTypedT(lineBreak("       / / / / / / / / / / / / / / / / 0101001001000101010000010100010001011001  / / / / / /       o/   ",22), HUD_ID_MENU+18, 156.1, 138.1, 400, 250, 0.01);
                         setMenuQuery(false);
                         setMenuRefresh(0x3);
                         setMenuArg(2, 1);
+                        ACS_NamedExecuteWithResult("8C CS", CS_SCREEN_FLASH, HUD_ID_MENU, 28, 0.28);
                     break;
 
                     case PUKE_ERROR:
@@ -261,10 +262,7 @@ function void startScreen(void) {
                 } 
             }            
             else if (created && !getMenuTransition()) {
-                setMenuArg(2,getMenuArg(2)+1);
-                if ((timer()&0x1) && (created<28))
-                    draw("8CWHITE", HUD_ID_MENU-1, false, 0, 0,  1, 1, 0.05, 0.28);
-                
+                setMenuArg(2,getMenuArg(2)+1);                
                 if (created>52) {
                     created = getMenuArg(0);
                     setMenuTransition(0xC0 | START_SCREEN_DATA);
@@ -278,7 +276,7 @@ function void startScreen(void) {
                 if (confirm) {                    
                     setMenuArg(1, getMenuArg(1)&0xFFFF00FF);
                     setMenuRefresh(0x3); sfx(SFX_MENU_BACK);
-                    printHeroText(hero, HUD_ID_MENU);
+                    printHeroText(hero, HUD_ID_MENU+18);
                 }
                 else {
                     setMenuTransition(START_SCREEN_TITLE); sfx(SFX_MENU_BACK);
@@ -323,15 +321,15 @@ function void startScreen(void) {
                     else {
                         setMenuArg(1, getMenuArg(1)&0xFFFF00FF);
                         setMenuRefresh(0x3); sfx(SFX_MENU_BACK);
-                        printHeroText(hero, HUD_ID_MENU);
+                        printHeroText(hero, HUD_ID_MENU+18);
                     }
                 }
                 else {
                     if (!index) {
                         setMenuArg(1, getMenuArg(1) | (1<<8));
                         sfx(SFX_MENU_OK);
-                        drawTypedT(lineBreak(strParam(s:"Start game with\n    ", s:getHeroName(hero), s:"?") ,50), HUD_ID_MENU, 156.1, 138.1, 400, 250, 0.015);    
-                        setMenuRefresh(0x3);                
+                        drawTypedT(lineBreak(strParam(s:"Start game with\n    ", s:getHeroName(hero), s:"?") ,50), HUD_ID_MENU+18, 156.1, 138.1, 400, 250, 0.015);    
+                        setMenuRefresh(0x3);
 
                     }
                     else {

@@ -27,7 +27,7 @@ actor "8C Big Eye" : "8C Enemy"  {
                 8CAA X 0 A_Stop
                 8CAA X 0 A_PlaySoundEx("robot/bigeye", "Weapon")
                 8CAA X 0 A_TakeInventory("8C follow me")
-                8CAA X 0 ACS_NamedExecuteWithResult("EarthQuake", 2, 4, 384)
+                8CAA X 0 ACS_NamedExecuteWithResult("8C", EARTHQUAKE, 2, 4, 384)
                 8CAA QRQ 4
                 8CAA P 12
                 goto sightCheck   

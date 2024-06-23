@@ -239,9 +239,10 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			if (getGoal() >= arg1) {
 				setGameInTransition(true);
 				AmbientSound("8CGOAL", 127);
-				dbEvent(DB_SAVE_ACT_PROGRESS, NULL, NULL, NULL);
 				setAct(getAct()+1); clearGoal();  setServerPacify(true, true, true);
-				delay(20);
+				delay(10);
+				dbEvent(DB_SAVE_ACT_PROGRESS, NULL, NULL, NULL);
+				delay(10);
 				ACS_NamedExecuteWithResult("8C CS", CS_TRANSITION_MESSAGE, false, true);
 				delay(105);
 				setmusic(""); ACS_NamedExecuteWithResult("8C CS", CS_CLOSURE_ANIMATION, 60); delay(60);	
@@ -274,6 +275,10 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 					terminate;
 				}
 			}
+		break;
+
+		case EARTHQUAKE:
+			Radius_Quake(arg1, arg2, 0, arg3/64, 0);
 		break;
 	}
 }
@@ -312,7 +317,7 @@ script "8C API" (int type, int arg1, int arg2, int arg3) {
 		case C8_API_SPAWN_GOAL:
 			type = UniqueTID();
 			SpawnSpotFacingForced("8C Goal", arg1, type);
-			SetActorProperty(type, APROP_Mass, arg2);
+			SetActorProperty(type, APROP_ScaleX, arg2<<16);
 			SetActorProperty(type, APROP_Accuracy, arg3);
 			Thing_ChangeTID(type,0);
 		break;

@@ -170,8 +170,8 @@ function void drawBar(str graphic, bool isHorizontal, int unit, int barSize, int
 }
 
 function void draw8cNumber(int number, int id, int x, int y, int xScreen, int yScreen, int font, bool fromRight) {
-	switch(font) {
-		case SMALL_FONT: int space = 10.0; break;
+	switch(font&0xFF) {
+		case SMALL_FONT: case SMALL_FONT_RED: int space = 10.0; break;
 		case BIG_FONT: space = 13.0; break;
 	}
 	font = strParam(s:"8CNUMB",d:font);
@@ -280,7 +280,7 @@ function bool isGone(int ptr) {
 
 str hude_graphic = "CHINTR2";
 script "hude" (void) CLIENTSIDE {
-	int x = 0, y = 0, sizeX = 320, sizeY = 200;
+	int x = 0, y = 0, sizeX = 320, sizeY = 240;
 	str stamps[64]; int maxStamp = 64; str coords;
     int inp, oldB, incr, id = 0;
     bool mode, delta, prevDelta, speedUp, proportional = 1;
@@ -382,11 +382,3 @@ script "hude_chat" (int type, int arg1, int arg2) EVENT {
 	if (type==GAMEEVENT_CHAT)
 		hude_graphic = GetChatMessage(arg1,0);
 }
-
-
-// script "sum" (int id, int minplayer) {
-// 	str name = getName(id+MAX_HERO);
-// 	int tid = activatorTID();
-// 	if (minplayer) spawn8cMin(name,tid,minplayer);
-// 	else spawn8c(name,tid);
-// }

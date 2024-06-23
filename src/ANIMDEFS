@@ -16,14 +16,22 @@ texture 8CINTROB
 	pic 8CINTRO9 tics 4
 
 texture 8CMUGB02
-	pic 8CMUGB00 tics 8
-	pic 8CMUGB01 tics 8
+	pic 8CMUGB00 tics 1
+	pic 8CMUGB01 tics 1
 	
 texture 8CBARXP2
 	pic 8CBARXP1 tics 3
 	pic 8CBARXP3 tics 3
 
+texture 8CRANKUP
+	pic 8CRANKU0 tics 2
+	pic 8CRANKU1 tics 2
 
+texture 8CGOALHD
+	pic 8CADC0 tics 4
+	pic 8CADD0 tics 4
+	pic 8CADE0 tics 4
+	pic 8CADF0 tics 4
 
 
 

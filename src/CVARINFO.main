@@ -27,7 +27,7 @@ user bool C8_autologin = false;
 	- int: C8_exp_pool_<p> (1)				Exp stored for current act (after divided by number of players)
 
 	- string: C8_login_<p> (1)				Player Zandronum account name
-	- int: C8_slot (16)						Slot currently used/allowed by the server
+	- int: C8_slot (16)						Slot selected/currently in use
 	- int: C8_player_hero_<s><p> (4)		Player's hero index
 	- int: C8_exp_<s><p> (1)				Experience owned
 	- int: C8_wep_<s><p><i> (32)			Weapon unlocked status
@@ -157,7 +157,7 @@ server noarchive string C8_login_10 = ""; server noarchive string C8_login_11 = 
 server noarchive string C8_login_12 = ""; server noarchive string C8_login_13 = "";
 server noarchive string C8_login_14 = ""; server noarchive string C8_login_15 = "";
 
-// which slot each player is currently using/allowed to use by server (quickplay is 0)
+// which slot is a player asking to use. 0 for none, 1 quickplay, 2/3 slots 1/2
 server noarchive int C8_slot;
 
 // players saved hero ID

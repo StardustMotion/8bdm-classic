@@ -21,6 +21,7 @@
 //#DEFINE NO_8C_FOG 11 // 8C.acs
 #DEFINE C8_PACIFIST 12
 #DEFINE GAME_STATUS_CHECK 13
+#DEFINE EARTHQUAKE 14
 
 
 // ------------------- rpg ------------------- //
@@ -63,6 +64,8 @@
 	#DEFINE CS_TRANSITION_MESSAGE_LETTER 266
 #DEFINE CS_CLOSURE_ANIMATION 267
 #DEFINE CS_ACT_LOST 268
+#DEFINE CS_SCREEN_FLASH 269
+#DEFINE CS_EXP_ANIMATION 270
 
 
 // ------------------------------------------------------------------------------------ //
@@ -106,6 +109,7 @@
 
 #DEFINE SMALL_FONT 0
 #DEFINE BIG_FONT 1
+#DEFINE SMALL_FONT_RED 2
 
 #DEFINE SFX_MENU "8CMENUB"
 #DEFINE SFX_MENU_OK "8CMENUA"
@@ -225,9 +229,9 @@ function str __login(int player) { 									return strParam(s:CVAR_LOGIN, d:play
 function bool isLoggedIn(int player) { 								return isNetworkGame() && strLen(getLogin(player)); }
 
 #DEFINE CVAR_SLOT "C8_slot"
-// 0 = quickplay, 1/2 = slots 1/2
-function int getAllowedSlot(int player) { 							return get2bFlagVal(CVAR_SLOT, false, player)-1; }
-function void setAllowedSlot(int player, int val) { 				set2bFlagVal(CVAR_SLOT, false, player, val+1); }
+function int getAllowedSlot(int player) { 							return get2bFlagVal(CVAR_SLOT, false, player)-2; }
+function void setAllowedSlot(int player, int val) { 				set2bFlagVal(CVAR_SLOT, false, player, val+2); }
+function bool isSlotAllowed(int player) {							return getAllowedSlot(player)!=-2; }
 
 #DEFINE CVAR_PLAYER_HERO "C8_player_hero_"
 function int getPlayerHero(int player, int slot) { 					return get8bFlagVal(__playerHero(slot), true, player)-1; }

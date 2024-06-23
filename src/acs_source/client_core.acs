@@ -91,13 +91,13 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			pukeRequestId++;
 			setPukeStatus(0);
 			str pukeDebug = strParam(
-				s:"\cdPUKE #", d:pukeRequestId, 
-				s:i ? "----- " : "",
+				s:"\cd<-- PUKE #", d:pukeRequestId, s:" (", d:ConsolePlayerNumber(), s:")",
+				s:i ? " ----- " : "",
 				s:" [net ", d:arg1, 
 				s:" - arg1 ", d:arg2, 
 				s:" - arg2 ", d:arg3, s:"]"
 			);
-			log(s:pukeDebug);
+			//log(s:pukeDebug);
 			type = 0;
 			do {
 				// ---------------------------------------------------------- //
@@ -121,7 +121,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			} while(true);
 			eraseAll(HUD_ID_SERVER_QUERY,3);
 			int status = getPukeStatus();
-			log(s:pukeDebug, s:" --> ", 
+			log(s:pukeDebug, s:" = ", 
 				s:( status & PUKE_OK ? "\cvOK" : 
 					status & PUKE_ERROR ? "\cgERROR" : 
 					status & PUKE_TIMED_OUT ? "\cqTIMED OUT" :
@@ -215,29 +215,91 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 
 		case CS_INGAME_HUD:
 			if (PlayerNumber() != localPlayer) terminate;
-			drawBI(getHeroMugshot(getActorID()), HUD_ID_HERO+10, 36.0, 264.0, 400, 300);
-			drawBI("8CMUGB00", HUD_ID_HERO+11, 36.0, 264.0, 400, 300);
-			drawBI("8CNUMB0A", HUD_ID_HERO+12, 146.0, 269.0, 450, 315);
-			drawBI("8CNUMB0C", HUD_ID_HERO+14, 156.0, 258.0, 400, 280);
+			arg1 = getAllowedSlot(localPlayer);
+			tmp = getExp(localPlayer, arg1); // current xp
+			int j = 0; 
+			int x = getLives();
 			while (!isGone(NULL)) {
+				// lives
+				drawBI("8CNUMB2D", HUD_ID_HERO+9, 51.0, 250.0, 400, 300); 
+				draw8cNumber(x, HUD_ID_HERO+8, 57.0, 211.0, 340, 255, SMALL_FONT_RED, true);
+				//mugshot
+				drawBI(getHeroMugshot(getActorID()), HUD_ID_HERO+11, 36.0, 264.0, 400, 300);
+				drawBI("8CMUGB00", HUD_ID_HERO+10, 36.0, 264.0, 400, 300);
+				//hp/maxhp
 				arg3 = GetActorProperty(0,APROP_Health);
 				type = GetActorProperty(0,APROP_SpawnHealth);
 				draw8cNumber(arg3, 0, 120.0, 159.0, 270, 200, SMALL_FONT, true);
 				draw8cNumber(type, 0, 180.0, 269.0, 420, 315, SMALL_FONT, true);
 				draw8cBar("8CBARHP", true, FixedDiv(arg3<<16, type<<16), 75.0-33.0, 183.0, 250, 220);
+				drawBI("8CNUMB0A", HUD_ID_HERO+30, 146.0, 269.0, 450, 315); // maxhp slash
+				drawBI("8CNUMB0C", HUD_ID_HERO+31, 156.0, 258.0, 400, 280); // xp percent
+				// players on goal
+				int y = getGoal();
+				if (y) {
+					draw8cNumber(y,HUD_ID_HERO+40,177.0,232.0,360,240,SMALL_FONT_RED,true);
+					drawBI("8CNUMB2A", HUD_ID_HERO+41, 180.0, 232.0, 360, 240);
+					draw8cNumber(getMinSurvivors(),HUD_ID_HERO+42,196.0,232.0,360,240,SMALL_FONT_RED,true);
+					drawBI("8CGOALHD", HUD_ID_HERO+43, 144.0, 218.0, 260, 190);
+				}
+				else
+					eraseAll(HUD_ID_HERO+40,4);
 
-				i = (getExp(localPlayer, getAllowedSlot(localPlayer))%1000); // current exp
-				int poolExp = getExpPool(localPlayer); // xp ot be claimed
-				i = FixedDiv((i+poolExp)<<16,1000.0);
-
-				drawBI("8CNUMB0B", HUD_ID_HERO+13, 160.0-11.0*((poolExp>99)+(poolExp>999)), 304.0, 472, 330);
-				draw8cNumber(poolExp/10, 0, 159.0, 290.0, 420, 315, SMALL_FONT, true);
+				arg3 = getExpPool(localPlayer);
+				if (j<0) j++;
+				else {
+					j = getExp(localPlayer,arg1);
+					if (j > tmp) { // act complete
+						ACS_NamedExecuteWithResult("8C CS", CS_EXP_ANIMATION, tmp, j);
+						tmp = j;
+						j = -105;
+						continue;
+					}
+					// exp pool
+					drawBI("8CNUMB0B", HUD_ID_HERO+32, 160.0-11.0*((arg3>99)+(arg3>999)), 304.0, 472, 330); 
+					draw8cNumber(arg3/10, 0, 159.0, 290.0, 420, 315, SMALL_FONT, true);
+					// rank
+					arg2 = getActorRank();
+					draw8cNumber(arg2, HUD_ID_HERO+6, 40.0+9.0*(arg2>=10), 250.0, 340+120*(arg2>=10), 265, BIG_FONT, false);
+				}
+				// exp bar
+				i = FixedDiv(((tmp%1000)+arg3)<<16,1000.0);
 				draw8cBar(i>=1.0 ? "8CBARXP2" : "8CBARXP1", true, i, 56.0, 217.0, 320, 240);
-				arg2 = getActorRank();
-				draw8cNumber(arg2, HUD_ID_HERO+8, 40.0+9.0*(arg2>=10), 250.0, 340+120*(arg2>=10), 265, BIG_FONT, false);
-
-			delay(1);
+				delay(1);
 			}			
+		break;
+
+		case CS_EXP_ANIMATION:
+			arg3 = arg2-arg1;
+			x = expToRank(arg1), y = expToRank(arg2);
+			arg2 = x; x = (x<y);
+			if (x) sfx("8CRANKUP");
+			for (i = 0; i < 106; i++) {
+				if (arg3) {					
+					arg3 = max(0,arg3-20);
+					if (timer()&0x1) {
+						draw("8CWHITE",HUD_ID_HERO+2,false,50.0,1030.0,183,1140,0.035,1.0);
+						LocalAmbientSound("8CEXP",x ? 72 : 127);
+					}
+				}
+				if (x) { // rank up
+					if (i>=15) {
+						type = max(0,30-i);
+						draw("8CRANKUP",0,false, 52.0-3.0*type, 180.0-9.0*type, 320-16*type, 240-12*type, 0.05,FixedDiv((15-type)<<16,15.0));
+					}				
+					arg1 = (i <= 25 ? i : max(0, 50-i));
+					if (i==25) {
+						ACS_NamedExecuteWithResult("8C CS", CS_SCREEN_FLASH, HUD_ID_MENU, 10, 0.85);
+						arg2 = y;
+					}
+					draw8cNumber(arg2, HUD_ID_HERO+6, 
+						40.0+9.0*(arg2>=10), 	250.0 - 11.0*arg1,  340+120*(arg2>=10), 	265 - arg1*11, 
+						BIG_FONT, false);
+				}
+				drawBI("8CNUMB0B", HUD_ID_HERO+32, 160.0-11.0*((arg3>99)+(arg3>999)), 304.0, 472, 330);
+				draw8cNumber(arg3/10, 0, 159.0, 290.0, 420, 315, SMALL_FONT, true);				
+				delay(1);
+			}
 		break;
 
 		case CS_ENEMY_PAIN:
@@ -254,59 +316,55 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			if (localPlayer != PlayerNumber()) terminate;
 			resetMenu();
 			for (i = 0; i < 10; i++) {
-				draw("8CBLACK", HUD_ID_MENU+6, false, 0, 0,  1, 1, 0, (i<<16)/20);
+				draw("8CBLACK", HUD_ID_MENU+15, false, 0, 0,  1, 1, 0, (i<<16)/20);
 				delay(1);
 			}
 			setMenuIndex(0);
 			setMenuRefresh(true);
-			drawBI("8CMENU04", HUD_ID_MENU, 160.0, 151.0, 320, 350);
-			drawBI("8CMENU02", HUD_ID_MENU+1, 160.0, 192.0, 320, 350);
-			drawMenuLabel("Back", HUD_ID_MENU+2, 144.0, true);
-			int j = 0;
-			i = 0, status = false;
-			localPlayer = getMinSurvivors();
-			while (true) {
-				draw(strParam(s:"Waiting for players... ", d:getGoal(),s:"/",d:localPlayer), 0, true, 150.4, 66.0, 288, 240, 0.05, abs(cos((timer()&0x1F)<<11)) );
+			drawBI("8CMENU04", HUD_ID_MENU+4, 160.0, 151.0, 320, 350);
+			drawBI("8CMENU02", HUD_ID_MENU+5, 160.0, 192.0, 320, 350);
+			drawMenuLabel("Back", HUD_ID_MENU+6, 144.0, true);
+			j = 0; // is asking to leave?
+			i = 0;
+			status = false; // server accepted goal wait?
+			while (!i) {
+				draw("Waiting for players... ", 0, true, 150.4, 66.0, 288, 240, 0.05, abs(cos((timer()&0x1F)<<11)) );
 				if (!getMenuQuery()) {
-					if (j) {
-						ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_GOAL, false); setMenuQuery(true);
-					}
-					else if (!status) {
+					if (!status) {
 						ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_GOAL, true); setMenuQuery(true);
+					}
+					else {
+						if (isPressed(pressedStatus(), MENU_NO|MENU_YES)) {
+							ACS_NamedExecuteWithResult("8C CS", CS_CLIENT_PUKE, PUKE_GOAL, false); setMenuQuery(true);
+							j = 20;
+							flashMenuLabel(HUD_ID_MENU+3,116.0);
+							sfx(SFX_MENU_OK);
+						}
 					}
 				}
 				else {
 					switch(getPukeStatus()) {
 						case PUKE_OK:
-							if (j) 
-								i = 1;
-							else {
-								status = true;
-								setMenuQuery(false);
-							}
+							if 		(j) i = 1;
+							else 	status = true;
+							setMenuQuery(false);
 						break;
 
-						case PUKE_TIMED_OUT:
+						case PUKE_TIMED_OUT: case PUKE_ERROR:
 							setMenuQuery(false);
 						break;
 					}
 				}
-			
-				if (isPressed(pressedStatus(), MENU_NO|MENU_YES)) {
-					j = 20;
-					flashMenuLabel(HUD_ID_MENU,116.0);
-					sfx(SFX_MENU_OK);
+				if (j>1) {
+					j--;
+					if (j==1) erase(HUD_ID_MENU+3);
 				}
-				else if (j>1) {
-					j--; if (j==1) erase(HUD_ID_MENU-1);
-				}
-				if (i | (status && !CheckInventory("8C Goal Status")))
-					break;
 				delay(1);
+				if (getGoal()>=getMinSurvivors()) break;
 			}
-			eraseAll(HUD_ID_MENU-1,6);
+			eraseAll(HUD_ID_MENU,15);
 			for (i = 9; i >= 0; i--) {
-				draw("8CBLACK", HUD_ID_MENU+6, false, 0, 0,  1, 1, 0.05, (i<<16)/20);
+				draw("8CBLACK", HUD_ID_MENU+15, false, 0, 0,  1, 1, 0.05, (i<<16)/20);
 				delay(1);
 			}
 		break;
@@ -355,7 +413,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 		case CS_TRANSITION_MESSAGE_LETTER:
 			arg3 += HUD_ID_EFFECTS;
 			type = strParam(s:(arg1>>16 ? "8CX8BLU" : "8CX8RED"), c:arg1&0xFFFF);
-			int x = arg2<<16, y = arg2&0xFFFF0000;
+			x = arg2<<16, y = arg2&0xFFFF0000;
 			for (i = 0; i <= 10; i++) {
 				draw(type, arg3&0xFFFF, false,
 					x, y,
@@ -405,6 +463,19 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			drawBorders(4.0,0,0);
 		break;
 
+		/* 
+		@arg1 hudId
+		@arg2 duration
+		@arg3 intensity
+		*/
+		case CS_SCREEN_FLASH:
+			for (i = 0; i < arg2; i++) {
+				if (i&0x1)	erase(arg1);
+				else	draw("8CWHITE", arg1, false, 0, 0,  1, 1, 0.05, arg3);
+				delay(1);
+			}
+		break;
+
     }    
 }
 
@@ -450,9 +521,6 @@ function void cameraExtend(int camera, int dist) {
 	}
 }
 
-// from xover weapons 2.1.0
-script "EarthQuake" (int strength, int duration, int range) {
-	Radius_Quake(strength, duration, 0, range/64, 0); }
 
     
 function void createTranslations(void) {	

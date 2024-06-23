@@ -27,7 +27,7 @@ actor "8C Puke Response" : var { }
 actor "8C Puke Status" : var16 { }
 
 // Given by server to clients to throttle NET calls
-actor "8C Puke Request" : powerup { powerup.duration 35 }
+actor "8C Puke Request" : powerup { powerup.duration 25 }
 
 // State that prevents dealing/receiving dmg or effects
 actor "8C Pacifist Stack" : var16 {}
