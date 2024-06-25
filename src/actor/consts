@@ -8,9 +8,13 @@ const int C8_COPY_VELOCITY = 4;
 const int C8_CHECK_COLLISION = 6;
 const int C8_SOLID_TOGGLE = 7;
 const int C8_GET_USERVAR = 8;
+    const int C8_USERVAR_BASECOLOR = 0;
 const int C8_GOAL_CHECK = 10;
 const int C8_PACIFIST = 12;
 const int EARTHQUAKE = 14;
+const int C8_PTR_TO_THIS = 15;
 
 const int CS_CAMERA = 260;
 const int CS_GOAL_SCREEN = 264;
+const int CS_POV = 271;
+const int CS_PAIN_TINT = 272;

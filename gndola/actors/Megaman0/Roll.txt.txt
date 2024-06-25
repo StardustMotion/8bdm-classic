@@ -1,0 +1,100 @@
+actor RollClass : ClassBase //90
+{
+Player.StartItem "IFMM00", 1
+Player.ScoreIcon "C_00E0X"
+player.displayname "Roll"
+player.soundclass "RollC"
+player.startitem "RollSwingBoss"
+player.startitem "RollBucketBoss"
+player.startitem "RollHealItem"
+player.startitem "RollFlag"
+player.startitem "CanUseItems"
+player.startitem "RollHealAmmo", 28
+player.startitem "RollHyperDashAmmo", 777
+
+player.maxhealth 90
+health 90
+player.forwardmove 0.825, 0.825
+player.sidemove 0.805, 0.805
+player.jumpz 11
+
+player.weaponslot 1, "RollSwingBoss"
+player.weaponslot 2, "RollBucketBoss"
+
+//player.startitem "CopyNerf"
+States
+{
+Spawn:
+ROL6 A 0
+ROL6 B 1
+ROL6 A 1
+ROL6 A 55 A_JumpIf(z-floorz>0,"SeeJ")
+ROL6 Y 5
+goto Spawn+3
+See:
+ROL6 BBBBBCCCCCDDDDDEEEEE 1 A_JumpIf(z-floorz>0,"SeeJ")
+Goto Spawn
+SeeJ:
+ROL6 U 1 A_JumpIf(z-floorz<=0,"Spawn")
+wait
+Missile:
+ROLL F 0 A_JumpIf(z-floorz>0,"MissileJ")
+ROL6 F 0 A_JumpIfInventory("VivifyDelay5",1,"MissileSwing")
+ROL6 F 0 A_JumpIfInventory("SlideVivifyFlag",1,"Slide")
+ROL6 F 5
+ROL6 G 4
+ROLL G 0 A_JumpIf(z-floorz>0,"SeeJ")
+goto Spawn
+MissileJ:
+ROL6 V 0 A_JumpIfInventory("VivifyDelay5",1,"MissileSwing")
+ROL6 V 0 A_JumpIfInventory("SlideVivifyFlag",1,"Slide")
+ROL6 V 9
+ROLL V 0 A_JumpIf(z-floorz>0,"SeeJ")
+goto Spawn
+MissileSwing:
+ROL6 S 5
+ROL6 T 7
+ROLL V 0 A_JumpIf(z-floorz>0,"SeeJ")
+goto Spawn
+Slide:
+ROL6 R 20
+ROLL V 0 A_JumpIf(z-floorz>0,"SeeJ")
+goto Spawn
+ClassPain:
+ROL6 H 0
+goto PainContinue
+ClassDeath:
+ROL6 H 0
+goto DeathContinue
+}
+}
+
+actor TestRollWalk1
+{+NOGRAVITY
+States
+{
+Spawn:
+ROL6 BCDE 5
+LOOP
+}
+}
+actor TestRollWalk2
+{+NOGRAVITY
+States
+{
+Spawn:
+ROL8 BCDE 5
+LOOP
+}
+}
+actor TestRollWalk3
+{+NOGRAVITY
+States
+{
+Spawn:
+ROL9 BCDE 5
+LOOP
+}
+}
+
+actor RollFlag : Inventory{}

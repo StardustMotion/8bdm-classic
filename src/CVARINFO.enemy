@@ -1,40 +1,32 @@
 
 server noarchive string C8_enemy_name_0 = 		"8C Blader";
-server noarchive int	C8_enemy_resilience_0 = 10;
-server noarchive int	C8_enemy_puissance_0 = 	60;
-server noarchive int	C8_score_0 = 			500;
+server noarchive float  C8_enemy_stats_0 =      0.25;
+server noarchive float  C8_power_0 = 			0.06;
 
 server noarchive string C8_enemy_name_1 = 		"8C Big Eye";
-server noarchive int	C8_enemy_resilience_1 = 90;
-server noarchive int	C8_enemy_puissance_1 = 	60;
-server noarchive int	C8_score_1 = 			20;
+server noarchive float  C8_enemy_stats_1 =      2.15;
+server noarchive float	C8_power_1 = 			0.34;
 
 server noarchive string C8_enemy_name_2 = 		"8C Blaster";
-server noarchive int	C8_enemy_resilience_2 = 60;
-server noarchive int	C8_enemy_puissance_2 = 	35;
-server noarchive int	C8_score_2 = 			100;
+server noarchive float  C8_enemy_stats_2 =      0.42;
+server noarchive float	C8_power_2 = 			0.11;
 
 server noarchive string C8_enemy_name_3 = 		"8C Screw Driver";
-server noarchive int	C8_enemy_resilience_3 = 60;
-server noarchive int	C8_enemy_puissance_3 = 	35;
-server noarchive int	C8_score_3 = 			20;
+server noarchive float  C8_enemy_stats_3 =      1.4;
+server noarchive float	C8_power_3 = 			0.14;
 
 server noarchive string C8_enemy_name_4 = 		"8C Kamadoma";
-server noarchive int	C8_enemy_resilience_4 = 60;
-server noarchive int	C8_enemy_puissance_4 = 	35;
-server noarchive int	C8_score_4 = 			20;
+server noarchive float  C8_enemy_stats_4 =      0.2;
+server noarchive float	C8_power_4 = 			0.09;
 
 server noarchive string C8_enemy_name_5 = 		"8C Adhering Suzy";
-server noarchive int	C8_enemy_resilience_5 = 60;
-server noarchive int	C8_enemy_puissance_5 = 	35;
-server noarchive int	C8_score_5 = 			20;
+server noarchive float  C8_enemy_stats_5 =      1.5;
+server noarchive float	C8_power_5 = 			0.11;
 
 server noarchive string C8_enemy_name_6 = 		"8C Manbu";
-server noarchive int	C8_enemy_resilience_6 = 60;
-server noarchive int	C8_enemy_puissance_6 = 	35;
-server noarchive int	C8_score_6 = 			20;
+server noarchive float  C8_enemy_stats_6 =      0.3;
+server noarchive float	C8_power_6 = 			0.2;
 
 server noarchive string C8_enemy_name_7 = 		"8C Cutting Wheel";
-server noarchive int	C8_enemy_resilience_7 = 60;
-server noarchive int	C8_enemy_puissance_7 = 	35;
-server noarchive int	C8_score_7 = 			20;
+server noarchive float  C8_enemy_stats_7 =      1.0;
+server noarchive float	C8_power_7 = 			1.0;

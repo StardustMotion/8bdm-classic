@@ -1,3 +1,0 @@
-
-actor "8C Megaman Cut" : item { states {
-    pickup: TNT1 A 0 A_GiveInventory("RollingCutterWep") stop }}

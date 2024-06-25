@@ -1,0 +1,93 @@
+actor Bubbleman : ClassBase
+{
+Player.StartItem "IFMM02", 1
+Player.ScoreIcon "C_02C0X"
+player.displayname "Bubbleman"
+player.soundclass "bubblemanc"
+
+player.maxhealth 100
+health 100
+player.jumpz 10
+player.forwardmove 0.8, 0.8
+player.sidemove 0.78, 0.78
+
+player.startitem "BubbleLeadBoss"
+player.startitem "BubbleFlooder"
+player.startitem "WaddleWaddleAmmo", 20
+player.startitem "BubbleDabbleAmmo", 280
+player.startitem "CanTreadWater"
+
+player.startitem "MetalBladeWeakness2", 1
+
+player.startitem "RollingCutterWeakness", 1
+player.startitem "MetalBladeWeakness", 1
+player.startitem "ShadowBladeWeakness", 1
+player.startitem "RingBoomerangWeakness", 1
+player.startitem "GyroAttackWeakness", 1
+player.startitem "SilverTomahawkWeakness", 1
+player.startitem "TenguBladeWeakness", 1
+player.startitem "WheelCutterWeakness", 1
+player.startitem "ScrewCrusherWeakness", 1
+
+//TNT1 A 0 A_JumpIf(sqrt(MOMX*MOMX+MOMY*MOMY)<1,"See")
+States
+{
+Spawn:
+BUBM A 0
+TNT1 A 0 A_JumpIfInventory("IsUnderWater",1,"SpawnSwim")
+TNT1 A 0 A_JumpIfInventory("PowerFlood",1,"SpawnSwim")
+BUBM B 1
+Spawn2:
+TNT1 A 0 A_JumpIfInventory("IsUnderWater",1,"SpawnSwim")
+TNT1 A 0 A_JumpIfInventory("PowerFlood",1,"SpawnSwim")
+BUBM A 1 
+Loop
+SpawnSwim:
+BUBM N 0 A_JumpIf(sqrt(MOMX*MOMX+MOMY*MOMY)>1,"SeeSwim")
+BUBM NNNNN 1 A_JumpIfInventory("VivifyFlag3",1,"Spawn")
+BUBM O 0 A_JumpIf(sqrt(MOMX*MOMX+MOMY*MOMY)>1,"SeeSwim")
+BUBM OOOOO 1 A_JumpIfInventory("VivifyFlag3",1,"Spawn")
+Goto Spawn
+
+See:
+TNT1 A 0 A_JumpIfInventory("IsUnderWater",1,"SpawnSwim")
+TNT1 A 0 A_JumpIfInventory("PowerFlood",1,"SpawnSwim")
+BUBM B 5
+TNT1 A 0 A_JumpIfInventory("IsUnderWater",1,"SpawnSwim")
+TNT1 A 0 A_JumpIfInventory("PowerFlood",1,"SpawnSwim")
+BUBM C 5
+TNT1 A 0 A_JumpIfInventory("IsUnderWater",1,"SpawnSwim")
+TNT1 A 0 A_JumpIfInventory("PowerFlood",1,"SpawnSwim")
+BUBM D 5
+TNT1 A 0 A_JumpIfInventory("IsUnderWater",1,"SpawnSwim")
+TNT1 A 0 A_JumpIfInventory("PowerFlood",1,"SpawnSwim")
+BUBM E 5  
+Goto Spawn
+SeeSwim:
+BUBM QRSR 5 
+Goto Spawn
+
+Missile:
+BUBM F 0 A_JumpIfInventory("IsTreadingWater",1,"MissileSwim")
+BUBM F 0 A_JumpIfInventory("VivifyDelay6",1,"MissileBubble")
+BUBM F 4
+BUBM G 3
+goto Spawn
+MissileSwim:
+BUBM P 0 A_JumpIfInventory("VivifyDelay6",1,2)
+BUBM P 7
+goto Spawn
+BUBM U 9
+goto Spawn
+MissileBubble:
+BUBM T 9
+goto Spawn
+
+ClassPain:
+BUBM H 0
+goto PainContinue
+ClassDeath:
+BUBM H 0
+goto DeathContinue
+}
+}

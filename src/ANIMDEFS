@@ -140,6 +140,9 @@ texture 8CCHRAN3
 	pic 8CCHAR07 tics 15
 	pic 8CCHAR08 tics 15
 	pic 8CCHAR07 tics 15
+texture 8CCHRAN_
+	pic 8CCHAR0D tics 70
+	pic 8CCHAR0E tics 6
 	
 
 // Top portion background

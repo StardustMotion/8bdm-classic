@@ -1,5 +1,5 @@
 // 'lets give essential actors long-ass names'
-actor proj : BasicProjectile { obituary "$8C_OBIT_DEFAULT" }
+actor proj : BasicProjectile { obituary "$8C_OBIT_DEFAULT" damagetype "normal" }
 actor watcher : BasicWatcher { scale 2.5 }
 actor gfx : BasicGraphicEffect {}
 actor item : CustomInventory {}
@@ -7,6 +7,21 @@ actor var : Inventory { inventory.amount 1 inventory.maxamount 0xFFFFFFFF +INVEN
 actor varBool : var { inventory.maxamount 1 }
 actor var16 : var { inventory.maxamount 0xFFFF }
 actor var8 : var { inventory.maxamount 0xFF }
+
+// a gfx that displays differently for its target (or tid in "mass") pointer
+actor csGfx : gfx { alpha 0.5 mass 0 states {
+    spawn: 
+        TNT1 A 0
+        goto check
+    check: "----" A 0 A_JumpIf(CallACS("8C CS", CS_POV, mass), "targetPOV")
+        "----" A 0 A_Jump(256, "otherPOV") goto otherPOV
+    otherPOV: 
+        "----" A 0 A_FadeIn(1.0)
+        "----" A 0 A_Jump(256, "targetPOV")
+        goto targetPOV
+    targetPOV:	
+        "----" A 1
+        stop}}
 
 
 
@@ -33,3 +48,9 @@ actor "8C Puke Request" : powerup { powerup.duration 25 }
 actor "8C Pacifist Stack" : var16 {}
 actor "8C Pacifist Giver" : PowerApropGiver {}
 actor "8C Pacifist" : PowerUp {  powerup.duration 0x7FFFFFFF }
+
+
+
+actor "8C Puff" : gfx {
+    states { spawn: 8CAA GHI 3 
+        stop}}

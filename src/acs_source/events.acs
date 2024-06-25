@@ -1,10 +1,6 @@
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Server-side  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-script "start" (void) {
-	setAct(0);
-	changelevel("8C-1CUT", 0, 0);
-}
 
 script "8C OPEN" OPEN {
 	init();
@@ -29,7 +25,7 @@ function void init(void) {
 	DefinePowerAprop("8C Pacifist Giver", "8C Pacifist", APROP_Alpha, 0.62, NO);
 
 	if (isMap8C) {
-		drawBorders(4.0,0,0);
+		//drawBorders(4.0,0,0);
 		// Map respawn
 		if (getAct()) {
 			log(s:"this is a respawn...");
@@ -53,6 +49,10 @@ function void init(void) {
 	}
 }
 
+script "start" (void) {
+	setAct(0);
+	changelevel("8C-1CUT", 0, 0);
+}
 
 #DEFINE ACT_TID 851
 function void startAct(void) {
@@ -69,7 +69,7 @@ function void startAct(void) {
 			SetActorPosition(0, GetActorX(spawnPoint), GetActorY(spawnPoint), GetActorZ(spawnPoint), false);
 			SetActorAngle(0,GetActorAngle(spawnPoint));
 			index = (index+1)&0x7;
-			ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
+			//ACS_NamedExecuteWithResult("8C", INTRO_ANIMATION);
 		}
 	}
 	stageMusic(false);
@@ -104,12 +104,34 @@ function void onFirstGameStart(void) {
 
 
 script "8C ENTER" ENTER {
-	delay(1);
+	if (timer()<1) 				delay(1);
+	if (!enterSanityCheck())	terminate;
 	ACS_NamedExecuteWithResult("8C RPG", RPG_INCARNATE);
 	if (isMap8C || forcePhysics) 	ACS_NamedExecuteWithResult("8C", PHYSICS_8C);
 }
 script "8C RESPAWN" RESPAWN {
 	ACS_NamedExecuteWithResult("8C ENTER");
+}
+
+function bool enterSanityCheck(void) {
+	if (!isMap8C)
+		return true;
+	int player = PlayerNumber();
+	int slot = getAllowedSlot(player);		
+	if (isSlotEmpty(player,slot)) {
+		KickFromGame(player, "\ckYou first have to create a \cvhero\ck to join the game");
+		return false;
+	}
+	if (!isSlotAllowed(player)) {
+		KickFromGame(player, "\ckSelect a \cvslot\ck to join the game with");
+		return false;
+	}
+	bool isAnomaly = isPlayerAnomaly(player,slot);
+	if ((!isAnomaly && StrIcmp(GetActorClass(0),"8C Hero")) || (isAnomaly && !StrIcmp(GetActorClass(0),"Megaman"))) {
+		SetPlayerClass(PlayerNumber(), "8C Hero", true);
+		return false;
+	}
+	return true;
 }
 
 script "8C EVENT" (int type, int arg1, int arg2) EVENT {
@@ -124,6 +146,10 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 			//if (damgetype = cuttingwheel) playsound 8CCUTWHX
         	if (deflectAttack() | isPacifist()) {
     		    SetResultValue(0);
+				terminate;
+			}
+			else if (isGone(AAPTR_DAMAGE_SOURCE)) {
+				SetResultValue(0);
 				terminate;
 			}
 			
@@ -148,13 +174,13 @@ script "8C EVENT" (int type, int arg1, int arg2) EVENT {
 
 script "8C LEAVES" (int player) DISCONNECT {
 	delay(1);
-	AmbientSound("8CDEATH", 127);
+	//AmbientSound("8CDEATH", 127);
 	//ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
 }
 
 script "8C DEATH" DEATH  {
 	if (!isMap8C) terminate;
-	AmbientSound("8CDEATH", 127);
+	//AmbientSound("8CDEATH", 127);
 	ACS_NamedExecuteWithResult("8C", GAME_STATUS_CHECK);
 }
     
@@ -174,9 +200,12 @@ script "8C NET CS" (int type) NET CLIENTSIDE {
 }
 
 
-#DEFINE ENEMY_COLOR 7247 
+#DEFINE ENEMY_TRANSLATION 7247 
 #DEFINE ENEMY_VERSIONS 3
-#DEFINE ENEMY_COLOR_SIZE ENEMY_VERSIONS<<1
+#DEFINE ENEMY_TRANSLATION_RANGE ENEMY_VERSIONS<<1
+
+#DEFINE C8_TRANSLATIONS 7247+1024 // 8271
+#DEFINE C8_MM7_FLASH C8_TRANSLATIONS+0
 
 script "8C OPEN CS" OPEN CLIENTSIDE {
 	delay(25);
@@ -189,3 +218,4 @@ script "8C LEAVES CS" (int player) DISCONNECT CLIENTSIDE {
 		eraseAll(HUD_ID_EFFECTS,8);
 	}
 }
+// ENTER : erases menu, set in menu = false;

@@ -16,12 +16,14 @@
 #DEFINE C8_CHECK_COLLISION 6
 #DEFINE C8_SOLID_TOGGLE 7
 #DEFINE C8_GET_USERVAR 8
+	#DEFINE C8_USERVAR_BASECOLOR 0
 #DEFINE INTRO_ANIMATION 9
 #DEFINE C8_GOAL_CHECK 10
 //#DEFINE NO_8C_FOG 11 // 8C.acs
 #DEFINE C8_PACIFIST 12
 #DEFINE GAME_STATUS_CHECK 13
 #DEFINE EARTHQUAKE 14
+#DEFINE C8_PTR_TO_THIS 15
 
 
 // ------------------- rpg ------------------- //
@@ -66,6 +68,8 @@
 #DEFINE CS_ACT_LOST 268
 #DEFINE CS_SCREEN_FLASH 269
 #DEFINE CS_EXP_ANIMATION 270
+#DEFINE CS_POV 271
+#DEFINE CS_PAIN_TINT 272
 
 
 // ------------------------------------------------------------------------------------ //
@@ -236,6 +240,7 @@ function bool isSlotAllowed(int player) {							return getAllowedSlot(player)!=-
 #DEFINE CVAR_PLAYER_HERO "C8_player_hero_"
 function int getPlayerHero(int player, int slot) { 					return get8bFlagVal(__playerHero(slot), true, player)-1; }
 function void setPlayerHero(int player, int slot, int val) { 		set8bFlagVal(__playerHero(slot), true, player, val+1); }
+function bool isPlayerAnomaly(int player, int slot) {				return getPlayerHero(player,slot)==(getHeroSize()-1); }
 function bool isSlotEmpty(int player, int slot) {                   return getPlayerHero(player,slot) == -1; }
 function str __playerHero(int slot) { 								return strParam(s:CVAR_PLAYER_HERO, d:slot+1); }
 
@@ -265,8 +270,8 @@ function str getHeroActor(int index) {								return GetCvarString(strParam(s:"C
 function str getHeroName(int index) {								return GetCvarString(__heroName(getHeroFromIndex(index))); }
 	function str __getHeroName(int heroId) {						return GetCvarString(__heroName(heroId)); }
 	function str __heroName(int heroId) {							return strParam(s:"C8_hero_name_", d:heroId); }
-function int getHeroResilience(int index) {							return GetCvar(strParam(s:"C8_hero_resilience_", d:getHeroFromIndex(index))); }
-function int getHeroPuissance(int index) {							return GetCvar(strParam(s:"C8_hero_puissance_", d:getHeroFromIndex(index))); }
+
+function int getHeroStats(int index) {								return GetCvar(strParam(s:"C8_hero_stats_", d:getHeroFromIndex(index))); }
 function int getHeroWeapons(int index) {							return GetCvar(strParam(s:"C8_hero_weapons_", d:getHeroFromIndex(index))); }
 function int getHeroWeaponGroups(int index) {						return valueOr(GetCvar(strParam(s:"C8_hero_weapon_groups_", d:getHeroFromIndex(index))),1); }
 function str getSpSkill(int index) {								return GetCvarString(strParam(s:"C8_sp_skill_", d:getHeroFromIndex(index))); }
@@ -310,9 +315,8 @@ function str getMusic(int index, int act) {							return char8parser(GetCvarStri
 
 // Those are compile time (CVAR) id
 function str getEnemyName(int id) {									return strSanitize(GetCvarString(strParam(s:"C8_enemy_name_", d:id))); }
-function int getEnemyResilience(int id) {									return GetCvar(strParam(s:"C8_enemy_resilience_", d:id)); }
-function int getEnemyPuissance(int id) {							return GetCvar(strParam(s:"C8_enemy_puissance_", d:id)); }
-function int getScore(int id) {										return GetCvar(strParam(s:"C8_score_", d:id)); }
+function int getEnemyStats(int id) {								return GetCvar(strParam(s:"C8_enemy_stats_", d:id)); }
+function int getPower(int id) {										return GetCvar(strParam(s:"C8_power_", d:id)); }
 
 
 
@@ -320,14 +324,16 @@ function int getScore(int id) {										return GetCvar(strParam(s:"C8_score_", 
 
 
 
-// --------------------------------------------- Misc ------------------------------------------------- //
+// --------------------------------------------- Misc/Actor ------------------------------------------------- //
 
-
-#DEFINE ENEMY_COLOR_USERVAR "user_8C_color"
+#DEFINE ENEMY_VAR_COLOR "user_8C_color"
+#DEFINE ENEMY_VAR_BASECOLOR "user_8C_basecolor"
+#DEFINE USERVAR_PUISSANCE "user_8C_puissance"
+#DEFINE USERVAR_RESILIENCE "user_8C_resilience"
 function int getActorID(void) {										return CheckInventory("8C ID"); }
 function int getActorRank(void) {									return CheckInventory("8C Rank"); }
+function void setActorRank(int rank) {								SetInventory("8C Rank", rank); updateStats(true); }
+function bool isActorAnomaly(void) {								return getActorID()==(getHeroSize()-1); }
 function bool isEnemy(void) {										return (getActorRank() && !(ClassifyActor(0)&ACTOR_PLAYER)); }
 function bool isShiny(void) {										return CheckInventory("8C is Shiny"); }
-
-
 

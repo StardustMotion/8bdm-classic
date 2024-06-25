@@ -226,9 +226,14 @@ function void startScreen(void) {
                 setMenuRefresh(false);
             }
             drawBI("8CMENU12", 0, 160.0, 0.1, 0, 0); 
+            isOnlineOffset = getHeroStats(hero);
+            isOnline = isOnlineOffset < 1.0;
+            if (isOnline) 
+                isOnlineOffset = FixedDiv(1.0,isOnlineOffset);
 
-            draw8cBar("8CBARRES", true, FixedDiv(getHeroResilience(hero)<<16,450.0), 66.0, 64.0, 280, 180);
-            draw8cBar("8CBARPUI", true, FixedDiv(getHeroPuissance(hero)<<16,100.0), 66.0, 78.0, 280, 180);
+            isOnlineOffset = FixedDiv(1.0,1.0+isOnlineOffset);
+            draw8cBar("8CBARRES", true, (!isOnline ? isOnlineOffset : 1.0-isOnlineOffset), 66.0, 64.0, 280, 180);
+            draw8cBar("8CBARPUI", true, (isOnline ? isOnlineOffset : 1.0-isOnlineOffset), 66.0, 78.0, 280, 180);
             drawBI("8CMENU1O", 0, 161.0, 70.0, 320, 200); // top background
             
             if (getMenuQuery()) {   
@@ -557,13 +562,13 @@ function void drawPlayerSlot(int hudId, int player, int slot, int status) {
     else 
         yOffset = (slot == -1 ? 1 : slot<<1);  
     if (noHero) {
-        eraseAll(hudId,37);
-        drawBI("8CMENU21", hudId+36, 113.0, 33.0 + 34.0*yOffset, 209, 174);
+        eraseAll(hudId,39);
+        drawBI("8CMENU21", hudId+40, 113.0, 33.0 + 34.0*yOffset, 209, 174);
         drawBT("???", hudId+35, 99.0, 24.0+24.0*yOffset, 200, 125);
     }
     else {
         drawBT("RANK", hudId+35, 125.1, 26.0+39.0*yOffset, 0, 0);
-        draw8cNumber(getRank(player,slot), hudId+34, 162.0, 25.0+39.0*yOffset, 0, 0, SMALL_FONT, false);
+        draw8cNumber(getRank(player,slot), hudId+36, 162.0, 25.0+39.0*yOffset, 0, 0, SMALL_FONT, false);
         drawBI(getHeroIdle(hero), hudId+33, 69.0, 43.2 + 27.0*yOffset, 223,139);
         int wepCount = 0;
         for (int index = 0; (index < 64) && !(wepCount>>4); index++) { // display 16 first weapons only
@@ -573,7 +578,7 @@ function void drawPlayerSlot(int hudId, int player, int slot, int status) {
                 wepCount++;
             }
         }
-        drawBI(status ? "8CMENU07" : "8CMENU06", hudId+36, 113.0, 34.0 + 34.0*yOffset, 209, 174);
+        drawBI(status ? "8CMENU07" : "8CMENU06", hudId+40, 113.0, 34.0 + 34.0*yOffset, 209, 174);
     }
     drawBI(status ? "8CMENU1X" : "8CMENU1P", hudId+32, 160.0, 40.0 + 39.0*yOffset, 0, 0);
 }

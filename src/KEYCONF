@@ -1,7 +1,8 @@
 
 // gameinfo later
 
-
+// clearplayerclasses /!\
+addplayerclass "8C Hero"
 
 // hud message is better menudef
 alias 8c_title "pukename \"8C NET CS\" always 256; closemenu";

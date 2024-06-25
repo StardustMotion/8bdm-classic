@@ -1,0 +1,69 @@
+actor Darkman2 : ClassBase //115
+{
+Player.StartItem "IFMM05", 1
+Player.ScoreIcon "C_05J0X"
+player.displayname "darkman2"
+player.soundclass "darkman2c"
+player.startitem "DarkShieldBoss"
+player.startitem "DarkShieldAmmo",28
+player.startitem "Darkman2ShieldAmmo", 500
+
+player.maxhealth 115
+health 115
+player.jumpz 10
+player.forwardmove 0.810, 0.810
+player.sidemove 0.808, 0.808
+//damagefactor "CrystalEye", 1.5
+//damagefactor "CrystalEyeBit", 1.5
+//damagefactor "GeminiLaser", 1.3
+States
+{
+Spawn:
+DAR2 A 0 
+DAR2 B 1
+DAR2 A 1
+Goto Spawn+2
+
+See:
+DKC4 A 0 A_JumpIfHealthLower(2,"SeeMax")
+DKC4 A 0 A_JumpIfHealthLower(23,"See5")
+DKC4 A 0 A_JumpIfHealthLower(46,"See4")
+DKC4 A 0 A_JumpIfHealthLower(69,"See3")
+DKC4 A 0 A_JumpIfHealthLower(92,"See2")
+DAR2 BCDE 5
+Goto Spawn
+See2:
+DAR2 BCDE 4
+Goto Spawn
+See3:
+DAR2 BCDE 3
+Goto Spawn
+See4:
+DAR2 BCDE 2
+Goto Spawn
+See5:
+DAR2 BCDE 1
+Goto Spawn
+SeeMax:
+DAR2 BD 1
+Goto Spawn
+
+Missile:
+DAR2 F 4
+DAR2 G 5
+goto Spawn
+CustomState1:
+DAR2 F 10
+goto Missile
+CustomState2:
+DAR2 G 3
+DAR2 G 8
+goto Spawn
+ClassPain:
+DAR2 H 0
+goto PainContinue
+ClassDeath:
+DAR2 H 0
+goto DeathContinue
+}
+}
