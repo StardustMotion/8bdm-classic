@@ -49,3 +49,11 @@ texture 8CBARHP, 56, 8  { patch 8CBARBAR, 0, 0 { translation "192:192=160:160", 
 texture 8CBARXP1, 56, 8  { patch 8CBARBAR, 0, 0 { translation "192:192=81:81", "198:198=195:195" }}
 texture 8CBARXP2, 56, 8  {}
 texture 8CBARXP3, 56, 8  { patch 8CBARBAR, 0, 0 { translation "192:192=173:173", "198:198=177:177" }}
+
+
+// icons
+texture 8CMUGXME,32,32 { XScale 4.0 YScale 4.0 Patch 8CMUGSME,0,0}
+texture 8CMUGXPR,32,32 { XScale 4.0 YScale 4.0 Patch 8CMUGSPR,0,0}
+texture 8CMUGXBA,32,32 { XScale 4.0 YScale 4.0 Patch 8CMUGSBA,0,0}
+texture 8CMUGXRO,32,32 { XScale 4.0 YScale 4.0 Patch 8CMUGSRO,0,0}
+texture 8CMUGXZZ,32,32 { XScale 4.0 YScale 4.0 Patch 8CMUGSZZ,0,0}

@@ -1,0 +1,77 @@
+//====================================
+// Formatted and Cleaned by Ru5tK1ng
+//------------------------------------
+//====================================
+
+  Actor Timeman : ClassBase
+  {
+    Player.StartItem "IFMM01", 1
+	Player.ScoreIcon "C_01G0X"
+	Player.DisplayName "timeman"
+	Player.SoundClass "timemanc"
+	Player.StartItem "TimeSlowBoss"
+	//Player.StartItem "TimeSlowerBoss"
+	//Player.StartItem "TimeToggleA"
+	Player.StartItem "TimeClassAmmo", 21
+	Player.WeaponSlot 1, "TimeSlowBoss"
+	Player.WeaponSlot 2, "TimeSlowerBoss"
+	Player.StartItem "ThunderBeamWeakness2", 1
+	Player.StartItem "ThunderBeamWeakness", 1
+	Player.StartItem "SparkShockWeakness", 1
+	Player.StartItem "ThunderBoltWeakness", 1
+	Player.StartItem "ThunderClawWeakness", 1
+	Player.StartItem "LightningBoltWeakness", 1
+	Player.StartItem "PlugBallWeakness", 1
+	Player.StartItem "ElectricShockWeakness", 1
+	
+	player.maxhealth 100
+	health 100
+	player.jumpz 10
+	player.forwardmove 0.8, 0.8
+	player.sidemove 0.78, 0.78
+	
+	States
+	{
+		Spawn:
+		NTIM A 0 A_JumpIfInventory("PowerTimeC",1,"Missile2")
+		NTIM B 1
+		NTIM A 1 A_JumpIfInventory("PowerTimeC",1,"Missile2")
+		Goto Spawn+2
+		
+		See:
+		NTIM BBBBBCCCCCDDDDDEEEEE 1 A_JumpIfInventory("PowerTimeC",1,"Missile2")
+		Goto Spawn
+		
+		Missile:
+		NTIM F 0 A_JumpIfInventory("PowerTimeC",1,"Missile2")
+		NTIM FF 1 A_JumpIfInventory("PowerTimeC",1,"Missile2")
+		NTIM F 3
+		NTIM G 4
+		Goto Spawn
+		
+		Missile2:
+		NTIM IJKLKLKJI 2
+		Goto Spawn
+		
+		ClassPain:
+		NTIM H 0
+		Goto PainContinue
+		
+		ClassDeath:
+		NTIM H 0
+		goto DeathContinue
+
+/*		Pain.TimeSlow:
+		NTIM ] 0 A_GiveInventory("SkipClassPainJump",1)
+		Goto Pain+2
+		
+		Pain.TimeStopper:
+		NTIM ] 0 A_GiveInventory("SkipClassPainJump",1)
+		Goto Pain+2
+		
+		TimeStopped:
+		NTIM ] 0 A_GiveInventory("SkipClassPainJump",1)
+		Goto Pain+2//"Super::TimeStopped" */
+//yeah okay who fucking brought this shit back?? i will find you. i will kill you.
+	}
+  }

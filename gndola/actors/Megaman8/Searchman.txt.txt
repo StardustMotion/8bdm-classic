@@ -1,0 +1,83 @@
+actor Searchman : ClassBase //90
+{
+Player.StartItem "IFMM08", 1
+Player.ScoreIcon "C_08E0X"
+player.displayname "Searchman"
+player.soundclass "searchmanc"
+player.startitem "HomingSniperBoss"
+player.startitem "SearchBusher"
+player.startitem "MetalFloatFlag"
+player.startitem "WilyBanzaiAmmo", 560
+
+player.maxhealth 90
+health 90
+player.jumpz 11
+player.forwardmove 0.8, 0.8
+player.sidemove 0.78, 0.78
+
+player.startitem "FlameSwordWeakness2", 1
+
+player.startitem "FireStormWeakness", 1
+player.startitem "AtomicFireWeakness", 1
+player.startitem "PharaohShotWeakness", 1
+player.startitem "FlameBlastWeakness", 1
+player.startitem "ScorchWheelWeakness", 1
+player.startitem "FlameSwordWeakness", 1
+player.startitem "WaveBurnerWeakness", 1
+player.startitem "MagmaBazookaWeakness", 1
+player.startitem "SolarBlazeWeakness", 1
+player.startitem "BreakDashWeakness", 1
++NOSKIN
+States
+{
+Spawn:
+SEAR A 0
+SEAR B 1
+SEAR A 1 A_JumpIf(z-floorz>0,"Jumping")
+Goto Spawn+2
+See:
+SEAR BBBBBCCCCCDDDDDEEEEE 1 A_JumpIf(z-floorz>0,"Jumping")
+Goto Spawn
+Jumping:
+SCMR A 1 A_JumpIf(z-floorz<=0, "Spawn")
+loop
+Missile:
+SEAR F 0 A_JumpIfInventory("VivifyDelay7",1,"Missile2")
+SEAR F 5
+SEAR G 4
+goto Spawn
+
+Missile2:
+SEAR J 9
+goto Spawn
+
+CustomState1:
+SCMR A 23
+//SCMR BC 5
+goto Jumping
+
+CustomState2:
+SCMR C 10
+SCMR B 3
+goto Jumping
+
+CustomState3:
+SCMR CBA 5
+goto Jumping
+
+CustomState4:
+SCMR BC 3
+goto Jumping
+
+CustomState5:
+SCMR B 6
+goto CustomState2
+
+ClassPain:
+SEAR H 0
+goto PainContinue
+ClassDeath:
+SEAR H 0
+goto DeathContinue
+}
+}

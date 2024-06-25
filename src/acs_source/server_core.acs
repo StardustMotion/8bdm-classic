@@ -1,10 +1,10 @@
 
 
 
-#DEFINE INCARNATION_PREINTRO_TIME 25 // tics before actor plays its intro8C state
+#DEFINE INCARNATION_PREINTRO_TIME 25 // before intro8C state, while "ready" displays
 #DEFINE INCARNATION_INTRO_SPAWN_TIME 90 // tics allowed for intro8C duration
 #DEFINE INCARNATION_INTRO_TIME INCARNATION_PREINTRO_TIME+INCARNATION_INTRO_SPAWN_TIME
-#DEFINE INCARNATION_INTRO_READY_TIME INCARNATION_PREINTRO_TIME+25 // "ready" animation display time
+#DEFINE INCARNATION_INTRO_READY_TIME INCARNATION_PREINTRO_TIME+25 // "ready" animation extension display time
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Core scripts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
@@ -139,10 +139,16 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 			}
 		break;
 
-		// to generalize
+		/*
+		@arg1 which uservar
+		@arg2 (optional) pointer
+		*/
 		case C8_GET_USERVAR:
-			if (arg1) SetActivator(0,arg1);
-			SetResultValue(GetUserVariable(0, "user_colorId"));
+			if (arg2) SetActivator(0,arg2);
+			switch(arg1) {
+				case C8_USERVAR_BASECOLOR: arg1 = ENEMY_VAR_BASECOLOR; break;
+			}
+			SetResultValue(GetUserVariable(0, arg1));
 		break;
 
 		// 6b "map_teleportfog" script overwrite
@@ -280,8 +286,22 @@ script "8C" (int type, int arg1, int arg2, int arg3) {
 		case EARTHQUAKE:
 			Radius_Quake(arg1, arg2, 0, arg3/64, 0);
 		break;
+
+		/*
+		@arg1 the pointer to modify
+		@arg2 field to modify
+		*/
+		case C8_PTR_TO_THIS:
+			arg3 = UniqueTID();
+			type = ActivatorTID();
+			Thing_ChangeTID(0,arg3);
+			SetActivator(0,arg1);
+			SetPointer(arg2,arg3);
+			Thing_ChangeTID(arg3,type);
+		break;
 	}
 }
+
 
 function void clearGoal(void) {	
 	for (int i = 0; i < MAX_C8_PLAYERS; i++) {
@@ -323,21 +343,21 @@ script "8C API" (int type, int arg1, int arg2, int arg3) {
 		break;
 		
 		/*
-		@arg1 enemy ID
+		@arg1 [returnTheTid<<16, enemy CVARINFO ID]
 		@arg2 spot tid
 		@arg3 either 1 or 3 or 5 or 7, only
 		*/
 		case C8_API_SPAWN_ENEMY:
 			if (!(arg3&0x1) | (arg3>>3)) {
-				Log(l:"8C_ENEMY_MINPLAYER", s:"\cc(ID \ca", d:arg1, s:"\cc, on spot \ca", d:arg2, s:"\cc)");
+				Log(l:"8C_ENEMY_MINPLAYER", s:"\cc(ID \ca", d:arg1&0xFFFF, s:"\cc, on spot \ca", d:arg2, s:"\cc)");
 				arg3 = 0;
 			}
-			if (arg1==-1) {
+			if (arg1&0xFFFF==-1) {
 				log(l:"8C_ENEMY_SPAWNER_ID", 
 					s:"\cc[X=", f:GetActorX(0), s:", \ccY=", f:GetActorY(0), s:", \ccZ=", f:GetActorZ(0), s:"]");
 				terminate;
 			}
-			ACS_NamedExecuteWithResult("8C RPG", RPG_SUMMON_ENEMY, arg1, arg2);
+			SetResultValue(ACS_NamedExecuteWithResult("8C RPG", RPG_SUMMON_ENEMY, arg1, arg2));
 		break;
 	}
 }

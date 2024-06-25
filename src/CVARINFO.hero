@@ -1,20 +1,15 @@
 
-// "Mid resilience" : 250  "Mid Pui" : 50
-
 server noarchive string C8_hero_actor_0 = 		    "8C Megaman";
 server noarchive string C8_hero_name_0 = 		    "Mega Man";
-server noarchive int	C8_hero_resilience_0 = 	    200; // 250 // orig 200
-server noarchive int	C8_hero_puissance_0 = 	    40; // 65
+server noarchive float  C8_hero_stats_0 =           1.125;
 server noarchive int    C8_hero_weapons_0 =         8;
 server noarchive string C8_sp_skill_0 = 		    "Power gear      Mega Slide";
 server noarchive string C8_hero_text_0 =            "megamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamegamega";
 server noarchive string C8_hero_graphic_0 =         "8CMUGSME 8CCHRAN0 8CCHAR0A";
 
-
 server noarchive string C8_hero_actor_1 = 		    "8C Protoman";
 server noarchive string C8_hero_name_1 = 		    "Proto Man";
-server noarchive int	C8_hero_resilience_1 = 	    125;
-server noarchive int	C8_hero_puissance_1 =   	75;
+server noarchive float  C8_hero_stats_1 =           0.67;
 server noarchive int    C8_hero_weapons_1 =         4;
 server noarchive string C8_sp_skill_1 = 		    "Proto Strike / Proto Shield";
 server noarchive string C8_hero_text_1 =            "clignan court classes v2clignan court classes v2clignan court classes v2clignan court classes v2clignan court classes v2clignan court classes v2";
@@ -22,8 +17,7 @@ server noarchive string C8_hero_graphic_1 =         "8CMUGSPR 8CCHRAN1 8CCHAR09"
 
 server noarchive string C8_hero_actor_2 = 		    "8C Bass";
 server noarchive string C8_hero_name_2 = 		    "Bass";
-server noarchive int	C8_hero_resilience_2 = 		275;
-server noarchive int	C8_hero_puissance_2 = 	    60;
+server noarchive float  C8_hero_stats_2 =           0.83;
 server noarchive int    C8_hero_weapons_2 =         3;
 server noarchive int    C8_hero_weapon_groups_2 =   2;
 server noarchive string C8_sp_skill_2 = 		    "Apathy / Powerstorm";
@@ -32,11 +26,20 @@ server noarchive string C8_hero_graphic_2 =         "8CMUGSBA 8CCHRAN2 8CCHAR0B"
 
 server noarchive string C8_hero_actor_3 = 		    "8C Roll";
 server noarchive string C8_hero_name_3 = 		    "Roll";
-server noarchive int	C8_hero_resilience_3 = 	    300;
-server noarchive int	C8_hero_puissance_3 = 	    30;
+server noarchive float  C8_hero_stats_3 =           1.5;
 server noarchive int    C8_hero_weapons_3 =         1;
 server noarchive int    C8_hero_weapon_groups_3 =   3;
 server noarchive string C8_sp_skill_3 = 		    "Roll Call";
 server noarchive string C8_hero_text_3 =            "roulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroulerouleroule";
 server noarchive string C8_hero_graphic_3 =         "8CMUGSRO 8CCHRAN3 8CCHAR0C";
+
+
+server noarchive string C8_hero_actor_255 = 		"";
+server noarchive string C8_hero_name_255 = 		    "???";
+server noarchive int	C8_hero_resilience_255 = 	200;
+server noarchive int	C8_hero_puissance_255 = 	50;
+server noarchive int    C8_hero_weapons_255 =       0;
+server noarchive string C8_sp_skill_255 = 		    "???";
+server noarchive string C8_hero_text_255 =          "Play a class from another mod. Game balanced not guaranteed.";
+server noarchive string C8_hero_graphic_255 =       "8CMUGSZZ 8CCHRAN_ 8CCHAR0F";
 

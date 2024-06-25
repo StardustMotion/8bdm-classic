@@ -13,7 +13,6 @@
 // Weapon text
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Megaman ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
 PU_8C_MEGABUSTER = "\ccGet equipped with\n           \cvMega Buster";
 TAG_8C_MEGABUSTER = "\cc[ \cvMega Buster \cc]";
 OB_8C_MEGABUSTER = "%k used \cvMega Buster\c- on %o";

@@ -1,0 +1,56 @@
+actor Solarman : ClassBase //100
+{
+Player.StartItem "IFMM10", 1
+Player.ScoreIcon "C_10H0X"
+player.displayname "solarman"
+player.soundclass "solarmanc"
+player.startitem "SolarBlazeBoss"
+player.startitem "SolarBlazerBoss"
+player.startitem "SolarInfernoAmmo", 400
+
+player.weaponslot 1, "SolarBlazeBoss"
+player.weaponslot 2, "SolarBlazerBoss"
+
+
+player.maxhealth 100
+health 100
+player.jumpz 12
+player.forwardmove 0.8, 0.8
+player.sidemove 0.78, 0.78
+
+player.startitem "WaterShieldWeakness2", 1
+
+player.startitem "BubbleLeadWeakness", 1
+player.startitem "RainFlushWeakness", 1
+player.startitem "WaterWaveWeakness", 1
+player.startitem "WaterBalloonWeakness", 1
+player.startitem "WaterShieldWeakness", 1
+player.startitem "SaltWaterWeakness", 1
+
+States
+{
+Spawn:
+SOLM A 0
+SOLM B 1
+SOLM A 1
+Goto Spawn+2
+See:
+SOLM BCDE 5
+Goto Spawn
+Missile:
+SOLM F 8
+SOLM G 8
+SOLM F 14
+goto Spawn
+ClassPain:
+SOLM H 0
+goto PainContinue
+ClassDeath:
+SOLM H 0
+goto DeathContinue
+
+CustomState1:
+SOLM IIJJ 1
+goto Spawn
+}
+}

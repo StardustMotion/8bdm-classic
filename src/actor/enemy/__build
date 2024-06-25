@@ -1,5 +1,5 @@
 
-#include "actor/enemy/_base"
+#include "actor/enemy/_enemy"
 
 #include "actor/enemy/adheringSuzy"
 #include "actor/enemy/blader"

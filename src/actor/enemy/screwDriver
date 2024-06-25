@@ -1,6 +1,5 @@
 actor "8C Screw Driver" : "8C Enemy" {
-     radius 20 height 35
-    meleerange 1024 accuracy 35
+    radius 20 height 35 meleerange 1024 accuracy 35
         states { 
             spawn:
                 TNT1 A 0 nodelay A_SetArg(1,0.707*accuracy)
@@ -17,7 +16,6 @@ actor "8C Screw Driver" : "8C Enemy" {
                 goto pew
             seeCeil: 8CAB HIJ 4
                 goto pew
-
             pew:
                 BEAK D 0 A_PlaySoundEx("8CSCREWD", "Weapon")
                 BEAK D 0 A_SetArg(0,args[0]-1)
@@ -47,6 +45,7 @@ actor "8C Screw Driver" : "8C Enemy" {
                 8CAB HIJHIJHIJ 2
                 goto afterPew
             afterPew:
+                BEAK D 0 A_SetAngle(angle+45)
                 BEAK D 0 A_JumpIf(!args[0], "withdraw")
                 goto pew
 
@@ -54,21 +53,13 @@ actor "8C Screw Driver" : "8C Enemy" {
                 TNT1 A 0 A_ClearTarget
                 SWBM A 0 A_CheckCeiling("withdrawCeil")
                 8CAB DEF 4
-                8CAB C 20
+                8CAB C 16
                 goto idle
             withdrawCeil:
                 8CAB HIJ 4
-                8CAB G 20
+                8CAB G 16
                 goto idle
         }
 }
 
-actor "8C Screw Driver V2" : "8C Screw Driver" {}
-actor "8C Screw Driver V3" : "8C Screw Driver" {}
-
-
-actor "8C Screw Driver shot" : proj {
-    damage (5) height 15 radius 7 states {
-        spawn:
-            8CAA F -1
-            wait}}
+actor "8C Screw Driver shot" : "8C MM1 Shot" { damage (75) }

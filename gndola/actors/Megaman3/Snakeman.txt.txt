@@ -1,0 +1,67 @@
+actor Snakeman : ClassBase //85
+{
+Player.StartItem "IFMM03", 1
+Player.ScoreIcon "C_03F0X"
+player.displayname "snakeman"
+player.soundclass "snakemanc"
+player.startitem "SearchSnakeBoss"
+player.startitem "SnakeManAmmo", 28
+player.startitem "SnakeCommandAmmo", 28
+player.startitem "SnakemanClimbingItem"
+
+player.maxhealth 85
+health 85
+player.jumpz 10
+player.forwardmove 1.0, 1.0
+player.sidemove 0.98, 0.98
+
+player.startitem "NeedleCannonWeakness2", 1
+
+player.startitem "NeedleCannonWeakness", 1
+player.startitem "QuickBoomerangWeakness", 1
+player.startitem "YamatoSpearWeakness", 1
+player.startitem "SpreadDrillWeakness", 1
+player.startitem "TripleBladeWeakness", 1
+States
+{
+Spawn:
+SNAM A 0
+SNAM B 1
+SNAM A 1 A_JumpIf(z-floorz>0, "Jumping")
+Goto Spawn+2
+See:
+SNAM BBBBBCCCCCDDDDDEEEEE 1 A_JumpIf(z-floorz>0, "Jumping")
+Goto Spawn
+Missile:
+SNAM F 0 A_JumpIf(z-floorz>0, "JumpingMissile")
+SNAM F 5
+SNAM G 4
+goto Spawn
+
+Jumping:
+SNAM I 0 A_JumpIf(momz<1,"Falling")
+SNAM I 1 A_JumpIf(z-floorz<=0, "Spawn")
+loop
+		
+Falling:
+SNAM I 0 A_JumpIf(momz>1,"Jumping")
+SNAM J 1 A_JumpIf(z-floorz<=0, "Spawn")
+loop
+
+JumpingMissile:
+SNAM I 0 A_JumpIf(momz<1,"FallingMissile")
+SNAM LLLLLLL 1 A_JumpIf(z-floorz<=0, "Missile")
+goto Jumping
+		
+FallingMissile:
+SNAM KKKKKKK 1 A_JumpIf(z-floorz<=0, "Missile")
+Goto Jumping
+
+ClassPain:
+SNAM H 0
+goto PainContinue
+ClassDeath:
+SNAM H 0
+goto DeathContinue
+}
+}

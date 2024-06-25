@@ -1,0 +1,67 @@
+actor Napalmman : ClassBase
+{
+Player.StartItem "IFMM05", 1
+Player.ScoreIcon "C_05G0X"
+player.displayname "napalmman"
+player.soundclass "napalmmanc"
+player.startitem "NapalmBombBoss"
+player.startitem "NapalmClassAmmo", 360
+player.startitem "NapalmMissileAmmo", 100
+
+player.maxhealth 115
+health 115
+player.forwardmove 0.89, 0.89
+player.sidemove 0.5, 0.5
+player.jumpz 12
+
+player.startitem "CrystalEyeWeakness2", 1
+
+player.startitem "GeminiLaserWeakness", 1
+//player.startitem "PharaohShotWeakness", 1
+player.startitem "CrystalEyeWeakness", 1
+player.startitem "CopyVisionWeakness", 1
+player.startitem "JewelSatelliteWeakness", 1
+States
+{
+Spawn:
+NAPM A 0
+NAPM B 1 A_JumpIf(z-floorz>0, "Jumping")
+NAPM A 1 A_JumpIf(z-floorz>0, "Jumping")
+Goto Spawn+2
+See:
+NAPM B 5 A_JumpIf(z-floorz>0, "Jumping")
+//NAPM C 0 A_PlaySound("weapon/napalmtread", CHAN_BODY , 0.3)
+NAPM C 5 A_JumpIf(z-floorz>0, "Jumping")
+NAPM D 5 A_JumpIf(z-floorz>0, "Jumping")
+NAPM E 5 A_JumpIf(z-floorz>0, "Jumping")
+Goto Spawn
+Missile:
+NAPM F 0 A_JumpIf(z-floorz>0, "JumpingMissile")
+NAPM FFFFFF 1 A_JumpIfInventory("NapalmClassAltfireFlag",1,"Missile2")
+NAPM J 2 A_JumpIf(z-floorz>0, "JumpingMissile")
+NAPM K 4 A_JumpIf(z-floorz>0, "JumpingMissile")
+goto Spawn
+Missile2:
+NAPM F 5 A_JumpIf(z-floorz>0, "JumpingMissile2")
+NAPM F 4 A_JumpIf(z-floorz>0, "JumpingMissile2")
+goto Spawn
+Jumping: 
+NAPM I 1 A_JumpIf(z-floorz<=0, "Spawn")
+loop
+JumpingMissile:
+NAPM IIIIII 1 A_JumpIfInventory("NapalmClassAltfireFlag",1,"JumpingMissile2")
+NAPM L 2 A_JumpIf(z-floorz<=0, "Missile")
+NAPM M 4 A_JumpIf(z-floorz<=0, "Missile")
+Goto Jumping
+JumpingMissile2:
+NAPM I 5 A_JumpIf(z-floorz<=0, "Missile")
+NAPM I 4 A_JumpIf(z-floorz<=0, "Missile")
+Goto Jumping
+ClassPain:
+NAPM H 0
+goto PainContinue
+ClassDeath:
+NAPM H 0
+goto DeathContinue
+}
+}

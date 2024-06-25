@@ -79,8 +79,11 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			stageMusic(true);
             delay(16);
             setMenu(0);
-            if (getMenuArg(2)>>24)
-                consolecommand("menu_joingame");
+            if (getMenuArg(2)>>24) {
+				localPlayer = ConsolePlayerNumber();
+				arg1 = getAllowedSlot(localPlayer);
+				consolecommand(strParam(s:"menu_joingame", s:isPlayerAnomaly(localPlayer, arg1) ? "" : "withclass"));
+			}
         break;
 
         // arg1 = the server NET script to puke. Add bitflag PUKE_SILENT to not display "waiting for server"
@@ -224,7 +227,8 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 				drawBI("8CNUMB2D", HUD_ID_HERO+9, 51.0, 250.0, 400, 300); 
 				draw8cNumber(x, HUD_ID_HERO+8, 57.0, 211.0, 340, 255, SMALL_FONT_RED, true);
 				//mugshot
-				drawBI(getHeroMugshot(getActorID()), HUD_ID_HERO+11, 36.0, 264.0, 400, 300);
+				int y = getMugshotGraphicFromTID(activatorTID());
+				drawBI(strLen(y) ? y : "8CMUGXZZ", HUD_ID_HERO+11, 9.0, 66.0, 100, 75);
 				drawBI("8CMUGB00", HUD_ID_HERO+10, 36.0, 264.0, 400, 300);
 				//hp/maxhp
 				arg3 = GetActorProperty(0,APROP_Health);
@@ -235,7 +239,7 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 				drawBI("8CNUMB0A", HUD_ID_HERO+30, 146.0, 269.0, 450, 315); // maxhp slash
 				drawBI("8CNUMB0C", HUD_ID_HERO+31, 156.0, 258.0, 400, 280); // xp percent
 				// players on goal
-				int y = getGoal();
+				y = getGoal();
 				if (y) {
 					draw8cNumber(y,HUD_ID_HERO+40,177.0,232.0,360,240,SMALL_FONT_RED,true);
 					drawBI("8CNUMB2A", HUD_ID_HERO+41, 180.0, 232.0, 360, 240);
@@ -476,6 +480,26 @@ script "8C CS" (int type, int arg1, int arg2, int arg3) CLIENTSIDE {
 			}
 		break;
 
+		/*
+		@arg1 (optional) a TID
+		*/
+		case CS_POV:
+			if (!arg1) {
+				SetActivatorToTarget(0);
+				arg1 = PlayerNumber();
+			}	
+			else arg1--;
+			SetResultValue(arg1==localPlayer);
+		break;
+
+		case CS_PAIN_TINT:
+			do {
+				FadeTo(235,219,87,(timer()&0x2) ? 0.07*CheckInventory("8C PainFX Count") : 0,0.0);
+				delay(1);
+			} while  (CheckInventory("8C PainFX Count"));
+			FadeTo(0,0,0,0,0);
+		break;
+
     }    
 }
 
@@ -502,6 +526,14 @@ function void flashMenuLabel(int id, int y) {
     sfx(SFX_MENU_OK);
 }   
 
+// from ping button, until vanilla standardizes it
+function str getMugshotGraphicFromTID(int tid) {
+	str class = GetActorClass(tid);
+	int u = UniqueTID();
+	if(!SpawnForced(StrParam(s:"PBMug_", s:class), 0, 0, 0, u, 0)) return "";
+	Thing_Remove(u);
+	return ACS_NamedExecuteWithResult(StrParam(s:"PBMug_", s:class), tid);
+}
 
 
 
@@ -524,7 +556,24 @@ function void cameraExtend(int camera, int dist) {
 
     
 function void createTranslations(void) {	
-	int i = ENEMY_COLOR+( 0 *ENEMY_COLOR_SIZE); // B G O
+	//////////////////////////////////////////////////
+	// ------------------ WEAPONS------------------- //
+	//////////////////////////////////////////////////
+	CreateTranslation (C8_MM7_FLASH, 192:192=4:4, 5:198=80:80, 199:255=80:80, 0:2=202:202);
+
+
+
+
+
+
+
+
+
+
+	//////////////////////////////////////////////////
+	// ------------------- ENEMY ------------------- //
+	//////////////////////////////////////////////////
+	int i = ENEMY_TRANSLATION+( 0 *ENEMY_TRANSLATION_RANGE); // B G O
 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
 	CreateTranslation (i+1, 192:192=66:66, 	198:198=251:251, 0:0=79:79);
 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
@@ -533,7 +582,7 @@ function void createTranslations(void) {
 	CreateTranslation (i+5, 192:192=160:160, 198:198=41:41, 0:0=47:47);
 	
 	// Big Eye
-    i = ENEMY_COLOR+( 1 *ENEMY_COLOR_SIZE); // R B G
+    i = ENEMY_TRANSLATION+( 1 *ENEMY_TRANSLATION_RANGE); // R B G
 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74 );
@@ -542,7 +591,7 @@ function void createTranslations(void) {
 	CreateTranslation (i+5, 192:192=160:160, 198:198=158:158, 247:247=11:11);	
 
 	// Blaster
-    i = ENEMY_COLOR+( 2 *ENEMY_COLOR_SIZE); // O R B
+    i = ENEMY_TRANSLATION+( 2 *ENEMY_TRANSLATION_RANGE); // O R B
 	CreateTranslation (i, 	192:192=168:168, 198:198=225:225);
 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);	
 	CreateTranslation (i+2, 192:192=168:168, 198:198=41:41);
@@ -551,7 +600,7 @@ function void createTranslations(void) {
 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
 
 	// Screw Driver
-    i = ENEMY_COLOR+( 3 *ENEMY_COLOR_SIZE); // B O R
+    i = ENEMY_TRANSLATION+( 3 *ENEMY_TRANSLATION_RANGE); // B O R
 	CreateTranslation (i, 	192:192=168:168, 198:198=74:74);
 	CreateTranslation (i+1, 192:192=66:66, 198:198=251:251, 247:247=79:79);
 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
@@ -561,7 +610,7 @@ function void createTranslations(void) {
 
 
 	// Kamadoma
-    i = ENEMY_COLOR+( 4 *ENEMY_COLOR_SIZE); // R B G
+    i = ENEMY_TRANSLATION+( 4 *ENEMY_TRANSLATION_RANGE); // R B G
 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
 	CreateTranslation (i+2, 192:192=168:168, 198:198=225:225);
@@ -570,7 +619,7 @@ function void createTranslations(void) {
 	CreateTranslation (i+5, 192:192=160:160, 198:198=225:225, 247:247=11:11);	
 
 	// Adhering Suzy
-    i = ENEMY_COLOR+( 5 *ENEMY_COLOR_SIZE); // R O B
+    i = ENEMY_TRANSLATION+( 5 *ENEMY_TRANSLATION_RANGE); // R O B
 	CreateTranslation (i, 192:192=168:168, 198:198=41:41);
 	CreateTranslation (i+1, 192:192=217:217, 198:198=225:225, 247:247=188:188);	
 	CreateTranslation (i+2, 192:192=168:168, 198:198=74:74);
@@ -579,7 +628,7 @@ function void createTranslations(void) {
 	CreateTranslation (i+5, 192:192=66:66, 198:198=251:251, 247:247=79:79);	
 
 	// Manbu
-    i = ENEMY_COLOR+( 6 *ENEMY_COLOR_SIZE); // O G R
+    i = ENEMY_TRANSLATION+( 6 *ENEMY_TRANSLATION_RANGE); // O G R
 	CreateTranslation (i, 192:192=168:168, 198:198=225:225);
 	CreateTranslation (i+1, 192:192=104:104, 198:198=109:109, 247:247=125:125);
 	CreateTranslation (i+2, 192:192=168:168, 198:198=109:109);
@@ -588,7 +637,7 @@ function void createTranslations(void) {
 	CreateTranslation (i+5, 192:192=160:160, 198:198=228:228, 247:247=158:158);	
 
 	// Cutting Wheel
-    i = ENEMY_COLOR+( 7 *ENEMY_COLOR_SIZE);// ? ? ?
+    i = ENEMY_TRANSLATION+( 7 *ENEMY_TRANSLATION_RANGE);// ? ? ?
 	CreateTranslation (i, 192:192=178:178, 198:198=245:245, 4:4=168:168, 0:0=6:6);
 	CreateTranslation (i+1, 192:192=6:6, 4:4=80:80, 0:0=6:6, 198:198=91:91);
 	CreateTranslation (i+2, 192:192=225:225, 198:198=109:109, 4:4=168:168, 0:0=6:6);
@@ -596,3 +645,8 @@ function void createTranslations(void) {
 	CreateTranslation (i+4, 192:192=74:74, 198:198=41:41, 4:4=168:168, 0:0=6:6);
 	CreateTranslation (i+5, 192:192=80:80, 198:198=91:91, 4:4=6:6, 0:0=168:168);
 }
+
+script "PBMug_8C Megaman" (int tid) CLIENTSIDE { SetResultValue("8CMUGXME"); }
+script "PBMug_8C Protoman" (int tid) CLIENTSIDE { SetResultValue("8CMUGXPR"); }
+script "PBMug_8C Bass" (int tid) CLIENTSIDE { SetResultValue("8CMUGXBA"); }
+script "PBMug_8C Roll" (int tid) CLIENTSIDE { SetResultValue("8CMUGXRO"); }

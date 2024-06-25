@@ -1,0 +1,87 @@
+
+
+actor "8C Megaman" : "8C Hero" {
+    player.viewheight 41
+states {
+    spawn:
+        MEGM B 0
+    idle:
+        MEGM AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_JumpIf(!CallACS("core_CheckFooting"), "inAir")
+        0MEG AAAA 1 A_JumpIf(!CallACS("core_CheckFooting"), "inAir")
+        loop
+
+    see: MEGM BBBBBCCCCCDDDDDEEEEE 1 A_JumpIf(!CallACS("core_CheckFooting"), "inAir") goto spawn
+    inAir: 0MEG D 1 A_JumpIf(CallACS("core_CheckFooting"), "spawn") loop
+
+    missile:    MEGM FFFFFFFFF 1 A_JumpIf(!CallACS("core_CheckFooting"), "inAirFire") goto spawn
+    inAirFire:  0MEG EEEEEEEEE 1 A_JumpIf(CallACS("core_CheckFooting"), "missile") goto spawn
+
+    classPain: MEGM H 0 A_PlaySoundEx("MEGAPAIN", "Voice")
+        goto megamanPain
+    classDeath: 
+        TNT1 A 0 A_SpawnItemEx("8C Megaman dead",0,0,0,0,0,0,0,SXF_ABSOLUTEANGLE|SXF_TRANSFERTRANSLATION)
+        TNT1 A 0 A_SpawnItemEx("8C Megaman dead",0,0,0,0,0,0,1,SXF_ABSOLUTEANGLE|SXF_TRANSFERTRANSLATION)
+        goto megamanDeath
+
+    intro8Cpose:
+        3MEG ABCDEFGHIJKLMNOPQR 4
+        0MEG A 6
+        MEGM A 2
+        goto spawn
+    }
+}
+
+actor "PBMug_8C Megaman" {}
+
+
+actor "8C Megaman onSpawn" : item { states {
+    pickup: TNT1 A 0 A_GiveInventory("8C Mega Buster") stop }}
+
+
+
+
+
+
+
+    
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Mega buste ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+actor "8C Mega Buster" : BaseMM8BDMWep {
+    +WEAPON.WIMPY_WEAPON 
+    tag "$TAG_8C_MEGABUSTER"  obituary "$OB_8C_MEGABUSTER"   inventory.pickupmessage "$PU_8C_MEGABUSTER"
+    weapon.slotnumber 1 inventory.icon "NULLICON" inventory.pickupsound "8CPUWEP"
+    states {
+		spawnLoop: WEAP X 1
+			loop
+        ready:
+            8CQB R 0
+            8CQB R 1 A_WeaponReady
+            goto ready+1
+        select: 8CQB R 0
+            goto selectSwap
+        deselect: 8CQB R 0
+            goto deselectSwap
+        fire:
+            8CQB S 2
+            8CQB R 0 A_PlaySoundEx("MM2SHOT","Weapon")
+            8CQB T 4 A_FireCustomMissile("8C MegaShot", 0, 0, 8, -8)
+            8CQB SR 2
+            goto ready}}
+
+actor "8C MegaShot" : proj {
+    +BRIGHT obituary "$OB_8C_MEGABUSTER" speed 35 damage (10) states {
+        spawn:
+            TNT1 A 1
+            BUST A 32
+            BUST AA 1 A_FadeOut(0.3)
+            stop}}
+
+
+
+
+actor "8C Megaman Cut" : item { states {
+    pickup: TNT1 A 0 A_GiveInventory("RollingCutterWep") stop }}
+
+actor "8C Megaman dead" : "8C dead" { states { spawn: MEGM H 0
+    goto super::spawn}}
+

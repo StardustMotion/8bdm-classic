@@ -1,0 +1,94 @@
+actor IsAuto : Inventory
+{
+inventory.amount 1
+inventory.maxamount 1
+}
+
+actor AutoClass : ClassBase
+{
+Player.StartItem "IFMM00", 1
+Player.ScoreIcon "C_00G0X"
+//player.startitem "MegaHealthBar"
+player.displayname "auto"
+player.soundclass "autoc"
+player.startitem "IsAuto"
+//player.startitem "AutoToggler"
+player.startitem "AutoBolterBoss"
+//player.startitem "AutoBoltBoltDistribute"
+//player.startitem "AutoBoltAmmoSmall"
+//player.startitem "AutoBoltTheWire"
+//player.startitem "AutoBoltTheItemTwo"
+//player.startitem "AutoBoltAmmoLarge"
+//player.startitem "AutoBoltTheAutoBeat"
+//player.startitem "AutoBoltTheAutoEddie"
+player.startitem "AutoBoltAmmo", 56
+player.startitem "AutoNutsAmmo", 4
+player.startitem "AutoCycleItem"
+player.maxhealth 125
+health 125
+player.jumpz 10
+player.forwardmove 0.8, 0.8
+player.sidemove 0.78, 0.78
+
+player.forwardmove 0.75, 0.75
+player.sidemove 0.73, 0.73
+States
+{
+Spawn:
+AUT6 A 0
+AUT6 B 1
+AUT6 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_JumpIfInventory("AutoThumbFlag",1,"MissileT")
+AUT6 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_JumpIfInventory("AutoThumbFlag",1,"MissileT")   
+AUT6 QA 4 A_JumpIfInventory("AutoThumbFlag",1,"MissileT")
+goto Spawn+102
+See:
+AUT6 BCDE 5 A_JumpIfInventory("AutoThumbFlag",1,"MissileT")  
+Goto Spawn
+Missile:
+AUT6 R 0 A_JumpIfInventory("AutoThumbFlag",1,"MissileT")
+AUT6 R 4
+AUT6 R 6
+AUT6 R 4
+AUT6 R 6
+AUT6 R 4
+AUT6 R 6
+goto Spawn+2
+
+CustomState1:
+AUT6 FGF 3
+goto Spawn+2
+CustomState2:
+AUT6 U 2
+AUT6 V 2
+AUT6 U 2
+AUT6 V 2
+AUT6 U 2
+AUT6 V 2
+AUT6 U 2
+goto Spawn+2
+CustomState3:
+AUT6 W 4
+AUT6 R 18
+goto Spawn+2
+CustomState4:
+AUT6 H 6
+goto Spawn+2
+MissileC2:
+AUT6 W 9
+goto Spawn
+ 
+MissileT: 
+AUT6 R 6  
+AUT6 S 6  
+AUT6 R 0 A_JumpIfInventory("AutoThumbFlag",1,"MissileT")
+goto Spawn+2
+
+
+ClassPain:
+AUT6 H 0
+goto PainContinue
+ClassDeath:
+AUT6 H 0
+goto DeathContinue
+}
+}

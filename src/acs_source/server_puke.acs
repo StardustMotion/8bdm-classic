@@ -12,7 +12,7 @@ script "join" (void) NET {
     delay(25+2);
     ACS_NamedExecuteWithResult("8C Puke", (random(1,20000)<<16)|PUKE_ENTER_GAME, -1);
     delay(2);
-    consolecommand("menu_joingame");
+    consolecommand("menu_joingamewithclass");
 }
 
 script "8C Puke" (int type, int arg1, int arg2, int arg3) NET {

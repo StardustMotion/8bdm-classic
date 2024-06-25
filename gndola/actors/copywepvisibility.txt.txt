@@ -1,0 +1,2834 @@
+//I'm gonna be real with you: I'm fucking tired of this whole 'copyweps have unfixable visibility issues' thing. Fuck the church.
+//P.S. God bless Trillster.
+//-Greg.EXE
+
+actor WeaponUnswappedFlag : OnceC{inventory.maxamount 1}
+
+const int CWVSPAWNHEIGHT = 80;
+//Is this a tremendous waste of space? Yeah, but now you don't have to change it line by line.
+
+//This formatting is absolutely required if you plan on adding more to it; CWV_ followed by the exact name of the weapon being given a display.
+
+/* 
+actor CWV_? : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_?_Vis") 
+stop
+}
+}
+actor CWV_?_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+!!!! ! 0
+goto Warp
+}
+}
+*/
+
+Actor CWV_Template_Vis
+{
+Scale 2
+Radius 2
+Height 2
+-SOLID
++NOGRAVITY
++NOTARGETSWITCH //why was this not here before //-binary
++CLIENTSIDEONLY
++NONETID
+//+NOINTERACTION //this was causing it to despawn almost instantly. bruh.
++DONTBLAST
++DONTREFLECT
+RenderStyle "Translucent"
+Alpha 0.6
+states
+{
+Spawn:
+TNT1 A 0
+goto Warp
+Warp:
+"####" "#" 0 A_JumpIf(!CallACS("core_targetexists"),"Done")
+"####" "#" 1 A_Warp(AAPTR_TARGET,-10,0,CWVSPAWNHEIGHT,0,16)
+"####" "#" 0 A_JumpIfInventory("WeaponUnswappedFlag", 1, "Warp", 2)
+goto Done
+Done:
+TNT1 A 0
+Stop
+}
+}
+
+actor CWV_Template_Blank : CustomInventory 
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_Blanker") 
+stop
+}
+}
+
+actor CWV_Blanker : CWV_Template_Vis
+{
+States
+{
+Spawn:
+TNT1 A 1
+goto Done
+}
+}
+
+//-1 - Doc Robot, who is no longer quite as infuriating as the past.
+//This class is still so fucking tall that his display has to be higher than the others.
+actor CWV_DocBusterWoodHeatWep : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DocBusterWoodHeatWep_Vis") 
+stop
+}
+}
+actor CWV_DocBusterWoodHeatWep_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+DRCV A 0
+goto Warp
+}
+}
+actor CWV_DocBusterBubbleFlashWep : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DocBusterBubbleFlashWep_Vis") 
+stop
+}
+}
+actor CWV_DocBusterBubbleFlashWep_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+DRCV B 0
+goto Warp
+}
+}
+actor CWV_DocBusterAirCrashWep : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DocBusterAirCrashWep_Vis") 
+stop
+}
+}
+actor CWV_DocBusterAirCrashWep_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+DRCV C 0
+goto Warp
+}
+}
+actor CWV_DocBusterQuickMetalWep : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DocBusterQuickMetalWep_Vis") 
+stop
+}
+}
+actor CWV_DocBusterQuickMetalWep_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+DRCV D 0
+goto Warp
+}
+}
+
+
+//0 - Iconless/Busters. Some of these are getting icons eventually, but that can wait.
+actor CWV_None:CWV_Template_Blank{} //Maestro is weird.
+actor CWV_MegaBusterC:CWV_Template_Blank{}
+actor CWV_MegaBusterBoss:CWV_Template_Blank{} //Fuck.
+actor CWV_JetBusterC:CWV_Template_Blank{} //Has wings.
+actor CWV_PowerFistC:CWV_Template_Blank{} //Has pads.
+actor CWV_ProtoBusterBoss:CWV_Template_Blank{}
+actor CWV_BassBusterBoss:CWV_Template_Blank{}
+actor CWV_TrebleBoostC:CWV_Template_Blank{} //These two have wings.
+actor CWV_TrebleboosterWepC:CWV_Template_Blank{} //...right?
+actor CWV_DuoFistBoss:CWV_Template_Blank{}
+actor CWV_DocBusterC:CWV_Template_Blank{}
+actor CWV_MaestroNeutralBoss:CWV_Template_Blank{}
+actor CWV_DuoMeteorWepC:CWV_Template_Blank{}
+
+//1 - Maestro's nonsense
+actor CWV_MaestroHeatGuts : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroHeatGuts_Vis") 
+stop
+}
+}
+actor CWV_MaestroHeatGuts_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP H 0
+goto Warp
+}
+}
+actor CWV_MaestroAquaGuts : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroAquaGuts_Vis") 
+stop
+}
+}
+actor CWV_MaestroAquaGuts_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP I 0
+goto Warp
+}
+}
+actor CWV_MaestroElecGuts : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroElecGuts_Vis") 
+stop
+}
+}
+actor CWV_MaestroElecGuts_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP J 0
+goto Warp
+}
+}
+actor CWV_MaestroWoodGuts : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroWoodGuts_Vis") 
+stop
+}
+}
+actor CWV_MaestroWoodGuts_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP K 0
+goto Warp
+}
+}
+actor CWV_MaestroHeatCustom : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroHeatCustom_Vis") 
+stop
+}
+}
+actor CWV_MaestroHeatCustom_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP L 0
+goto Warp
+}
+}
+actor CWV_MaestroAquaCustom : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroAquaCustom_Vis") 
+stop
+}
+}
+actor CWV_MaestroAquaCustom_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP M 0
+goto Warp
+}
+}
+actor CWV_MaestroElecCustom : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroElecCustom_Vis") 
+stop
+}
+}
+actor CWV_MaestroElecCustom_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP N 0
+goto Warp
+}
+}
+actor CWV_MaestroWoodCustom : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroWoodCustom_Vis") 
+stop
+}
+}
+actor CWV_MaestroWoodCustom_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP O 0
+goto Warp
+}
+}
+actor CWV_MaestroHeatShield : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroHeatShield_Vis") 
+stop
+}
+}
+actor CWV_MaestroHeatShield_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP P 0
+goto Warp
+}
+}
+actor CWV_MaestroAquaShield : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroAquaShield_Vis") 
+stop
+}
+}
+actor CWV_MaestroAquaShield_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP Q 0
+goto Warp
+}
+}
+actor CWV_MaestroElecShield : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroElecShield_Vis") 
+stop
+}
+}
+actor CWV_MaestroElecShield_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP R 0
+goto Warp
+}
+}
+actor CWV_MaestroWoodShield : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MaestroWoodShield_Vis") 
+stop
+}
+}
+actor CWV_MaestroWoodShield_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+RSHP S 0
+goto Warp
+}
+}
+//2 - SuperArmWepC
+actor CWV_SuperArmWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SuperArmWepC_Vis") 
+stop
+}
+}
+actor CWV_SuperArmWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP O 0
+goto Warp
+}
+}
+//3 - HyperBombWepC
+actor CWV_HyperBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_HyperBombWepC_Vis") 
+stop
+}
+}
+actor CWV_HyperBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP H 0
+goto Warp
+}
+}
+//4 - IceSlasherWepC
+actor CWV_IceSlasherWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_IceSlasherWepC_Vis") 
+stop
+}
+}
+actor CWV_IceSlasherWepCMaestro : CWV_IceSlasherWepC{}
+actor CWV_IceSlasherWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP P 0
+goto Warp
+}
+}
+//5 - ThunderBeamWepC
+actor CWV_ThunderBeamWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ThunderBeamWepC_Vis") 
+stop
+}
+}
+actor CWV_ThunderBeamWepCMaestro : CWV_ThunderBeamWepC{}
+actor CWV_ThunderBeamWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP R 0
+goto Warp
+}
+}
+//6 - FireStormWepC
+actor CWV_FireStormWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FireStormWepC_Vis") 
+stop
+}
+}
+actor CWV_FireStormWepCMaestro : CWV_FireStormWepC{}
+actor CWV_FireStormWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP Y 0
+goto Warp
+}
+}
+//7 - RollingCutterWepC
+actor CWV_RollingCutterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_RollingCutterWepC_Vis") 
+stop
+}
+}
+actor CWV_RollingCutterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 F 0
+goto Warp
+}
+}
+//8 - TimeSlowWepC
+actor CWV_TimeSlowWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TimeSlowWepC_Vis") 
+stop
+}
+}
+actor CWV_TimeSlowWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+SLOT X 0
+goto Warp
+}
+}
+//9 - OilSliderWepC
+actor CWV_OilSliderWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_OilSliderWepC_Vis") 
+stop
+}
+}
+actor CWV_OilSliderWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA7 J 0
+goto Warp
+}
+}
+//10 - BubbleLeadWepC
+actor CWV_BubbleLeadWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BubbleLeadWepC_Vis") 
+stop
+}
+}
+actor CWV_BubbleLeadWepCMaestro : CWV_BubbleLeadWepC{}
+actor CWV_BubbleLeadWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP D 0
+goto Warp
+}
+}
+//11 - MetalBladeWepC
+actor CWV_MetalBladeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MetalBladeWepC_Vis") 
+stop
+}
+}
+actor CWV_MetalBladeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP S 0
+goto Warp
+}
+}
+//12 - AtomicFireWepC
+actor CWV_AtomicFireWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_AtomicFireWepC_Vis") 
+stop
+}
+}
+actor CWV_AtomicFireWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP E 0
+goto Warp
+}
+}
+//13 - LeafShieldWepC
+actor CWV_LeafShieldWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_LeafShieldWepC_Vis") 
+stop
+}
+}
+actor CWV_LeafShieldWepCMaestro : CWV_LeafShieldWepC{}
+actor CWV_LeafShieldWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP F 0
+goto Warp
+}
+}
+//14 - AirShooterWepC
+actor CWV_AirShooterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_AirShooterWepC_Vis") 
+stop
+}
+}
+actor CWV_AirShooterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP G 0
+goto Warp
+}
+}
+//15 - QuickBoomerangWepC
+actor CWV_QuickBoomerangWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_QuickBoomerangWepC_Vis") 
+stop
+}
+}
+actor CWV_QuickBoomerangWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP Z 0
+goto Warp
+}
+}
+//16 - CrashBombWepC
+actor CWV_CrashBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_CrashBombWepC_Vis") 
+stop
+}
+}
+actor CWV_CrashBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 C 0
+goto Warp
+}
+}
+//17 - TimeStopperWepC
+actor CWV_TimeStopperWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TimeStopperWepC_Vis") 
+stop
+}
+}
+actor CWV_TimeStopperWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP N 0
+goto Warp
+}
+}
+//18 - MagnetMissileWepC
+actor CWV_MagnetMissileWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MagnetMissileWepC_Vis") 
+stop
+}
+}
+actor CWV_MagnetMissileWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP I 0
+goto Warp
+}
+}
+//19 - TopSpinWepC
+actor CWV_TopSpinWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TopSpinWepC_Vis") 
+stop
+}
+}
+actor CWV_TopSpinWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP J 0
+goto Warp
+}
+}
+//20 - NeedleCannonWepC
+actor CWV_NeedleCannonWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_NeedleCannonWepC_Vis") 
+stop
+}
+}
+actor CWV_NeedleCannonWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP L 0
+goto Warp
+}
+}
+//21 - ShadowBladeWepC
+actor CWV_ShadowBladeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ShadowBladeWepC_Vis") 
+stop
+}
+}
+actor CWV_ShadowBladeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP A 0
+goto Warp
+}
+}
+//22 - GeminiLaserWepC
+actor CWV_GeminiLaserWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_GeminiLaserWepC_Vis") 
+stop
+}
+}
+actor CWV_GeminiLaserWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP M 0
+goto Warp
+}
+}
+//23 - SearchSnakeWepC
+actor CWV_SearchSnakeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SearchSnakeWepC_Vis") 
+stop
+}
+}
+actor CWV_SearchSnakeWepCMaestro : CWV_SearchSnakeWepC{}
+actor CWV_SearchSnakeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP K 0
+goto Warp
+}
+}
+//24 - HardKnuckleWepC
+actor CWV_HardKnuckleWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_HardKnuckleWepC_Vis") 
+stop
+}
+}
+actor CWV_HardKnuckleWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP T 0
+goto Warp
+}
+}
+//25 - SparkShockWepC
+actor CWV_SparkShockWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SparkShockWepC_Vis") 
+stop
+}
+}
+actor CWV_SparkShockWepCMaestro : CWV_SparkShockWepC{}
+actor CWV_SparkShockWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 G 0
+goto Warp
+}
+}
+//26 - DrillBombWepC
+actor CWV_DrillBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DrillBombWepC_Vis") 
+stop
+}
+}
+actor CWV_DrillBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP V 0
+goto Warp
+}
+}
+//27 - RingBoomerangWepC
+actor CWV_RingBoomerangWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_RingBoomerangWepC_Vis") 
+stop
+}
+}
+actor CWV_RingBoomerangWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 H 0
+goto Warp
+}
+}
+//28 - DustCrusherWepC
+actor CWV_DustCrusherWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DustCrusherWepC_Vis") 
+stop
+}
+}
+actor CWV_DustCrusherWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 K 0
+goto Warp
+}
+}
+//29 - PharaohShotWepC
+actor CWV_PharaohShotWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_PharaohShotWepC_Vis") 
+stop
+}
+}
+actor CWV_PharaohShotWepCMaestro : CWV_PharaohShotWepC{}
+actor CWV_PharaohShotWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 L 0
+goto Warp
+}
+}
+//30 - SkullBarrierWepC
+actor CWV_SkullBarrierWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SkullBarrierWepC_Vis") 
+stop
+}
+}
+actor CWV_SkullBarrierWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 O 0
+goto Warp
+}
+}
+//31 - DiveMissileWepC
+actor CWV_DiveMissileWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DiveMissileWepC_Vis") 
+stop
+}
+}
+actor CWV_DiveMissileWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 S 0
+goto Warp
+}
+}
+//32 - RainFlushWepC
+actor CWV_RainFlushWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_RainFlushWepC_Vis") 
+stop
+}
+}
+actor CWV_RainFlushWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 Y 0
+goto Warp
+}
+}
+//33 - FlashStopperWepC
+actor CWV_FlashStopperWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FlashStopperWepC_Vis") 
+stop
+}
+}
+actor CWV_FlashStopperWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 E 0
+goto Warp
+}
+}
+//34 - NapalmBombWepC
+actor CWV_NapalmBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_NapalmBombWepC_Vis") 
+stop
+}
+}
+actor CWV_NapalmBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP C 0
+goto Warp
+}
+}
+//35 - ChargeKickWepC
+actor CWV_ChargeKickWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ChargeKickWepC_Vis") 
+stop
+}
+}
+actor CWV_ChargeKickWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 E 0
+goto Warp
+}
+}
+//36 - GyroAttackWepC
+actor CWV_GyroAttackWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_GyroAttackWepC_Vis") 
+stop
+}
+}
+actor CWV_GyroAttackWepCMaestro : CWV_GyroAttackWepC{}
+actor CWV_GyroAttackWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 I 0
+goto Warp
+}
+}
+//37 - PowerStoneWepC
+actor CWV_PowerStoneWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_PowerStoneWepC_Vis") 
+stop
+}
+}
+actor CWV_PowerStoneWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 J 0
+goto Warp
+}
+}
+//38 - WaterWaveWepC
+actor CWV_WaterWaveWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WaterWaveWepC_Vis") 
+stop
+}
+}
+actor CWV_WaterWaveWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 M 0
+goto Warp
+}
+}
+//39 - CrystalEyeWepC
+actor CWV_CrystalEyeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_CrystalEyeWepC_Vis") 
+stop
+}
+}
+actor CWV_CrystalEyeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 N 0
+goto Warp
+}
+}
+//40 - StarCrashWepC
+actor CWV_StarCrashWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_StarCrashWepC_Vis") 
+stop
+}
+}
+actor CWV_StarCrashWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 X 0
+goto Warp
+}
+}
+//41 - GravityHoldWepC
+actor CWV_GravityHoldWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_GravityHoldWepC_Vis") 
+stop
+}
+}
+actor CWV_GravityHoldWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 F 0
+goto Warp
+}
+}
+//42 - BlizzardAttackWepC
+actor CWV_BlizzardAttackWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BlizzardAttackWepC_Vis") 
+stop
+}
+}
+actor CWV_BlizzardAttackWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEAP W 0
+goto Warp
+}
+}
+//43 - FlameBlastWepC
+actor CWV_FlameBlastWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FlameBlastWepC_Vis") 
+stop
+}
+}
+actor CWV_FlameBlastWepCMaestro : CWV_FlameBlastWepC{}
+actor CWV_FlameBlastWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 P 0
+goto Warp
+}
+}
+//44 - YamatoSpearWepC
+actor CWV_YamatoSpearWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_YamatoSpearWepC_Vis") 
+stop
+}
+}
+actor CWV_YamatoSpearWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 R 0
+goto Warp
+}
+}
+//45 - PlantBarrierWepC
+actor CWV_PlantBarrierWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_PlantBarrierWepC_Vis") 
+stop
+}
+}
+actor CWV_PlantBarrierWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 T 0
+goto Warp
+}
+}
+//46 - SilverTomahawkWepC
+actor CWV_SilverTomahawkWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SilverTomahawkWepC_Vis") 
+stop
+}
+}
+actor CWV_SilverTomahawkWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 U 0
+goto Warp
+}
+}
+//47 - WindStormWepC
+actor CWV_WindStormWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WindStormWepC_Vis") 
+stop
+}
+}
+actor CWV_WindStormWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 V 0
+goto Warp
+}
+}
+//48 - KnightCrushWepC
+actor CWV_KnightCrushWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_KnightCrushWepC_Vis") 
+stop
+}
+}
+actor CWV_KnightCrushWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 W 0
+goto Warp
+}
+}
+//49 - CentaurFlashWepC
+actor CWV_CentaurFlashWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_CentaurFlashWepC_Vis") 
+stop
+}
+}
+actor CWV_CentaurFlashWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 G 0
+goto Warp
+}
+}
+//50 - FreezeCrackerWepC
+actor CWV_FreezeCrackerWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FreezeCrackerWepC_Vis") 
+stop
+}
+}
+actor CWV_FreezeCrackerWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 O 0
+goto Warp
+}
+}
+//51 - NoiseCrushWepC
+actor CWV_NoiseCrushWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_NoiseCrushWepC_Vis") 
+stop
+}
+}
+actor CWV_NoiseCrushWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 J 0
+goto Warp
+}
+}
+//52 - WildCoilWepC
+actor CWV_WildCoilWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WildCoilWepC_Vis") 
+stop
+}
+}
+actor CWV_WildCoilWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 K 0
+goto Warp
+}
+}
+//53 - DangerWrapWepC
+actor CWV_DangerWrapWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DangerWrapWepC_Vis") 
+stop
+}
+}
+actor CWV_DangerWrapWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 L 0
+goto Warp
+}
+}
+//54 - ScorchWheelWepC
+actor CWV_ScorchWheelWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ScorchWheelWepC_Vis") 
+stop
+}
+}
+actor CWV_ScorchWheelWepCMaestro : CWV_ScorchWheelWepC{}
+actor CWV_ScorchWheelWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 M 0
+goto Warp
+}
+}
+//55 - JunkShieldWepC
+actor CWV_JunkShieldWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_JunkShieldWepC_Vis") 
+stop
+}
+}
+actor CWV_JunkShieldWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 N 0
+goto Warp
+}
+}
+//56 - SlashClawWepC
+actor CWV_SlashClawWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SlashClawWepC_Vis") 
+stop
+}
+}
+actor CWV_SlashClawWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 Q 0
+goto Warp
+}
+}
+//57 - ThunderBoltWepC
+actor CWV_ThunderBoltWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ThunderBoltWepC_Vis") 
+stop
+}
+}
+actor CWV_ThunderBoltWepCMaestro : CWV_ThunderBoltWepC{}
+actor CWV_ThunderBoltWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 R 0
+goto Warp
+}
+}
+//58 - AstroCrushWepC
+actor CWV_AstroCrushWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_AstroCrushWepC_Vis") 
+stop
+}
+}
+actor CWV_AstroCrushWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 E 0
+goto Warp
+}
+}
+//59 - FlameSwordWepC
+actor CWV_FlameSwordWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FlameSwordWepC_Vis") 
+stop
+}
+}
+actor CWV_FlameSwordWepCMaestro : CWV_FlameSwordWepC{}
+actor CWV_FlameSwordWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 F 0
+goto Warp
+}
+}
+//60 - ThunderClawWepC
+actor CWV_ThunderClawWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ThunderClawWepC_Vis") 
+stop
+}
+}
+actor CWV_ThunderClawWepCMaestro : CWV_ThunderClawWepC{}
+actor CWV_ThunderClawWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 G 0
+goto Warp
+}
+}
+//61 - HomingSniperWepC
+actor CWV_HomingSniperWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_HomingSniperWepC_Vis") 
+stop
+}
+}
+actor CWV_HomingSniperWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 H 0
+goto Warp
+}
+}
+//62 - WaterBalloonWepC
+actor CWV_WaterBalloonWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WaterBalloonWepC_Vis") 
+stop
+}
+}
+actor CWV_WaterBalloonWepCMaestro : CWV_WaterBalloonWepC{}
+actor CWV_WaterBalloonWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 I 0
+goto Warp
+}
+}
+//63 - MegaBallWepC
+actor CWV_MegaBallWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MegaBallWepC_Vis") 
+stop
+}
+}
+actor CWV_MegaBallWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 D 0
+goto Warp
+}
+}
+//64 - FlashBombWepC
+actor CWV_FlashBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FlashBombWepC_Vis") 
+stop
+}
+}
+actor CWV_FlashBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 B 0
+goto Warp
+}
+}
+//65 - IceWaveWepC
+actor CWV_IceWaveWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_IceWaveWepC_Vis") 
+stop
+}
+}
+actor CWV_IceWaveWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 A 0
+goto Warp
+}
+}
+//66 - TornadoHoldWepC
+actor CWV_TornadoHoldWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TornadoHoldWepC_Vis") 
+stop
+}
+}
+actor CWV_TornadoHoldWepCMaestro : CWV_TornadoHoldWepC{}
+actor CWV_TornadoHoldWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA4 C 0
+goto Warp
+}
+}
+//67 - TenguBladeWepC
+actor CWV_TenguBladeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TenguBladeWepC_Vis") 
+stop
+}
+}
+actor CWV_TenguBladeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+TBLA X 0
+goto Warp
+}
+}
+//68 - WaveBurnerWepC
+actor CWV_WaveBurnerWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WaveBurnerWepC_Vis") 
+stop
+}
+}
+actor CWV_WaveBurnerWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WABU X 0
+goto Warp
+}
+}
+//69 - SpreadDrillWepC
+actor CWV_SpreadDrillWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SpreadDrillWepC_Vis") 
+stop
+}
+}
+actor CWV_SpreadDrillWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+SPRE X 0
+goto Warp
+}
+}
+//70 - MagicCardWepC
+actor CWV_MagicCardWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MagicCardWepC_Vis") 
+stop
+}
+}
+actor CWV_MagicCardWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+MCAR X 0
+goto Warp
+}
+}
+//71 - RemoteMineWepC
+actor CWV_RemoteMineWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_RemoteMineWepC_Vis") 
+stop
+}
+}
+actor CWV_RemoteMineWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+REMI X 0
+goto Warp
+}
+}
+//72 - CopyVisionWepC
+actor CWV_CopyVisionWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_CopyVisionWepC_Vis") 
+stop
+}
+}
+actor CWV_CopyVisionWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+COPY X 0
+goto Warp
+}
+}
+//73 - IceWallWepC
+actor CWV_IceWallWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_IceWallWepC_Vis") 
+stop
+}
+}
+actor CWV_IceWallWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+ICWL X 0
+goto Warp
+}
+}
+//74 - LightningBoltWepC
+actor CWV_LightningBoltWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_LightningBoltWepC_Vis") 
+stop
+}
+}
+actor CWV_LightningBoltWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+LIBO A 0
+goto Warp
+}
+}
+//75 - PlugBallWepC
+actor CWV_PlugBallWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_PlugBallWepC_Vis") 
+stop
+}
+}
+actor CWV_PlugBallWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+PBAL A 0
+goto Warp
+}
+}
+//76 - LaserTridentWepC
+actor CWV_LaserTridentWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_LaserTridentWepC_Vis") 
+stop
+}
+}
+actor CWV_LaserTridentWepCMaestro : CWV_LaserTridentWepC{}
+actor CWV_LaserTridentWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+LTRI A 0
+goto Warp
+}
+}
+//77 - BlackHoleBombWepC
+actor CWV_BlackHoleBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BlackHoleBombWepC_Vis") 
+stop
+}
+}
+actor CWV_BlackHoleBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+BLKH A 0
+goto Warp
+}
+}
+//78 - JewelSatelliteWepC
+actor CWV_JewelSatelliteWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_JewelSatelliteWepC_Vis") 
+stop
+}
+}
+actor CWV_JewelSatelliteWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+JEWE A 0
+goto Warp
+}
+}
+//79 - ConcreteShotWepC
+actor CWV_ConcreteShotWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ConcreteShotWepC_Vis") 
+stop
+}
+}
+actor CWV_ConcreteShotWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+CONC A 0
+goto Warp
+}
+}
+//80 - TornadoBlowWepC
+actor CWV_TornadoBlowWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TornadoBlowWepC_Vis") 
+stop
+}
+}
+actor CWV_TornadoBlowWepCMaestro : CWV_TornadoBlowWepC{}
+actor CWV_TornadoBlowWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+TBLO A 0
+goto Warp
+}
+}
+//81 - HornetChaserWepC
+actor CWV_HornetChaserWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_HornetChaserWepC_Vis") 
+stop
+}
+}
+actor CWV_HornetChaserWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+HCHS A 0
+goto Warp
+}
+}
+//82 - MagmaBazookaWepC
+actor CWV_MagmaBazookaWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MagmaBazookaWepC_Vis") 
+stop
+}
+}
+actor CWV_MagmaBazookaWepCMaestro : CWV_MagmaBazookaWepC{}
+actor CWV_MagmaBazookaWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+MGM1 A 0
+goto Warp
+}
+}
+//83 - SolarBlazeWepC
+actor CWV_SolarBlazeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SolarBlazeWepC_Vis") 
+stop
+}
+}
+actor CWV_SolarBlazeWepCMaestro : CWV_SolarBlazeWepC{}
+actor CWV_SolarBlazeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+SOLA A 0
+goto Warp
+}
+}
+//84 - WheelCutterWepC
+actor CWV_WheelCutterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WheelCutterWepC_Vis") 
+stop
+}
+}
+actor CWV_WheelCutterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WHEE A 0
+goto Warp
+}
+}
+//85 - ReboundStrikerWepC
+actor CWV_ReboundStrikerWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ReboundStrikerWepC_Vis") 
+stop
+}
+}
+actor CWV_ReboundStrikerWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+STRI A 0
+goto Warp
+}
+}
+//86 - ThunderWoolWepC
+actor CWV_ThunderWoolWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ThunderWoolWepC_Vis") 
+stop
+}
+}
+actor CWV_ThunderWoolWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+THWO A 0
+goto Warp
+}
+}
+//87 - CommandoBombWepC
+actor CWV_CommandoBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_CommandoBombWepC_Vis") 
+stop
+}
+}
+actor CWV_CommandoBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+COMM A 0
+goto Warp
+}
+}
+//88 - ChillSpikeWepC
+actor CWV_ChillSpikeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ChillSpikeWepC_Vis") 
+stop
+}
+}
+actor CWV_ChillSpikeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+CHIL A 0
+goto Warp
+}
+}
+//89 - WaterShieldWepC
+actor CWV_WaterShieldWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WaterShieldWepC_Vis") 
+stop
+}
+}
+actor CWV_WaterShieldWepCMaestro : CWV_WaterShieldWepC{}
+actor CWV_WaterShieldWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WATS A 0
+goto Warp
+}
+}
+//90 - TripleBladeWepC
+actor CWV_TripleBladeWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TripleBladeWepC_Vis") 
+stop
+}
+}
+actor CWV_TripleBladeWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+TRIP A 0
+goto Warp
+}
+}
+//91 - GrabBusterWepC
+actor CWV_GrabBusterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_GrabBusterWepC_Vis") 
+stop
+}
+}
+actor CWV_GrabBusterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+GRBU A 0
+goto Warp
+}
+}
+//92 - BubbleBombWepC
+actor CWV_BubbleBombWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BubbleBombWepC_Vis") 
+stop
+}
+}
+actor CWV_BubbleBombWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+BBOM A 0
+goto Warp
+}
+}
+//93 - PhotonMissileWepC
+actor CWV_PhotonMissileWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_PhotonMissileWepC_Vis") 
+stop
+}
+}
+actor CWV_PhotonMissileWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+PMIS A 0
+goto Warp
+}
+}
+//94 - SaltWaterWepC
+actor CWV_SaltWaterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SaltWaterWepC_Vis") 
+stop
+}
+}
+actor CWV_SaltWaterWepCMaestro : CWV_SaltWaterWepC{}
+actor CWV_SaltWaterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+SWAT A 0
+goto Warp
+}
+}
+//95 - ElectricShockWepC
+actor CWV_ElectricShockWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ElectricShockWepC_Vis") 
+stop
+}
+}
+actor CWV_ElectricShockWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+ESPA A 0
+goto Warp
+}
+}
+//96 - BlackHoleWepC
+actor CWV_BlackHoleWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BlackHoleWepC_Vis") 
+stop
+}
+}
+actor CWV_BlackHoleWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+BHOL A 0
+goto Warp
+}
+}
+//97 - DeepDiggerWepC
+actor CWV_DeepDiggerWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DeepDiggerWepC_Vis") 
+stop
+}
+}
+actor CWV_DeepDiggerWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+DDIG A 0
+goto Warp
+}
+}
+//98 - BreakDashWepC
+actor CWV_BreakDashWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BreakDashWepC_Vis") 
+stop
+}
+}
+actor CWV_BreakDashWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+BDAS A 0
+goto Warp
+}
+}
+//99 - SparkChaserWepC
+actor CWV_SparkChaserWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SparkChaserWepC_Vis") 
+stop
+}
+}
+actor CWV_SparkChaserWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+SCHS A 0
+goto Warp
+}
+}
+//100 - SakugarneWepC
+actor CWV_SakugarneWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SakugarneWepC_Vis") 
+stop
+}
+}
+actor CWV_SakugarneWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA2 Z 0
+goto Warp
+}
+}
+//101 - BalladeCrackerWepC
+actor CWV_BalladeCrackerWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BalladeCrackerWepC_Vis") 
+stop
+}
+}
+actor CWV_BalladeCrackerWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 C 0
+goto Warp
+}
+}
+//102 - ScrewCrusherWepC
+actor CWV_ScrewCrusherWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ScrewCrusherWepC_Vis") 
+stop
+}
+}
+actor CWV_ScrewCrusherWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 D 0
+goto Warp
+}
+}
+//103 - MirrorBusterWepC
+actor CWV_MirrorBusterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MirrorBusterWepC_Vis") 
+stop
+}
+}
+actor CWV_MirrorBusterWepCMaestro : CWV_MirrorBusterWepC{}
+actor CWV_MirrorBusterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+WEA3 H 0
+goto Warp
+}
+}
+//104 - RisingFistWepC
+actor CWV_RisingFistWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_RisingFistWepC_Vis") 
+stop
+}
+}
+actor CWV_RisingFistWepC_Vis : CWV_Template_Vis 
+{
+States
+{
+Spawn:
+XWI0 B 0
+goto Warp
+}
+}
+//105 - TimeBenderWepC
+actor CWV_TimeBenderWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TimeBenderWepC_Vis") 
+stop
+}
+}
+actor CWV_TimeBenderWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 E 0
+goto Warp
+}
+}
+//106 - TopTwistWepC
+actor CWV_TopTwistWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_TopTwistWepC_Vis") 
+stop
+}
+}
+actor CWV_TopTwistWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 G 0
+goto Warp
+}
+}
+//107 - FlashBulbWepC
+actor CWV_FlashBulbWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FlashBulbWepC_Vis") 
+stop
+}
+}
+actor CWV_FlashBulbWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 I 0
+goto Warp
+}
+}
+//108 - DiveSonarWepC
+actor CWV_DiveSonarWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DiveSonarWepC_Vis") 
+stop
+}
+}
+actor CWV_DiveSonarWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+DIVA Y 0
+goto Warp
+}
+}
+//109 - SkullSniperWepC
+actor CWV_SkullSniperWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_SkullSniperWepC_Vis") 
+stop
+}
+}
+actor CWV_SkullSniperWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 K 0
+goto Warp
+}
+}
+//110 - GravitySphereWepC
+actor CWV_GravitySphereWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_GravitySphereWepC_Vis") 
+stop
+}
+}
+actor CWV_GravitySphereWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 L 0
+goto Warp
+}
+}
+//111 - DarkShieldWepC
+actor CWV_DarkShieldWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DarkShieldWepC_Vis") 
+stop
+}
+}
+actor CWV_DarkShieldWepCMaestro : CWV_DarkShieldWepC{}
+actor CWV_DarkShieldWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 M 0
+goto Warp
+}
+}
+//112 - CentaurArrowWepC
+actor CWV_CentaurArrowWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_CentaurArrowWepC_Vis") 
+stop
+}
+}
+actor CWV_CentaurArrowWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 N 0
+goto Warp
+}
+}
+//113 - PlantTrapperWepC
+actor CWV_PlantTrapperWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_PlantTrapperWepC_Vis") 
+stop
+}
+}
+actor CWV_PlantTrapperWepCMaestro : CWV_PlantTrapperWepC{}
+actor CWV_PlantTrapperWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 O 0
+goto Warp
+}
+}
+//114 - DynamoTendrilWepC
+actor CWV_DynamoTendrilWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_DynamoTendrilWepC_Vis") 
+stop
+}
+}
+actor CWV_DynamoTendrilWepCMaestro : CWV_DynamoTendrilWepC{}
+actor CWV_DynamoTendrilWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 P 0
+goto Warp
+}
+}
+//115 - RainbowGalaxyWepC
+actor CWV_RainbowGalaxyWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_RainbowGalaxyWepC_Vis") 
+stop
+}
+}
+actor CWV_RainbowGalaxyWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 Q 0
+goto Warp
+}
+}
+//116 - BoobeamBarrierWepC
+actor CWV_BoobeamBarrierWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BoobeamBarrierWepC_Vis") 
+stop
+}
+}
+actor CWV_BoobeamBarrierWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 F 0
+goto Warp
+}
+}
+//117 - WaveBusterWepC
+actor CWV_WaveBusterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_WaveBusterWepC_Vis") 
+stop
+}
+}
+actor CWV_WaveBusterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 C 0
+goto Warp
+}
+}
+//118 - BusterRodGWepC
+actor CWV_BusterRodGWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BusterRodGWepC_Vis") 
+stop
+}
+}
+actor CWV_BusterRodGWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 S 0
+goto Warp
+}
+}
+//119 - MegaWaterSWepC
+actor CWV_MegaWaterSWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_MegaWaterSWepC_Vis") 
+stop
+}
+}
+actor CWV_MegaWaterSWepCMaestro : CWV_MegaWaterSWepC{}
+actor CWV_MegaWaterSWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 T 0
+goto Warp
+}
+}
+//120 - HyperStormHWepC
+actor CWV_HyperStormHWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_HyperStormHWepC_Vis") 
+stop
+}
+}
+actor CWV_HyperStormHWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 U 0
+goto Warp
+}
+}
+//121 - NovaBeamWepC
+actor CWV_NovaBeamWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_NovaBeamWepC_Vis") 
+stop
+}
+}
+actor CWV_NovaBeamWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+SLZR I 0
+goto Warp
+}
+}
+//122 - AcidBarrierWepC
+actor CWV_AcidBarrierWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_AcidBarrierWepC_Vis") 
+stop
+}
+}
+actor CWV_AcidBarrierWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+11WP I 0
+goto Warp
+}
+}
+//123 - BlazingTorchWepC - Is this even in the game?
+actor CWV_BlazingTorchWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_BlazingTorchWepC_Vis") 
+stop
+}
+}
+actor CWV_BlazingTorchWepC_Vis : CWV_Template_Vis 
+{
+States
+{
+Spawn:
+11WP H 0
+goto Warp
+}
+}
+//124 - ScrambleThunderWepC
+actor CWV_ScrambleThunderWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ScrambleThunderWepC_Vis") 
+stop
+}
+}
+actor CWV_ScrambleThunderWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+11WP G 0
+goto Warp
+}
+}
+//125 - ChainBlastWepC
+actor CWV_ChainBlastWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_ChainBlastWepC_Vis") 
+stop
+}
+}
+actor CWV_ChainBlastWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+11WP F 0
+goto Warp
+}
+}
+//126 - FakeRepeaterC
+actor CWV_FakeRepeaterWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FakeRepeaterWepC_Vis") 
+stop
+}
+}
+actor CWV_FakeRepeaterWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 R 0
+goto Warp
+}
+}
+//127 - FragBomberWepC
+actor CWV_FragBomberWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_FragBomberWepC_Vis") 
+stop
+}
+}
+actor CWV_FragBomberWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 D 0
+goto Warp
+}
+}
+//128 - RollSweepC
+actor CWV_RollSweepWepC : CustomInventory
+{
+States
+{
+Pickup:
+TNT1 A 0 A_SpawnItemEx("CWV_RollSweepWepC_Vis") 
+stop
+}
+}
+actor CWV_RollSweepWepC_Vis : CWV_Template_Vis
+{
+States
+{
+Spawn:
+XWI0 A 0
+goto Warp
+}
+}
+//129 - Use later
+//130 - Use later
+//131 - Use later

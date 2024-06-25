@@ -1,24 +1,54 @@
 
-actor "8C Big Eye" : "8C Enemy"  {
-    -COUNTKILL gravity 1.2
-    obituary "$8C_OBIT_BIG_EYE"
-    radius 26 height 120 
-    meleerange 512 accuracy 4
+actor "8C Big Eye" : "8C Enemy" {
+    var int user_bigeye_pain; var int user_8C_redirect;
+    painchance 256 +INVULNERABLE +NOGRAVITY height 34 radius 22 states {
+        spawn:
+            TNT1 A 1 nodelay A_SpawnItemEx("8C Big Eye Body",
+                0,0,0, 0,0,0, 0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_SETMASTER)
+            TNT1 A 0 A_SetUserVar("user_8C_redirect", AAPTR_TRACER)
+            8CAA P 0 ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, false)
+            "----" A 0 ACS_NamedExecuteWithResult("8C", C8_COPY_VELOCITY, AAPTR_TRACER)
+            goto check
+        check: 
+            TNT1 A 0 A_JumpIf(user_bigeye_pain,2)
+            TNT1 A 0 A_TakeInventory("varBool", 1)
+            goto invulCheck
+            TNT1 A 0 A_SetUserVar(user_bigeye_pain, user_bigeye_pain-1)
+        invulCheck:
+            TNT1 A 0 A_JumpIfInventory("varBool",1,"open",AAPTR_TRACER)
+            TNT1 A 0 A_ChangeFlag("INVULNERABLE", true)     
+            goto sprite
+        open: TNT1 A 0 A_ChangeFlag("INVULNERABLE", false)
+            goto sprite
+        sprite:
+            TNT1 A 0 A_Warp(AAPTR_TRACER,22,0,76,WARPF_NOCHECKPOSITION)
+            TNT1 A 1 A_SpawnItemEx("8C Big Eye Eye",-4,0,15,0,0,0,0,SXF_TRANSFERTRANSLATION)
+            goto check
+        pain: TNT1 A 0 A_SetUserVar("user_bigeye_pain", 10)
+            TNT1 A 0 A_GiveInventory("varBool", 1)
+            goto check
+        death: 8CAB A 15 A_GiveInventory("8C Deflect Off", 1, AAPTR_TRACER)
+            //TNT1 AAAAA 1 A_KillMaster // oke masta les kill da hoe
+            stop}}
+
+actor "8C Big Eye Body" : "8C Enemy"  {
+    -COUNTKILL gravity 1.2 radius 30 height 120  var int user_8C_redirect;
+    meleerange 768 accuracy 6
         states { 
             spawn:
-                BLAD A 0 nodelay A_GiveInventory("8C Deflect On")
-                BLAD A 0 A_SpawnItemEx("8C Big Eyeye",0,0,0, 0,0,0, 0,SXF_TRANSFERTRANSLATION|SXF_SETMASTER)
+                8CAP P 0 nodelay ACS_NamedExecuteWithResult("8C",C8_PTR_TO_THIS,AAPTR_MASTER,AAPTR_TRACER)
+                8CAP P 0 A_SetUserVar("user_8C_redirect", AAPTR_MASTER)
+                8CAA P 0 A_GiveInventory("8C Deflect On")
             idle:
                 TNT1 A 0 A_TakeInventory("varBool")
                 8CAA P 5 A_LookEx(0,0,meleerange,meleerange,360,"see")
                 loop
             see:
                 8CAA P 0 A_GiveInventory("varBool")
-                8CAA X 0 A_FaceTarget
+                8CAA X 0 ACS_NamedExecuteWithResult("core_predicthome", mass, AAPTR_TARGET, -5)
                 8CAA X 0 A_SpawnItemEx("8C Big Eye contact")
                 8CAA QR 2
-                8CAA R 2 A_ChangeVelocity(accuracy,0,17 - !random(0,3)*5,CVF_RELATIVE|CVF_REPLACE)
-                
+                8CAA R 2 A_ChangeVelocity(accuracy,0,16 - !random(0,2)*3,CVF_RELATIVE|CVF_REPLACE)                
             air:
                 8CAA PPPP 1 A_JumpIf(CallACS("core_CheckFooting"), "stomp")
                 8CAA X 0 A_ChangeVelocity(accuracy,0,velz,CVF_RELATIVE|CVF_REPLACE)
@@ -27,50 +57,24 @@ actor "8C Big Eye" : "8C Enemy"  {
                 8CAA X 0 A_Stop
                 8CAA X 0 A_PlaySoundEx("robot/bigeye", "Weapon")
                 8CAA X 0 A_TakeInventory("8C follow me")
-                8CAA X 0 ACS_NamedExecuteWithResult("8C", EARTHQUAKE, 2, 4, 384)
+                8CAA X 0 ACS_NamedExecuteWithResult("8C", EARTHQUAKE, 2, 4, 448)
                 8CAA QRQ 4
-                8CAA P 12
-                goto sightCheck   
+                8CAA P 10
+                goto targetCheck   
             death: TNT1 A 0 A_ChangeFlag("NOGRAVITY", true)
-                8CAA P 4 A_FadeOut(0.5)
-               8CAA P 4 A_FadeIn(0.5)
-              8CAA P 4 A_FadeOut(0.5)
-             8CAA P 4 A_FadeIn(0.5)
+                8CAA P 4 A_FadeOut(0.5) 8CAA P 4 A_FadeIn(0.5) 8CAA P 4 A_FadeOut(0.5) 8CAA P 4 A_FadeIn(0.5)
                 stop             
         }
 }
 
-actor "8C Big Eye V2" : "8C Big Eye" {
 
-}
-actor "8C Big Eye V3" : "8C Big Eye" {
-    
-}
+actor "8C Big Eye contact" : "8C Enemy contact" { args 350, 62, 32 }
 
-actor "8C Big Eyeye" : "8C Enemy" {
-    painchance 256 +INVULNERABLE +NOGRAVITY height 27 radius 20 states {
-        spawn:            
-            "----" A 0 nodelay ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, false)
-            "----" A 0 ACS_NamedExecuteWithResult("8C", C8_COPY_VELOCITY, AAPTR_MASTER)
-            "----" A 0 A_SetUserVar("user_colorId", CallACS("8C", C8_GET_USERVAR, AAPTR_MASTER))
-            goto check
-        check: 
-            "----" A 0 A_JumpIfInventory("varBool",1,"open",AAPTR_MASTER)
-            8CAA M 0 A_ChangeFlag("INVULNERABLE", true)
-        main: "----" A 1 A_Warp(AAPTR_MASTER,18,0,91,WARPF_NOCHECKPOSITION)
-            "----" A 0 A_SetArg(0,args[0]-1)
-            goto check
-
-        pain: "----" A 0 A_SetArg(0,10) goto check
-        open: TNT1 A 0 A_ChangeFlag("INVULNERABLE", false)
-            8CAA O 0 A_JumpIf(args[0]>0, "hit")
-            goto main
-        hit: 8CAA N 0
-            goto main
-        death: TNT1 A 0 A_GiveInventory("8C Deflect Off", 1, AAPTR_MASTER)
-            TNT1 A 0 A_KillMaster // oke masta les kill da hoe
-            stop
-    }
-}
-
-actor "8C Big Eye contact" : "8C Enemy contact" { args 45, 64, 32 }
+actor "8C Big Eye Eye" : gfx { states { 
+    spawn: TNT1 A 0
+        TNT1 A 0 A_CheckFlag("INVULNERABLE","close",AAPTR_TARGET)
+    open: 8CAA O 1 A_JumpIfInTargetInventory("varBool", 1, "inPain") stop
+    inPain: 8CAA N 1
+        stop
+    close: 8CAP M 1
+        stop}}

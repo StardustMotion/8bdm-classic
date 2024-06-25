@@ -1,0 +1,67 @@
+actor Saturn : ClassBase //135
+{
+Player.StartItem "IFMM0V", 1
+Player.ScoreIcon "C_0VF0X"
+player.displayname "Saturn"
+player.soundclass "saturnc"
+player.startitem "BlackHoleBoss"
+player.startitem "BlackerHoleBoss"
+//player.startitem "SaturnItem"
+player.startitem "BlackVortexAmmo", 14
+player.startitem "WhiteHoleAmmo", 350
+player.startitem "SaturnHoldAmmo", 280
+
+player.maxhealth 135
+health 135
+player.forwardmove 0.65, 0.65
+player.sidemove 0.63, 0.63
+player.jumpz 12
+
+player.weaponslot 1, "BlackHoleBoss"
+player.weaponslot 2, "BlackerHoleBoss"
+
+player.startitem "ElectricShockWeakness", 1
+
+player.startitem "ThunderBeamWeakness", 1
+player.startitem "CrashBombWeakness", 1
+player.startitem "SparkShockWeakness", 1
+player.startitem "ThunderBoltWeakness", 1
+player.startitem "ThunderClawWeakness", 1
+player.startitem "LightningBoltWeakness", 1
+player.startitem "PlugBallWeakness", 1
+player.startitem "ElectricShockWeakness", 1
+States
+{
+Spawn:
+SATU A 0
+SATU B 1 A_JumpIfInventory("VivifyDelay9",1,"CustomState1")
+SATU A 1
+SATU A 340
+SATU J 16 A_SpawnItemEx("ImpatientFX",0,0,0,0,0,0,0,1)
+SATU KJKJKJKJKJKJ 16 
+SATU ML 16 
+Goto Spawn+17
+
+See:
+SATU BBBBBCCCCCDDDDDEEEEE 1
+Goto Spawn
+
+Missile:
+SATU ON 6
+goto Spawn
+CustomState1:
+SATU FGFGFG 3
+goto Spawn
+
+ClassPain:
+SATU H 0
+goto PainContinue
+ClassDeath:
+SATU H 0
+goto DeathContinue
+Death.Jupiter_Beam:
+SATU H 0 A_PlaySoundEX("weapon/saturndeath","weapon")
+SATU H 85
+goto DeathContinue
+}
+}

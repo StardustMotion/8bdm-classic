@@ -1,0 +1,189 @@
+            
+actor "8C Hero" : ClassBase {
+    // private:
+        +NOSKIN +NOMORPHLIMITATIONS
+        var int user_8C_rank;
+        var int user_8C_puissance; var int user_8C_resilience; 
+        player.displayname "< HERO >"
+        player.damageScreenColor "yellow", 0
+    // public:
+        player.forwardmove 0.88 player.sidemove 0.727
+        player.startitem ""
+    states {
+        spawn:
+            MEGM A 0
+            MEGM B 1
+            MEGM A 1
+            goto spawn+2
+        see:
+            MEGM BCDE 5
+            goto spawn
+            
+        missile:
+            MEGM F 5
+            MEGM G 4
+            goto spawn+2
+
+        pain:
+            "----" A 0 A_GiveInventory("8C Pain")
+            "----" A 0 A_ChangeVelocity(velx,vely,velz*!(velz>0),CVF_REPLACE)
+            "----" A 0 A_Jump(256,"classPain")
+            goto classPain
+        classPain:
+            "----" A 0 A_Log("no classPain for this hero :c")
+            "----" A 1 A_Jump(256,"megamanPain")
+            wait
+        megamanPain:
+            "----" A 20 A_GiveInventory("8C PainFX Giver")
+            "----" A 1 A_Jump(256,"Spawn")
+            wait
+        
+        death:
+            "----" A 0 A_GiveInventory("ClassDeathPickup")
+            "----" A 0 ACS_NamedExecuteWithResult("core_nogravityplayer", 0, true, true)
+            "----" A 0 A_Jump(256,"classDeath")
+            goto classDeath
+        classDeath:
+            "----" A 0 A_Log("no classDeath for this hero :c")
+            "----" A 1 A_Jump(256,"megamanDeath")
+            wait
+        megamanDeath:
+            "----" A 16 
+            "----" A 1 A_CheckPlayerDone
+            wait
+        
+
+        // intro8C anim is 90 tics max
+        intro8C:
+            3MEG A 0 A_GiveInventory("noInteractionOn")
+            3MEG A 0 ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, false)
+            3MEG A 0 A_Warp(AAPTR_DEFAULT, 0, 0, 704.0, 0, WARPF_NOCHECKPOSITION)
+            TFOG A 0 A_ChangeVelocity(0,0,-64,CVF_REPLACE)
+            TFOG A 10
+            TFOG A 0 A_Warp(AAPTR_DEFAULT, 0, 0, -(z-floorz), 0, WARPF_NOCHECKPOSITION|WARPF_STOP)
+            3MEG A 0 A_GiveInventory("noInteractionOff")
+            3MEG A 0 ACS_NamedExecuteWithResult("8C", C8_SOLID_TOGGLE, true)
+            TNT1 A 0 A_SpawnItemEx("TeleportFogNormal",0,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION)
+            TFOG A 0 A_JumpIf(true, "intro8Cpose")
+            goto intro8Cpose
+        intro8Cpose:
+            MAIL B 80 A_Log("Your hero does not have a intro8C or intro8Cpose state! Here's a placeholder mail box")
+            TNT1 A 0 A_JumpIf(true, "spawn")
+            goto spawn            
+    }
+}
+
+
+actor "8C Camera" : watcher { states {
+    spawn: TNT1 A 0
+        TNT1 A 0 A_SpawnItemEx("8C Intro Camera",0,0,0, 0,0,0, 0,0,0, TID)
+        stop}}
+
+actor "8C Intro Camera" : gfx { radius 8 height 16 states {
+    spawn: 
+        TNT1 A 0 nodelay ACS_NamedExecuteWithResult("8C CS", CS_CAMERA)
+    main: 
+        TNT1 A 69 
+        loop}}
+
+actor "8C Pain" : powerspeed { speed 0.25 powerup.duration 10 +POWERSPEED.NOTRAIL }
+
+
+
+
+actor "8C PainFX Giver" : item { states { 
+    pickup: 
+        TNT1 A 0 A_JumpIfInventory("8C PainFX Count",1,"refill")
+        TNT1 A 0 A_SpawnItemEx("8C PainFX Watcher")
+        TNT1 A 0 ACS_NamedExecuteWithResult("8C CS", CS_PAIN_TINT)
+    refill: TNT1 A 0 A_GiveInventory("8C PainFX Count", 5) stop }}
+
+actor "8C PainFX Count" : var { inventory.maxamount 5 }
+
+actor "8C PainFX Watcher" : watcher {  states { 
+    spawn:
+        TNT1 A 0 nodelay A_JumpIfInTargetInventory("8C PainFX Count", 1, 1) stop
+        TNT1 A 0 A_TakeFromTarget("8C PainFX Count",1)
+        TNT1 AA 1 A_GiveToTarget("8C __PainFX")
+        TNT1 A 2
+        loop}}
+
+actor "8C __PainFX" : item { states { pickup: TNT1 A 0 A_SpawnItemEx("8C PainFX", 0, 0, 0) stop }}
+actor "8C PainFX" : csGfx { alpha 0.6 states { spawn: 8CAD G 0
+    goto check}}
+
+
+
+
+    
+actor "8C dead" : gfx { // when ure ded body is just a graohic effect lol ^^
+	mass 0 reactiontime 19 states { 
+		spawn: 
+			"----" A 0 nodelay A_JumpIf(angle%2,"flash")
+			goto main
+		flash: 
+			"----" A 1 A_FadeOut(1.0,0)
+            "----" A 0 A_SetAngle(angle-1)
+			"----" A 0 A_SetMass(1)
+			"----" A 0 Thing_SetTranslation(0,8271)
+			goto main
+		main:
+			"----" A 1 A_FadeIn(1.0)
+			"----" A 1 A_FadeOut(1.0,0)
+            "----" A 0 A_Countdown
+			loop
+		death:
+			"----" A 0 A_JumpIf(mass,"nogfx")
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,1.75,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 1.75,0,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,-1.75,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -1.75,0,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,0,1.75, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,0,-1.75, 180)            
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 1.25,1.25,1.25, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 1.25,1.25,-1.25, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 1.25,-1.25,1.25, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 1.25,-1.25,-1.25, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -1.25,1.25,1.25, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -1.25,1.25,-1.25, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -1.25,-1.25,1.25, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -1.25,-1.25,-1.25, 0)            
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,3.5,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 3.5,0,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,-3.5,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -3.5,0,0, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,0,3.5, 180)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 0,0,-3.5, 180)            
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 2.5,2.5,2.5, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 2.5,2.5,-2.5, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 2.5,-2.5,2.5, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, 2.5,-2.5,-2.5, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -2.5,2.5,2.5, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -2.5,2.5,-2.5, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -2.5,-2.5,2.5, 0)
+            "----" A 0 A_SpawnItemEx("8C Death GFX",0,0,32, -2.5,-2.5,-2.5, 0)
+        nogfx:
+			"----" A 1 A_FadeIn(1.0)
+			"----" A 1 A_FadeOut(1.0,0)
+			"----" A 1 A_FadeIn(1.0)
+			"----" A 1 A_FadeOut(1.0,0)
+			"----" A 1 A_FadeIn(1.0)
+			"----" A 1 A_FadeOut(1.0,0)
+			
+			"----" A 1 A_FadeIn(1.0)
+			"----" A 0 A_JumpIf(mass,2)
+			"----" A 0 A_PlaySoundEx("8CDEATH","Auto")
+			"----" A 1 A_FadeOut(1.0,0)
+			"----" A 1 A_FadeIn(1.0)
+			"----" A 1 A_FadeOut(1.0,0)
+			"----" A 1 A_FadeIn(1.0)
+			stop}}       
+		
+actor "8C Death GFX" : gfx { reactiontime 10 states {
+	spawn: TNT1 A 0 nodelay A_JumpIf(angle,"offset")
+	main: 
+		7EXP AABBC 1
+	offset:
+		7EXP CDDEE 1
+		7EXP A 0 A_CountDown
+		goto main}}

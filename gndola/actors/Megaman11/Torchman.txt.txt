@@ -1,0 +1,144 @@
+//shoutout to torchman j. m2 for being the only dedicated neutral skip button in the mod
+actor Torchman : ClassBase //sin
+{
+Player.StartItem "IFMM11", 1
+Player.ScoreIcon "C_11D0X"
+player.displayname "Torchman"
+player.soundclass "TorchmanC"
+player.startitem "BlazingTorchBoss"
+player.startitem "TorchjutsuAmmo", 200
+player.startitem "WaveDashAmmo", 300
+player.startitem "TorchDiveTimeAmmo", 350
+player.startitem "PGStall_P"
+//player.startitem "CanWallJump"
+//player.startitem "CanWallJumpStack", 99
+
+player.maxhealth 90
+health 90
+
+player.forwardmove 0.9, 0.9
+player.sidemove 0.88, 0.88
+player.jumpz 12
+
+player.startitem "IceSlasherWeakness2", 1
+
+player.startitem "IceSlasherWeakness", 1
+player.startitem "BlizzardAttackWeakness", 1
+player.startitem "FreezeCrackerWeakness", 1
+player.startitem "IceWaveWeakness", 1
+player.startitem "IceWallWeakness", 1
+player.startitem "ChillSpikeWeakness", 1
++NOSKIN
+States
+{
+Spawn:
+TRCM A 0
+TRCM A 0 A_JumpIfInventory("TorchjutsuAmmo",400,"Spawn2")
+TRCM B 1 
+TRCM A 0 A_JumpIfInventory("TorchjutsuAmmo",400,"Spawn2")
+TRCM A 1 A_JumpIf(z-floorz>0, "SeeAir")
+goto Spawn+3
+Spawn2:
+TRPG NNNAAA 1 A_JumpIf(momx>0.15||momy>0.15||momx<-0.15||momy<-0.15,"See")
+TRCM A 0 A_JumpIfInventory("TorchjutsuAmmo",400,"Spawn2")
+goto Spawn+3
+
+See:
+TRCM B 0 A_JumpIfInventory("TorchjutsuAmmo",400,"SeeX")
+TRCM BBBBCCCCDDDDEEEE 1 A_JumpIf(z-floorz>0,"SeeAir")
+Goto Spawn
+
+SeeX:
+TRPG BBBBCCCCDDDDEEEE 1 A_JumpIf(z-floorz>0,"SeeAirX")
+Goto Spawn+3
+
+SeeAir:
+TRCM L 1 A_JumpIf(z-floorz<=0, "Spawn")
+wait
+SeeAirX:
+TRPG L 1 A_JumpIf(z-floorz<=0, "Spawn2")
+wait
+
+Missile:
+TRCM S 0 
+TRCM B 0 A_JumpIfInventory("TorchjutsuAmmo",400,"MissileX")
+TRCM FG 5
+goto Spawn
+MissileX:
+TRPG F 0 
+TRPG FG 5
+goto Spawn
+ClassPain:
+TRCM H 0 A_JumpIfInventory("TorchjutsuAmmo",400,1)
+goto PainContinue
+TRPG H 0
+goto PainContinue
+ClassDeath:
+TRCM H 0 A_JumpIfInventory("TorchjutsuAmmo",400,1)
+goto DeathContinue
+TRPG H 0
+goto DeathContinue
+
+CustomState1:
+TRCM I 0 A_JumpIfInventory("TorchjutsuAmmo",400,2)
+TRCM IJI 2
+Goto Spawn
+TRPG IJI 2
+Goto Spawn
+
+CustomState2:
+TRCM I 0 A_JumpIfInventory("TorchjutsuAmmo",400,2)
+TRCM IJ 3
+TRCM K 3
+TRCM JI 3
+Goto Spawn
+TRPG IJ 3
+TRPG K 3
+TRPG JI 3
+Goto Spawn
+
+CustomState3:
+TRCM L 0 A_JumpIfInventory("TorchjutsuAmmo",400,2)
+TRCM LM 5
+Goto Spawn
+TRPG LM 10
+Goto Spawn
+
+CustomState4:
+TRCM I 0 A_JumpIfInventory("TorchjutsuAmmo",400,2)
+TRCM M 4
+Goto Spawn
+TRPG M 4
+Goto Spawn
+
+CustomState5:
+TRPG DDDD 2 A_SpawnItemEx("TorchKickAfterImages",0,0,0,0,0,0,0,1) 
+TRPG IJI 2
+Goto Spawn
+
+TimeStopped:
+TRCM ] 0
+Goto "Super::TimeStopped"
+}
+}
+
+actor TorchKickAfterImages : BasicClientside
+{
+renderstyle add
+alpha 0.75
+states
+{
+Spawn:
+TNT1 A 0
+TNT1 AA 1 A_JumpIf(ACS_NamedExecuteWithResult("cbm_IsPointerClient",2)!=1, "Fade")
+TRPG D 1 A_FadeOut(0.08)
+wait
+Fade:
+TNT1 A 0 A_JumpIfInTargetInventory("IsDead",1,"Death")
+TRPG D 1 A_FadeOut(0.08)
+loop
+Death:
+TNT1 A 0
+stop
+}
+}
